@@ -25,6 +25,7 @@ async function getData() {
     <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
     {data.map((equipo: { id: number, nombre: string, estado: string, imagen: string }) => (
     
+        // eslint-disable-next-line react/jsx-key
       <div className="group relative">
         <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
             <img src={equipo.imagen} alt="Front of mens Basic Tee in black." className="h-full w-full object-cover object-center lg:h-full lg:w-full" />
