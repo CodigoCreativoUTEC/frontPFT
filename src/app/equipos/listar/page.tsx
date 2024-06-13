@@ -1,6 +1,6 @@
 
 async function getData() {
-    const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ListarTodosLosEquipos')
+    const res = await fetch('http://wildfly:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ListarTodosLosEquipos')
     // The return value is *not* serialized
     // You can return Date, Map, Set, etc.
    
