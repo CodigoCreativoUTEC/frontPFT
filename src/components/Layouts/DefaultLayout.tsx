@@ -32,8 +32,13 @@ export default function DefaultLayout({
           {/* <!-- ===== Main Content End ===== --> */}
         </div>
         {/* <!-- ===== Content Area End ===== --> */}
+        
       </div>
+      
       {/* <!-- ===== Page Wrapper End ===== --> */}
+      <div className="text-center text-xs text-gray-500 py-4">
+              Realizado con ♥ por  CodigoCreativo © 2024
+            </div>
     </>
   );
 }
