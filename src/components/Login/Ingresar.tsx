@@ -160,7 +160,7 @@ const Ingresar = () => {
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium">Sistema de gestión</span>
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Ingresar a "NOMBRE DEL SISTEMA"
+                Ingresar a NOMBRE DEL SISTEMA
               </h2>
 
               <form>

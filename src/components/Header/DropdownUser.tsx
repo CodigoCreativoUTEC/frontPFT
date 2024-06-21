@@ -49,7 +49,7 @@ const DropdownUser = () => {
           <>
             <span className="hidden text-right lg:block">
               <span className="block text-sm font-medium text-black dark:text-white">
-              {session?.user?.name}
+                {session?.user?.name}
               </span>
               <span className="block text-xs">{session?.user?.email}</span>
             </span>
