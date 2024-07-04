@@ -57,12 +57,30 @@ const handler = NextAuth({
           body: JSON.stringify(credentials)
         });
 
-        const user = await res.json();
-        if (res.ok && user) {
-          return { ...user.user, accessToken: user.token };
-        } else {
-          return null;
-        }
+
+        const data = await res.json();
+
+if (res.ok && data) {
+  // Transformar los datos según el formato deseado
+  const transformedData = {
+    
+      id: data.user.id,
+      name: data.user.name,
+      email: data.user.email,
+      image: data.user.image,
+      data: {
+        ...data.user,
+      },
+    
+    expires: data.expires,
+    accessToken: data.token
+  };
+
+  return transformedData;
+} else {
+  return null;
+}
+
       }
     })
   ],
@@ -86,7 +104,7 @@ const handler = NextAuth({
             return `/auth/signup?email=${profile.email}&name=${profile.name}`;
           }
 
-          return { ...data.user, accessToken: data.token };
+          return { ...user.data, accessToken: data.token };
         } else {
           return false;
         }
@@ -96,7 +114,7 @@ const handler = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         console.log("Datos del usuario en jwt callback:", user);
-        token.accessToken = user.accessToken;
+        //token.accessToken = user.accessToken;
         token.user = {
           ...user,
           id: user.id,
@@ -116,7 +134,7 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       console.log("Datos del token en session callback:", token);
-      session.accessToken = token.accessToken as string;
+      //session.accessToken = token.accessToken as string;
       session.user = {
         ...token.user,
         id: token.user.id,
@@ -130,7 +148,6 @@ const handler = NextAuth({
         idInstitucion: token.user.idInstitucion,
         idPerfil: token.user.idPerfil,
         usuariosTelefonos: token.user.usuariosTelefonos,
-        image: `https://ui-avatars.com/api/?name=${token.user.nombre}+${token.user.email}`
       };
       return session;
     }
