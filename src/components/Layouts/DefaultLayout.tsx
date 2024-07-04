@@ -27,6 +27,9 @@ export default function DefaultLayout({
           <main>
             <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
               {children}
+              <div className="text-center text-xs text-gray-500 py-4">
+              Realizado con ♥ por  CodigoCreativo © 2024
+            </div>
             </div>
           </main>
           {/* <!-- ===== Main Content End ===== --> */}
@@ -36,9 +39,7 @@ export default function DefaultLayout({
       </div>
       
       {/* <!-- ===== Page Wrapper End ===== --> */}
-      <div className="text-center text-xs text-gray-500 py-4">
-              Realizado con ♥ por  CodigoCreativo © 2024
-            </div>
+      
     </>
   );
 }
