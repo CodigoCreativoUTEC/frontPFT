@@ -1,6 +1,8 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import Error from "next/error";
+import { error } from "console";
 
 interface User {
   token: string;
@@ -55,7 +57,7 @@ const handler = NextAuth({
 
         const data = await res.json();
 
-if (res.ok && data) {
+if (res.ok && data && data.user.estado === "ACTIVO") {
   // Transformar los datos según el formato deseado
   const transformedData = {
     
@@ -72,13 +74,19 @@ if (res.ok && data) {
   };
 
   return transformedData;
-} else {
+} else if (res.ok && data && data.user.estado === "INACTIVO") { 
+  //mostrar mensaje de cuenta inactiva
+  return alert("Cuenta inactiva, por favor contacte al administrador");
+}else {
   return null;
 }
 
       }
     })
   ],
+  pages: {
+    signIn: "/auth/signin",
+  },
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
@@ -87,25 +95,28 @@ if (res.ok && data) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: profile?.email, name: profile?.name }),
         });
-
-        if (res.ok) {
-          const data = await res.json();
+        const data = await res.json();
+        if(res.ok && data.user.estado === "INACTIVO") { 
+          //mostrar mensaje de cuenta inactiva
+          error("Cuenta inactiva, por favor contacte al administrador");
+          
+          
+          return false;
+        }else if(res.ok && data.user.estado === "ACTIVO") {
           console.log("Datos recibidos de la API de Google login:", data);
-
-          user.accessToken = data.token;
-          user.data = data.user;
-
           if (data.userNeedsAdditionalInfo) {
             return `/auth/signup?email=${profile?.email}&name=${profile?.name}`;
           }
-
+          user.accessToken = data.token;
+          user.data = data.user;
           return { ...user.data, accessToken: data.token };
-        } else {
+        }else {
           return false;
         }
       }
       return true;
     },
+
     async jwt({ token, user }) {
       if (user) {
         console.log("Datos del usuario en jwt callback:", user);

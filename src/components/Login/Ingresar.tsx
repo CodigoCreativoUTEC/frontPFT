@@ -3,11 +3,27 @@
 import Link from "next/link";
 import Image from "next/image";
 import { signIn, useSession } from "next-auth/react";
+import { Props } from "react-apexcharts";
 
-const Ingresar = () => {
+type Props = {
+  callbackUrl?: string;
+  error?: string;
+};
+
+const Ingresar = (props: Props) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await signIn("credentials", {
+      usuario: e.currentTarget["usuario"].value,
+      password: e.currentTarget["password"].value,
+      redirect: true,
+      callbackUrl: props.callbackUrl ?? "/",
+    });
+  }
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
+          {!!props.error && <p>Error no se puede autenticar</p>}
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="px-26 py-17.5 text-center">
               <Link className="mb-5.5 inline-block" href="/">
@@ -163,16 +179,17 @@ const Ingresar = () => {
                 Ingresar a NOMBRE DEL SISTEMA
               </h2>
 
-              <form>
+              <form onSubmit={onSubmit}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Email
+                    Usuario
                   </label>
                   <div className="relative">
                     <input
-                      type="email"
-                      placeholder="ingresar email"
+                      type="text"
+                      placeholder="ingresar Usuario"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="usuario"
                     />
 
                     <span className="absolute right-4 top-4">
@@ -204,6 +221,7 @@ const Ingresar = () => {
                       type="password"
                       placeholder="reglas de la password"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-white outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="password"
                     />
 
                     <span className="absolute right-4 top-4">
@@ -233,12 +251,12 @@ const Ingresar = () => {
                 <div className="mb-5">
                   <input
                     type="submit"
-                    value="Sign In"
+                    value="Ingresar"
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />
                 </div>
 
-                <button onClick={() => signIn()} className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
+                <button onClick={() => signIn("google")} className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
                   <span>
                     <svg
                       width="20"
@@ -272,7 +290,7 @@ const Ingresar = () => {
                       </defs>
                     </svg>
                   </span>
-                  Sign in with Google
+                  Ingresar con Google
                 </button>
 
                 <div className="mt-6 text-center">
