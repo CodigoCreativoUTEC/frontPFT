@@ -33,11 +33,6 @@ interface User {
   }>;
 }
 
-interface Session {
-  accessToken: string;
-  user: User;
-}
-
 const handler = NextAuth({
   providers: [
     GoogleProvider({
@@ -50,7 +45,7 @@ const handler = NextAuth({
         usuario: { label: "Usuario", type: "text" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -86,11 +81,11 @@ if (res.ok && data) {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (account.provider === "google") {
+      if (account?.provider === "google") {
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/google-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: profile.email, name: profile.name }),
+          body: JSON.stringify({ email: profile?.email, name: profile?.name }),
         });
 
         if (res.ok) {
@@ -101,7 +96,7 @@ if (res.ok && data) {
           user.data = data.user;
 
           if (data.userNeedsAdditionalInfo) {
-            return `/auth/signup?email=${profile.email}&name=${profile.name}`;
+            return `/auth/signup?email=${profile?.email}&name=${profile?.name}`;
           }
 
           return { ...user.data, accessToken: data.token };

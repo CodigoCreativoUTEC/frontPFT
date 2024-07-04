@@ -10,6 +10,7 @@ const DropdownUser = () => {
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
+  
 
   // close on click outside
   useEffect(() => {
@@ -52,7 +53,7 @@ const DropdownUser = () => {
               <span className="block text-sm font-medium text-black dark:text-white">
                 {session.user?.data.nombre} {session.user?.data.apellido}
               </span>
-              <span className="block text-xs">{session?.user?.email}</span>
+              <span className="block text-xs">{session.user?.data.email}</span>
             </span>
             <span className="h-12 w-12 rounded-full">
               <img src={ imageUrl } className="rounded-full" alt="" />
@@ -179,7 +180,6 @@ const DropdownUser = () => {
           <svg xmlns="http://www.w3.org/2000/svg" 
           fill="none" 
           viewBox="0 0 24 24" 
-           
           stroke="currentColor" 
           className="size-6">
           <path  d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
