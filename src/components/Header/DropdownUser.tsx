@@ -1,17 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 const DropdownUser = () => {
   const { data: session } = useSession();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const imageUrl = session?.user?.image ?? `https://ui-avatars.com/api/?name=${session?.user?.data?.nombre}+${session?.user?.data?.apellido}`;
-
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
   
-
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }: MouseEvent) => {
@@ -46,7 +43,7 @@ const DropdownUser = () => {
         className="flex items-center gap-4"
         href="#"
       >
-        {session ? (
+        {session?.user?.data ? (
           
           <>
             <span className="hidden text-right lg:block">
