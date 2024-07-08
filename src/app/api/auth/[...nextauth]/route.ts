@@ -105,7 +105,7 @@ if (res.ok && data && data.user.estado === "ACTIVO") {
         }else if(res.ok && data.user.estado === "ACTIVO") {
           console.log("Datos recibidos de la API de Google login:", data);
           if (data.userNeedsAdditionalInfo) {
-            return `/auth/signup?email=${profile?.email}&name=${profile?.name}`;
+            return `/auth/signup?email=${profile?.email}`;
           }
           user.accessToken = data.token;
           user.data = data.user;
