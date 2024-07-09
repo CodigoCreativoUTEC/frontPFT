@@ -1,7 +1,12 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import Error from "next/error";
+class CustomError extends Error {
+  constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, CustomError.prototype);
+  }
+}
 import { error } from "console";
 
 interface User {
@@ -77,8 +82,7 @@ if (res.ok && data && data.user.estado === "ACTIVO") {
   return transformedData;
 } else if (res.ok && data && data.user.estado === "INACTIVO") { 
   //mostrar mensaje de cuenta inactiva
-  console.log("Cuenta inactiva, por favor contacte al administrador");
-  return alert("Cuenta inactiva, por favor contacte al administrador");
+  throw new Error("Cuenta inactiva, por favor contacte al administrador");
 }else {
   return null;
 }
@@ -99,17 +103,21 @@ if (res.ok && data && data.user.estado === "ACTIVO") {
         });
         const data = await res.json();
         console.log(data);
+        console.log(res.status);
+        console.log(res.ok);
+        
         if (data.userNeedsAdditionalInfo) {
           return `/auth/signup?email=${profile?.email}`;
         }
-        if(res.ok && data.user.estado === "INACTIVO") {
-          error("Cuenta inactiva, por favor contacte al administrador");
-          console.log("Cuenta inactiva, por favor contacte al administrador");
-          return false;
+        if(!res.ok && data.error == "Cuenta inactiva, por favor contacte al administrador"){ 
+          throw new Error(data.error || "Cuenta inactiva, por favor contacte al administrador");
+          
+        }else{
+          user.accessToken = data.token;
+          user.data = data.user;
+          return { ...user.data, accessToken: data.token };
         }
-        user.accessToken = data.token;
-        user.data = data.user;
-        return { ...user.data, accessToken: data.token };
+        
       } else {
         return false;
       }
