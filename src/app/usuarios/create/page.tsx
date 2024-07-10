@@ -4,10 +4,11 @@ import { useRouter } from 'next/navigation';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import es from 'date-fns/locale/es';
-import { UsuarioModel } from '@/types/index'; // Asegúrate de que esta ruta sea correcta
-import { ReferrerEnum } from '@/types/emuns';
+import { UsuarioModel, ReferrerEnum } from '@/types';
 
 const UsuariosCreate = () => {
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const router = useRouter();
   const [name, setName] = useState<string>("");
   const [apellido, setApellido] = useState<string>("");
@@ -16,7 +17,8 @@ const UsuariosCreate = () => {
   const [telefonos, setTelefonos] = useState<string[]>([""]);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [tipoUsuario, setTipoUsuario] = useState<ReferrerEnum>(ReferrerEnum.ADMIN);
+  const [tipoUsuario, setTipoUsuario] = useState<string>("");
+  const [errors, setErrors] = useState<string[]>([]);
 
   const addTelefono = () => {
     setTelefonos([...telefonos, ""]);
@@ -27,8 +29,30 @@ const UsuariosCreate = () => {
     setTelefonos(newTelefonos);
   };
 
-  const generateUsername = () => {
-    return `${name.toLowerCase()}.${apellido.toLowerCase()}`;
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const validateForm = () => {
+    const newErrors: string[] = [];
+    if (!name) newErrors.push("Nombre es obligatorio");
+    if (!apellido) newErrors.push("Apellido es obligatorio");
+    if (!cedula) newErrors.push("Cédula es obligatoria");
+    if (!fechaNasc) newErrors.push("Fecha de nacimiento es obligatoria");
+    if (!telefonos[0]) newErrors.push("Teléfono de contacto es obligatorio");
+    if (!email) newErrors.push("Email es obligatorio");
+    if (!validateEmail(email)) newErrors.push("El formato del email es inválido");
+    if (!password) newErrors.push("Contraseña es obligatoria");
+    if (!validatePassword(password)) newErrors.push("La contraseña debe contener al menos 8 caracteres, incluyendo letras y números");
+    if (!Object.values(ReferrerEnum).includes(tipoUsuario as ReferrerEnum)) newErrors.push("Tipo de Usuario es obligatorio");
+    setErrors(newErrors);
+    return newErrors.length === 0;
   };
 
   const fetchNewId = async () => {
@@ -42,23 +66,22 @@ const UsuariosCreate = () => {
     return newId;
   };
 
-  const addUsuario = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (name && apellido && cedula && fechaNasc && email) {
+  const addUsuario = async () => {
+    if (validateForm()) {
       const newId = await fetchNewId();
       const formData: UsuarioModel = {
         id: newId, // Usar el nuevo ID generado como número
         nombre: name,
         apellido: apellido,
         cedula: cedula,
-        fecha_nasc: fechaNasc,
+        fecha_nasc: fechaNasc as Date, // Aquí hacemos un type assertion
         telefono: telefonos, // Adaptar según tu estructura
-        nombre_usuario: generateUsername(),
         email: email,
         password: password,
-        tipo_usuario: tipoUsuario,
+        tipo_usuario: tipoUsuario as ReferrerEnum,
         estado: ReferrerEnum.PENDIENTE,
-        institucion: ReferrerEnum.INSTITUCION
+        institucion: ReferrerEnum.INSTITUCION,
+        nombre_usuario: ''
       };
 
       const add = await fetch("/api/usuarios", {
@@ -69,20 +92,39 @@ const UsuariosCreate = () => {
         body: JSON.stringify(formData),
       });
 
+      const data = await add.json();
+
       if (add.ok) {
         router.push("/usuarios");
+      } else {
+        setErrors([data.error]);
+        setShowModal(true);
       }
     } else {
-      alert("No llenó todos los campos");
+      setShowModal(true);
     }
+  };
+
+  const handleConfirm = () => {
+    setShowConfirmModal(false);
+    addUsuario();
   };
 
   return (
     <div className='flex justify-center items-center w-full h-screen'>
-      <form className='w-4/12 bg-white p-10' onSubmit={addUsuario}>
+      <form className='w-4/12 bg-white p-10' onSubmit={(e) => e.preventDefault()}>
         <span className='font-bold text-black py-2 block underline text-2xl'>
           Agregar Usuario
         </span>
+        {errors.length > 0 && (
+          <div className='bg-red-200 p-2 mb-4'>
+            <ul>
+              {errors.map((error, index) => (
+                <li key={index} className='text-red-700'>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
         <div className='w-full py-2'>
           <label htmlFor="nombre" className='text-sm text-black font-bold py-2 block'>
             Nombre
@@ -124,7 +166,7 @@ const UsuariosCreate = () => {
             Password
           </label>
           <input 
-            type="text" 
+            type="password" 
             name="password"
             className='w-full text-black border-[1px]'
             value={password}
@@ -157,7 +199,7 @@ const UsuariosCreate = () => {
               onChange={(e) => handleTelefonoChange(index, e.target.value)}
             />
           ))}
-          <button type="button" onClick={addTelefono} className='w-full mt-2 p-2 text-white border-gray-600 border-[1px] rounded bg-lime-300'>
+          <button type="button" onClick={addTelefono} className='w-full mt-2 p-2 text-white border-gray-600 border-[1px] rounded bg-green-500'>
             Agregar Teléfono
           </button>
         </div>
@@ -181,9 +223,9 @@ const UsuariosCreate = () => {
             name="tipo_usuario"
             className='w-full text-black border-[1px]'
             value={tipoUsuario}
-            onChange={(e) => setTipoUsuario(e.target.value as ReferrerEnum)}
+            onChange={(e) => setTipoUsuario(e.target.value)}
           >
-            <option value={ReferrerEnum.ADMIN}>Admin</option>
+            <option value="">Seleccione un tipo de usuario</option>
             <option value={ReferrerEnum.AUXILIAR_ADMINISTRATIVO}>Auxiliar Administrativo</option>
             <option value={ReferrerEnum.INGENIERO_BIOMEDICO}>Ingeniero Biomédico</option>
             <option value={ReferrerEnum.TECNICO}>Técnico</option>
@@ -191,11 +233,62 @@ const UsuariosCreate = () => {
           </select>
         </div>
         <div className='w-full py-2'>
-          <button className='w-20 p-2 text-white border-gray-600 border-[1px] rounded bg-lime-300'>
+          <button
+            type='button'
+            onClick={() => setShowConfirmModal(true)}
+            className='w-20 p-2 text-white border-gray-600 border-[1px] rounded bg-green-500'
+          >
             Enviar
+          </button>
+          <button
+            onClick={() => router.push('/usuarios')}
+            className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
+          >
+            Volver
           </button>
         </div>
       </form>
+      {showModal && (
+        <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+          <div className='bg-white p-4 rounded shadow-md'>
+            <h2 className='text-xl mb-4'>Errores en el formulario</h2>
+            <ul className='list-disc list-inside'>
+              {errors.map((error, index) => (
+                <li key={index} className='text-red-600'>{error}</li>
+              ))}
+            </ul>
+            <button
+              onClick={() => setShowModal(false)}
+              className='mt-4 bg-violet-800 text-white p-2 rounded'
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showConfirmModal && (
+        <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+          <div className='bg-white p-4 rounded shadow-md'>
+            <h2 className='text-xl mb-4'>Confirmar creación</h2>
+            <p>¿Estás seguro de que deseas guardar este usuario?</p>
+            <div className='mt-4'>
+              <button
+                onClick={handleConfirm}
+                className='bg-green-500 text-white p-2 rounded mr-4'
+              >
+                Aceptar
+              </button>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className='bg-violet-800 text-white p-2 rounded'
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
