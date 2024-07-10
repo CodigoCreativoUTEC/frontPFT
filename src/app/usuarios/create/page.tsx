@@ -57,7 +57,8 @@ const UsuariosCreate = () => {
         email: email,
         password: password,
         tipo_usuario: tipoUsuario,
-        estado: ReferrerEnum.PENDIENTE
+        estado: ReferrerEnum.PENDIENTE,
+        institucion: ReferrerEnum.INSTITUCION
       };
 
       const add = await fetch("/api/usuarios", {
