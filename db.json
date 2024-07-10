@@ -30,7 +30,7 @@
       "email": "buitre512@gmail.com",
       "password": "123456",
       "tipo_usuario": "Auxiliar Administrativo",
-      "estado": "Activo"
+      "estado": "Inactivo"
     },
     {
       "id": "13",
@@ -68,17 +68,17 @@
     {
       "id": "15",
       "nombre": "gege",
-      "apellido": "d",
+      "apellido": "2",
       "cedula": "554854",
       "fecha_nasc": "2024-07-01T03:00:00.000Z",
       "telefono": [
-        "dcs"
+        "4rwrewr342, 543423244, 4554354354 435543534"
       ],
       "nombre_usuario": "gege.d",
-      "email": "andre.abreo@estudiantes.utec.edu.uy",
+      "email": "worldvruruguay@gmail.com",
       "password": "e",
-      "tipo_usuario": "Ingeniero Biomédico",
-      "estado": "Pendiente",
+      "tipo_usuario": "Auxiliar Administrativo",
+      "estado": "Activo",
       "institucion": "Código Creativo"
     },
     {
@@ -95,6 +95,39 @@
       "password": "csdcsd",
       "tipo_usuario": "Auxiliar Administrativo",
       "estado": "Inactivo",
+      "institucion": "Código Creativo"
+    },
+    {
+      "id": "17",
+      "nombre": "Andre",
+      "apellido": "Abreo",
+      "cedula": "31408118",
+      "fecha_nasc": "2024-07-08T03:00:00.000Z",
+      "telefono": [
+        "094429675",
+        "094429675"
+      ],
+      "nombre_usuario": "andre.abreo",
+      "email": "buitre512@gmail.com",
+      "password": "hola5555",
+      "tipo_usuario": "",
+      "estado": "Pendiente",
+      "institucion": "Código Creativo"
+    },
+    {
+      "id": "18",
+      "nombre": "Andre",
+      "apellido": "Abreo",
+      "cedula": "31408118",
+      "fecha_nasc": "2024-07-09T03:00:00.000Z",
+      "telefono": [
+        "094429675"
+      ],
+      "nombre_usuario": "andre.abreo",
+      "email": "buitre512@gmail.com",
+      "password": "gggg2222",
+      "tipo_usuario": "Ingeniero Biomédico",
+      "estado": "Pendiente",
       "institucion": "Código Creativo"
     }
   ],
@@ -113,7 +146,7 @@
       "id_interno": "D123",
       "ubicacion": "Oficina 1",
       "imagen": "imagen1.jpg",
-      "estado": "Activo"
+      "estado": "Inactivo"
     },
     {
       "id": "2",
@@ -133,14 +166,14 @@
     },
     {
       "id": "3",
-      "nombre": "a",
+      "nombre": "Andre",
       "tipo_equipo": "Mecánico",
-      "modelo": "U4K",
+      "modelo": "HD",
       "num_serie": "332123",
       "garantia": "12321132",
-      "pais": "Uruguay",
-      "proveedor": "Loi",
-      "marca": "Lg",
+      "pais": "Brasil",
+      "proveedor": "Districomp",
+      "marca": "Motorola",
       "fecha_adq": "2024-07-09T03:00:00.000Z",
       "id_interno": "213123",
       "imagen": "123312312312",
@@ -208,6 +241,38 @@
       "fecha_adq": "2024-07-09T03:00:00.000Z",
       "id_interno": "1",
       "imagen": "1",
+      "ubicacion": "Cti",
+      "estado": "Activo"
+    },
+    {
+      "id": "8",
+      "nombre": "",
+      "tipo_equipo": "Mecánico",
+      "modelo": "HD",
+      "num_serie": 2,
+      "garantia": 2,
+      "pais": "Brasil",
+      "proveedor": "Districomp",
+      "marca": "Lg",
+      "fecha_adq": "2024-07-09T03:00:00.000Z",
+      "id_interno": "2",
+      "imagen": "2",
+      "ubicacion": "Cti",
+      "estado": "Activo"
+    },
+    {
+      "id": "9",
+      "nombre": "a",
+      "tipo_equipo": "Mecánico",
+      "modelo": "HD",
+      "num_serie": 22,
+      "garantia": 22,
+      "pais": "Brasil",
+      "proveedor": "Districomp",
+      "marca": "Lg",
+      "fecha_adq": "2024-07-09T03:00:00.000Z",
+      "id_interno": "22",
+      "imagen": "22",
       "ubicacion": "Cti",
       "estado": "Activo"
     }

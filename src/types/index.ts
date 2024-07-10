@@ -34,4 +34,5 @@ export interface EquipoModel {
 
 }
 
-export { ReferrerEnum };
+export { ReferrerEnum, Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion };
+

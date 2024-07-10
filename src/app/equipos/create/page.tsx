@@ -4,24 +4,43 @@ import { useRouter } from 'next/navigation';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import es from 'date-fns/locale/es';
-import { EquipoModel } from '@/types/index'; // Asegúrate de que esta ruta sea correcta
-import { ReferrerEnum } from '@/types/emuns';
-import { Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from '@/types/emuns';
+import { EquipoModel, ReferrerEnum, Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from '@/types';
 
 const EquiposCreate = () => {
+  const [showModal, setShowModal] = useState<boolean>(false);
   const router = useRouter();
   const [name, setName] = useState<string>("");
-  const [tipoEquipo, setTipoEquipo] = useState<Tipo>();
-  const [marca, setMarca] = useState<Marca>();
-  const [modelo, setModelo] = useState<Modelo>();
-  const [numSerie, setNumSerie] = useState<number>();
-  const [garantia, setGarantia] = useState<number>();
-  const [pais, setPais] = useState<Pais>();
-  const [proveedor, setProveedor] = useState<Proveedor>();
+  const [tipoEquipo, setTipoEquipo] = useState<string>("");
+  const [marca, setMarca] = useState<string>("");
+  const [modelo, setModelo] = useState<string>("");
+  const [numSerie, setNumSerie] = useState<number | undefined>();
+  const [garantia, setGarantia] = useState<number | undefined>();
+  const [pais, setPais] = useState<string>("");
+  const [proveedor, setProveedor] = useState<string>("");
   const [fechaAdq, setFechaAdq] = useState<Date | null>(null);
   const [idInterno, setIdInterno] = useState<string>("");
-  const [ubicacion, setUbicacion] = useState<Ubicacion>();
+  const [ubicacion, setUbicacion] = useState<string>("");
   const [imagen, setImagen] = useState<string>("");
+  const [errors, setErrors] = useState<string[]>([]);
+
+  const validateForm = () => {
+    const newErrors: string[] = [];
+    if (!name) newErrors.push("Nombre es obligatorio");
+    if (!tipoEquipo) newErrors.push("Tipo de equipo es obligatorio");
+    if (!marca) newErrors.push("Marca es obligatoria");
+    if (!modelo) newErrors.push("Modelo es obligatorio");
+    if (!numSerie) newErrors.push("Número de serie es obligatorio");
+    if (!garantia) newErrors.push("Garantía es obligatoria");
+    if (!pais) newErrors.push("País de origen es obligatorio");
+    if (!proveedor) newErrors.push("Proveedor es obligatorio");
+    if (!fechaAdq) newErrors.push("Fecha de adquisición es obligatoria");
+    if (!idInterno) newErrors.push("Identificación interna es obligatoria");
+    if (!ubicacion) newErrors.push("Ubicación es obligatoria");
+    if (!imagen) newErrors.push("Imagen del equipo es obligatoria");
+
+    setErrors(newErrors);
+    return newErrors.length === 0;
+  };
 
   const fetchNewId = async () => {
     const res = await fetch("/api/equipos", {
@@ -36,22 +55,22 @@ const EquiposCreate = () => {
 
   const addEquipo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (name && tipoEquipo && marca && fechaAdq && modelo && pais && numSerie && garantia && proveedor && ubicacion && imagen && idInterno) {
+    if (validateForm()) {
       const newId = await fetchNewId();
       const formData: EquipoModel = {
-        id: newId, // Usar el nuevo ID generado como número
+        id: newId,
         nombre: name,
-        tipo_equipo: tipoEquipo,
-        modelo: modelo,
-        num_serie: numSerie,
-        garantia: garantia,
-        pais: pais,
-        proveedor: proveedor,
-        marca: marca,
-        fecha_adq: fechaAdq,
+        tipo_equipo: tipoEquipo as Tipo,
+        modelo: modelo as Modelo,
+        num_serie: numSerie!,
+        garantia: garantia!,
+        pais: pais as Pais,
+        proveedor: proveedor as Proveedor,
+        marca: marca as Marca,
+        fecha_adq: fechaAdq!,
         id_interno: idInterno,
         imagen: imagen,
-        ubicacion: ubicacion,
+        ubicacion: ubicacion as Ubicacion,
         estado: ReferrerEnum.ACTIVO
       };
 
@@ -67,7 +86,7 @@ const EquiposCreate = () => {
         router.push("/equipos");
       }
     } else {
-      alert("No llenó todos los campos");
+      setShowModal(true);
     }
   };
 
@@ -77,6 +96,15 @@ const EquiposCreate = () => {
         <span className='font-bold text-black py-2 block underline text-2xl'>
           Agregar Equipo
         </span>
+        {errors.length > 0 && (
+          <div className='bg-red-200 p-2 mb-4'>
+            <ul>
+              {errors.map((error, index) => (
+                <li key={index} className='text-red-700'>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
         <div className='w-full py-2'>
           <label htmlFor="nombre" className='text-sm text-black font-bold py-2 block'>
             Nombre
@@ -97,9 +125,9 @@ const EquiposCreate = () => {
             name="marca"
             className='w-full text-black border-[1px]'
             value={marca}
-            onChange={(e) => setMarca(e.target.value as Marca)}
+            onChange={(e) => setMarca(e.target.value)}
           >
-            <option>...</option>
+            <option value="">Seleccione una marca</option>
             <option value={Marca.LG}>Lg</option>
             <option value={Marca.MOTOROLA}>Motorola</option>
           </select>
@@ -112,8 +140,9 @@ const EquiposCreate = () => {
             name="modelo"
             className='w-full text-black border-[1px]'
             value={modelo}
-            onChange={(e) => setModelo(e.target.value as Modelo)}
+            onChange={(e) => setModelo(e.target.value)}
           >
+            <option value="">Seleccione un modelo</option>
             <option value={Modelo.HD}>HD</option>
             <option value={Modelo.U4K}>U4K</option>
           </select>
@@ -123,10 +152,11 @@ const EquiposCreate = () => {
             Número de Serie
           </label>
           <input 
+            type="number"
             name="num_serie"
             className='w-full text-black border-[1px]'
             value={numSerie}
-            onChange={(e) => setNumSerie(e.target.value as unknown as number)}
+            onChange={(e) => setNumSerie(Number(e.target.value))}
           />
         </div>
         <div className='w-full py-2'>
@@ -134,10 +164,11 @@ const EquiposCreate = () => {
             Garantía
           </label>
           <input 
+            type="number"
             name="garantia"
             className='w-full text-black border-[1px]'
             value={garantia}
-            onChange={(e) => setGarantia(e.target.value as unknown as number)}
+            onChange={(e) => setGarantia(Number(e.target.value))}
           />
         </div>
         <div className='w-full py-2'>
@@ -148,8 +179,9 @@ const EquiposCreate = () => {
             name="pais"
             className='w-full text-black border-[1px]'
             value={pais}
-            onChange={(e) => setPais(e.target.value as Pais)}
+            onChange={(e) => setPais(e.target.value)}
           >
+            <option value="">Seleccione un país</option>
             <option value={Pais.BRASIL}>Brasil</option>
             <option value={Pais.URUGUAY}>Uruguay</option>
           </select>
@@ -162,8 +194,9 @@ const EquiposCreate = () => {
             name="proveedor"
             className='w-full text-black border-[1px]'
             value={proveedor}
-            onChange={(e) => setProveedor(e.target.value as Proveedor)}
+            onChange={(e) => setProveedor(e.target.value)}
           >
+            <option value="">Seleccione un proveedor</option>
             <option value={Proveedor.DISTRICOMP}>Districomp</option>
             <option value={Proveedor.LOI}>Loi</option>
           </select>
@@ -200,8 +233,9 @@ const EquiposCreate = () => {
             name="ubicacion"
             className='w-full text-black border-[1px]'
             value={ubicacion}
-            onChange={(e) => setUbicacion(e.target.value as Ubicacion)}
+            onChange={(e) => setUbicacion(e.target.value)}
           >
+            <option value="">Seleccione una ubicación</option>
             <option value={Ubicacion.CTI}>CTI</option>
             <option value={Ubicacion.SALA1}>Sala 1</option>
           </select>
@@ -214,9 +248,10 @@ const EquiposCreate = () => {
             name="tipo_equipo"
             className='w-full text-black border-[1px]'
             value={tipoEquipo}
-            onChange={(e) => setTipoEquipo(e.target.value as Tipo)}
+            onChange={(e) => setTipoEquipo(e.target.value)}
           >
-            <option value={Tipo.MECANICO}>Mecanico</option>
+            <option value="">Seleccione un tipo de equipo</option>
+            <option value={Tipo.MECANICO}>Mecánico</option>
             <option value={Tipo.DIGITAL}>Digital</option>
           </select>
         </div>
@@ -236,8 +271,32 @@ const EquiposCreate = () => {
           <button className='w-20 p-2 text-white border-gray-600 border-[1px] rounded bg-lime-300'>
             Enviar
           </button>
+          <button
+          onClick={() => router.push('/equipos')}
+          className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
+        >
+          Volver
+        </button>
         </div>
       </form>
+      {showModal && (
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+            <div className='bg-white p-4 rounded shadow-md'>
+              <h2 className='text-xl mb-4'>Errores en el formulario</h2>
+              <ul className='list-disc list-inside'>
+                {errors.map((error, index) => (
+                  <li key={index} className='text-red-600'>{error}</li>
+                ))}
+              </ul>
+              <button
+                onClick={() => setShowModal(false)}
+                className='mt-4 bg-blue-500 text-white p-2 rounded'
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

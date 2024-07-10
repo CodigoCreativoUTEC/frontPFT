@@ -8,6 +8,8 @@ const EditUsuario = () => {
   const router = useRouter();
   const { id } = useParams();
   const [usuario, setUsuario] = useState<UsuarioModel | null>(null);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (id) {
@@ -48,9 +50,24 @@ const EditUsuario = () => {
     }
   };
 
+  const validateForm = () => {
+    const newErrors: string[] = [];
+    if (!usuario?.nombre) newErrors.push("Nombre es obligatorio");
+    if (!usuario?.apellido) newErrors.push("Apellido es obligatorio");
+    if (!usuario?.cedula) newErrors.push("Cédula es obligatoria");
+    if (!usuario?.fecha_nasc) newErrors.push("Fecha de nacimiento es obligatoria");
+    if (!usuario?.telefono || (Array.isArray(usuario.telefono) && usuario.telefono.some(tel => !tel))) newErrors.push("Teléfono de contacto es obligatorio");
+    if (!usuario?.email) newErrors.push("Email es obligatorio");
+    if (usuario?.email && !/\S+@\S+\.\S+/.test(usuario.email)) newErrors.push("Formato de email no válido");
+    if (!usuario?.tipo_usuario) newErrors.push("Tipo de usuario es obligatorio");
+
+    setErrors(newErrors);
+    return newErrors.length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (usuario) {
+    if (usuario && validateForm()) {
       const res = await fetch(`/api/usuarios/${id}`, {
         method: 'PUT',
         headers: {
@@ -63,6 +80,8 @@ const EditUsuario = () => {
       } else {
         console.error("Error al actualizar el usuario");
       }
+    } else {
+      setShowModal(true);
     }
   };
 
@@ -73,6 +92,15 @@ const EditUsuario = () => {
       <div className='container mx-auto'>
         <h1 className='text-2xl font-bold mb-4'>Editar Usuario</h1>
         <form className='bg-white p-4 rounded shadow-md' onSubmit={handleSubmit}>
+          {errors.length > 0 && (
+            <div className='bg-red-200 p-2 mb-4'>
+              <ul>
+                {errors.map((error, index) => (
+                  <li key={index} className='text-red-700'>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className='mb-4'>
             <label className='block text-sm font-bold mb-2'>Nombre:</label>
             <input
@@ -150,16 +178,6 @@ const EditUsuario = () => {
             />
           </div>
           <div className='mb-4'>
-            <label className='block text-sm font-bold mb-2'>Nombre de Usuario:</label>
-            <input
-              type='text'
-              name='nombre_usuario'
-              value={usuario.nombre_usuario}
-              onChange={handleChange}
-              className='w-full p-2 border rounded'
-            />
-          </div>
-          <div className='mb-4'>
             <label className='block text-sm font-bold mb-2'>Tipo de Usuario:</label>
             <select
               name='tipo_usuario'
@@ -167,6 +185,7 @@ const EditUsuario = () => {
               onChange={handleChange}
               className='w-full p-2 border rounded'
             >
+              <option value="">Seleccione un tipo de usuario</option>
               <option value={ReferrerEnum.ADMIN}>Admin</option>
               <option value={ReferrerEnum.AUXILIAR_ADMINISTRATIVO}>Auxiliar Administrativo</option>
               <option value={ReferrerEnum.INGENIERO_BIOMEDICO}>Ingeniero Biomédico</option>
@@ -190,13 +209,32 @@ const EditUsuario = () => {
           <button type='submit' className='bg-blue-500 text-white p-2 rounded'>
             Guardar
           </button>
-        </form>
         <button
           onClick={() => router.push('/usuarios')}
-          className='mt-4 bg-gray-500 text-white p-2 rounded'
+          className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
         >
           Volver
         </button>
+        </form>
+
+        {showModal && (
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+            <div className='bg-white p-4 rounded shadow-md'>
+              <h2 className='text-xl mb-4'>Errores en el formulario</h2>
+              <ul className='list-disc list-inside'>
+                {errors.map((error, index) => (
+                  <li key={index} className='text-red-600'>{error}</li>
+                ))}
+              </ul>
+              <button
+                onClick={() => setShowModal(false)}
+                className='mt-4 bg-blue-500 text-white p-2 rounded'
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </DefaultLayout>
   );
