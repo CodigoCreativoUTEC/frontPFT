@@ -2,7 +2,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from 'next/navigation';
 
 type Props = {
   callbackUrl?: string;
@@ -11,36 +12,40 @@ type Props = {
 
 const Ingresar = ({ callbackUrl, error }: Props) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Lee el parámetro de error de la URL y establece el mensaje de error
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      setErrorMessage(errorParam);
+    }
+  }, [searchParams]);
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage(null); // Reset error message
 
     const usuario = e.currentTarget["usuario"].value;
     const password = e.currentTarget["password"].value;
-    try {
+
     const res = await signIn("credentials", {
       usuario,
       password,
       redirect: false,
       callbackUrl: callbackUrl ?? "/",
     });
-    if (res && res.error) {
+    if (res?.error) {
+      console.error("Error:", res.error);
       setErrorMessage(res.error);
     } else {
       window.location.href = callbackUrl ?? "/";
     }
-  } catch (err) {
-    setErrorMessage(err.message);
-  }
-};
+  };
 
   return (
-
-
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-      
       <div className="flex flex-wrap items-center">
-      
         <div className="hidden w-full xl:block xl:w-1/2">
           <div className="px-26 py-17.5 text-center">
             <Link className="mb-5.5 inline-block" href="/">
@@ -68,18 +73,18 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
 
         <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
           <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-          {errorMessage && (
-        <div className="w-full">
-              <h5 className="mb-3 font-semibold text-[#B45454]">
-                There were 1 errors with your submission
-              </h5>
-              <ul>
-                <li className="leading-relaxed text-[#CD5D5D]">
-                {errorMessage}
-                </li>
-              </ul>
-            </div>
-        )}
+            {errorMessage && (
+              <div className="w-full">
+                <h5 className="mb-3 font-semibold text-[#B45454]">
+                  Hubo un error con tu envío
+                </h5>
+                <ul>
+                  <li className="leading-relaxed text-[#CD5D5D]">
+                    {errorMessage}
+                  </li>
+                </ul>
+              </div>
+            )}
             <span className="mb-1.5 block font-medium">Inicio de sesión</span>
 
             <form onSubmit={onSubmit}>

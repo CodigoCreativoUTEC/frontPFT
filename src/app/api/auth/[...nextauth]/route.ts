@@ -1,13 +1,13 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+
 class CustomError extends Error {
   constructor(message: string) {
     super(message);
     Object.setPrototypeOf(this, CustomError.prototype);
   }
 }
-import { error } from "console";
 
 interface User {
   token: string;
@@ -15,7 +15,7 @@ interface User {
   id: number;
   cedula: string;
   email: string;
-  contrasenia: string;
+  // contrasenia: string; // Removido para evitar enviar contraseñas
   fechaNacimiento: [number, number, number];
   estado: string;
   nombre: string;
@@ -52,46 +52,45 @@ const handler = NextAuth({
         usuario: { label: "Usuario", type: "text" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(credentials)
         });
 
-
         const data = await res.json();
-        console.log(data);
-
-if (res.ok && data && data.user.estado === "ACTIVO") {
-  // Transformar los datos según el formato deseado
-  const transformedData = {
-    
-      id: data.user.id,
-      name: data.user.name,
-      email: data.user.email,
-      image: data.user.image,
-      data: {
-        ...data.user,
-      },
-    
-    expires: data.expires,
-    accessToken: data.token
-  };
-
-  return transformedData;
-} else if (res.ok && data && data.user.estado === "INACTIVO") { 
-  //mostrar mensaje de cuenta inactiva
-  throw new Error("Cuenta inactiva, por favor contacte al administrador");
-}else {
-  return null;
-}
-
+        console.log('Response data:', data);
+        console.log('Response status:', res.status);
+        if (res.ok && data && data.user.estado === "ACTIVO") {
+          console.log("pase por aqui", data);
+          // Transformar los datos según el formato deseado
+          const transformedData = {
+            id: data.user.id,
+            name: data.user.nombre,
+            email: data.user.email,
+            // No hay campo image en data.user, por lo que se elimina
+            data: {
+              ...data.user,
+            },
+            expires: data.expires,
+            accessToken: data.token
+          };
+          return transformedData;
+        } else if ( res.status === 401) {
+          throw new CustomError(data.error);
+        } else if (data.user.estado === "INACTIVO") {
+          throw new CustomError("Cuenta inactiva, por favor contacte al administrador");
+        } else {
+          throw new CustomError("Error desconocido, por favor intente nuevamente");
+        }
+        
       }
     })
   ],
   pages: {
     signIn: "/auth/signin",
+    error: "/auth/signin",
   },
   callbacks: {
     async signIn({ user, account, profile }): Promise<any> {
@@ -103,23 +102,20 @@ if (res.ok && data && data.user.estado === "ACTIVO") {
         });
         const data = await res.json();
         console.log(data);
-        console.log(res.status);
-        console.log(res.ok);
-        
+
         if (data.userNeedsAdditionalInfo) {
           return `/auth/signup?email=${profile?.email}`;
         }
-        if(!res.ok && data.error == "Cuenta inactiva, por favor contacte al administrador"){ 
-          throw new Error(data.error || "Cuenta inactiva, por favor contacte al administrador");
-          
-        }else{
+        if (data.error === "Cuenta inactiva, por favor contacte al administrador") {
+          //throw new CustomError("Cuenta inactiva, por favor contacte al administrador");
+          throw new CustomError(data.error || "Cuenta inactiva, por favor contacte al administrador");
+        } else {
           user.accessToken = data.token;
           user.data = data.user;
           return { ...user.data, accessToken: data.token };
         }
-        
       } else {
-        return false;
+        return true;
       }
     },
 
@@ -129,6 +125,7 @@ if (res.ok && data && data.user.estado === "ACTIVO") {
       }
       return token;
     },
+
     async session({ session, token }) {
       session.user = token.user;
       return session;
