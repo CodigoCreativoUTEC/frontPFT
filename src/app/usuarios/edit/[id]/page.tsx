@@ -10,6 +10,7 @@ const EditUsuario = () => {
   const [usuario, setUsuario] = useState<UsuarioModel | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (id) {
@@ -65,8 +66,7 @@ const EditUsuario = () => {
     return newErrors.length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (usuario && validateForm()) {
       const res = await fetch(`/api/usuarios/${id}`, {
         method: 'PUT',
@@ -78,11 +78,24 @@ const EditUsuario = () => {
       if (res.ok) {
         router.push('/usuarios');
       } else {
-        console.error("Error al actualizar el usuario");
+        const result = await res.json();
+        if (result.error && result.error.includes("Correo electrónico ya registrado")) {
+          setErrors([result.error]);
+          setShowModal(true);
+        }
       }
     } else {
       setShowModal(true);
     }
+  };
+
+  const handleConfirm = () => {
+    setShowConfirmModal(false);
+    handleSubmit();
+  };
+
+  const handleBack = () => {
+    router.push('/usuarios');
   };
 
   if (!usuario) return <div>...loading</div>;
@@ -91,7 +104,7 @@ const EditUsuario = () => {
     <DefaultLayout>
       <div className='container mx-auto'>
         <h1 className='text-2xl font-bold mb-4'>Editar Usuario</h1>
-        <form className='bg-white p-4 rounded shadow-md' onSubmit={handleSubmit}>
+        <form className='bg-white p-4 rounded shadow-md' onSubmit={(e) => e.preventDefault()}>
           {errors.length > 0 && (
             <div className='bg-red-200 p-2 mb-4'>
               <ul>
@@ -206,15 +219,20 @@ const EditUsuario = () => {
               <option value={ReferrerEnum.PENDIENTE}>Pendiente</option>
             </select>
           </div>
-          <button type='submit' className='bg-blue-500 text-white p-2 rounded'>
+          <button
+            type='button'
+            onClick={() => setShowConfirmModal(true)}
+            className='bg-green-500 text-white p-2 rounded'
+          >
             Guardar
           </button>
-        <button
-          onClick={() => router.push('/usuarios')}
-          className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
-        >
-          Volver
-        </button>
+          <button
+            type='button'
+            onClick={handleBack}
+            className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
+          >
+            Volver
+          </button>
         </form>
 
         {showModal && (
@@ -228,10 +246,33 @@ const EditUsuario = () => {
               </ul>
               <button
                 onClick={() => setShowModal(false)}
-                className='mt-4 bg-blue-500 text-white p-2 rounded'
+                className='mt-4 bg-violet-800 text-white p-2 rounded'
               >
                 Cerrar
               </button>
+            </div>
+          </div>
+        )}
+
+        {showConfirmModal && (
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+            <div className='bg-white p-4 rounded shadow-md'>
+              <h2 className='text-xl mb-4'>Confirmar cambios</h2>
+              <p>¿Estás seguro de que deseas guardar los cambios?</p>
+              <div className='mt-4'>
+                <button
+                  onClick={handleConfirm}
+                  className='bg-green-500 text-white p-2 rounded mr-4'
+                >
+                  Aceptar
+                </button>
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className='bg-red-500 bg-violet-800 text-white p-2 rounded'
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
         )}

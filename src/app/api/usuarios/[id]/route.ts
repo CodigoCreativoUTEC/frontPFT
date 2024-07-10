@@ -27,6 +27,14 @@ export async function GET(request: NextRequest, { params }: { params: { id: numb
 export async function PUT(request: NextRequest, { params }: { params: { id: number } }) {
   const body = await request.json();
   const db = readDatabase();
+
+  // Check if the email already exists
+  const emailExists = db.usuarios.some((u: { email: string; id: number | string }) => u.email === body.email && (u.id !== params.id && u.id !== params.id.toString()));
+
+  if (emailExists) {
+    return NextResponse.json({ error: 'Correo electrónico ya registrado' }, { status: 400 });
+  }
+
   const userIndex = db.usuarios.findIndex((u: { id: number | string }) => u.id === params.id || u.id === params.id.toString());
 
   if (userIndex === -1) {

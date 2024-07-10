@@ -8,6 +8,7 @@ import { EquipoModel, ReferrerEnum, Tipo, Marca, Modelo, Pais, Proveedor, Ubicac
 
 const EquiposCreate = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const router = useRouter();
   const [name, setName] = useState<string>("");
   const [tipoEquipo, setTipoEquipo] = useState<string>("");
@@ -53,8 +54,7 @@ const EquiposCreate = () => {
     return newId;
   };
 
-  const addEquipo = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const addEquipo = async () => {
     if (validateForm()) {
       const newId = await fetchNewId();
       const formData: EquipoModel = {
@@ -90,9 +90,14 @@ const EquiposCreate = () => {
     }
   };
 
+  const handleConfirm = () => {
+    setShowConfirmModal(false);
+    addEquipo();
+  };
+
   return (
     <div className='flex flex-wrap justify-center items-center w-full h-screen'>
-      <form className='w-4/12 bg-white p-10' onSubmit={addEquipo}>
+      <form className='w-4/12 bg-white p-10' onSubmit={(e) => e.preventDefault()}>
         <span className='font-bold text-black py-2 block underline text-2xl'>
           Agregar Equipo
         </span>
@@ -268,35 +273,62 @@ const EquiposCreate = () => {
           />
         </div>
         <div className='w-full py-2'>
-          <button className='w-20 p-2 text-white border-gray-600 border-[1px] rounded bg-lime-300'>
+          <button
+            type='button'
+            onClick={() => setShowConfirmModal(true)}
+            className='w-20 p-2 text-white border-gray-600 border-[1px] rounded bg-green-500'
+          >
             Enviar
           </button>
           <button
-          onClick={() => router.push('/equipos')}
-          className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
-        >
-          Volver
-        </button>
+            onClick={() => router.push('/equipos')}
+            className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
+          >
+            Volver
+          </button>
         </div>
       </form>
       {showModal && (
-          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-            <div className='bg-white p-4 rounded shadow-md'>
-              <h2 className='text-xl mb-4'>Errores en el formulario</h2>
-              <ul className='list-disc list-inside'>
-                {errors.map((error, index) => (
-                  <li key={index} className='text-red-600'>{error}</li>
-                ))}
-              </ul>
+        <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+          <div className='bg-white p-4 rounded shadow-md'>
+            <h2 className='text-xl mb-4'>Errores en el formulario</h2>
+            <ul className='list-disc list-inside'>
+              {errors.map((error, index) => (
+                <li key={index} className='text-red-600'>{error}</li>
+              ))}
+            </ul>
+            <button
+              onClick={() => setShowModal(false)}
+              className='mt-4 bg-violet-800 text-white p-2 rounded'
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showConfirmModal && (
+        <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+          <div className='bg-white p-4 rounded shadow-md'>
+            <h2 className='text-xl mb-4'>Confirmar creación</h2>
+            <p>¿Estás seguro de que deseas guardar este equipo?</p>
+            <div className='mt-4'>
               <button
-                onClick={() => setShowModal(false)}
-                className='mt-4 bg-blue-500 text-white p-2 rounded'
+                onClick={handleConfirm}
+                className='bg-green-500 text-white p-2 rounded mr-4'
               >
-                Cerrar
+                Aceptar
+              </button>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className='bg-violet-800 text-white p-2 rounded'
+              >
+                Cancelar
               </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 }
