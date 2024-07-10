@@ -1,21 +1,6 @@
 {
   "usuarios": [
     {
-      "id": "11",
-      "nombre": "w",
-      "apellido": "w",
-      "cedula": "w",
-      "fecha_nasc": "2024-07-09T03:00:00.000Z",
-      "telefono": [
-        ""
-      ],
-      "nombre_usuario": "w.w",
-      "email": "worldvruruguay@gmail.com",
-      "password": "w",
-      "tipo_usuario": "Tecnólogo",
-      "estado": "Pendiente"
-    },
-    {
       "id": "12",
       "nombre": "Andre",
       "apellido": "Abreo",
@@ -28,126 +13,14 @@
       "email": "buitre512@gmail.com",
       "password": "pepe1234",
       "tipo_usuario": "Ingeniero Biomédico",
-      "estado": "Pendiente",
-      "institucion": "Código Creativo"
-    },
-    {
-      "id": "13",
-      "nombre": "Andre",
-      "apellido": "Abreo",
-      "cedula": "31408118",
-      "fecha_nasc": "2024-07-01T03:00:00.000Z",
-      "telefono": [
-        "094429675"
-      ],
-      "nombre_usuario": "andre.abreo",
-      "email": "buitre5122@gmail.com",
-      "password": "pepe1234",
-      "tipo_usuario": "Ingeniero Biomédico",
       "estado": "Activo",
       "institucion": "Código Creativo"
-    },
-    {
-      "id": "14",
-      "nombre": "Andre",
-      "apellido": "Abreo",
-      "cedula": "31408118e",
-      "fecha_nasc": "2024-07-01T03:00:00.000Z",
-      "telefono": [
-        "094429675"
-      ],
-      "email": "buitre5121@gmail.com",
-      "password": "pepe1234",
-      "tipo_usuario": "Admin",
-      "estado": "Activo",
-      "institucion": "Código Creativo",
-      "nombre_usuario": "andre.abreo1"
-    },
-    {
-      "id": "15",
-      "nombre": "Andre",
-      "apellido": "Abreo",
-      "cedula": "31408118",
-      "fecha_nasc": "2024-07-01T03:00:00.000Z",
-      "telefono": [
-        "094429675"
-      ],
-      "email": "buitre514@gmail.com",
-      "password": "pepe1234",
-      "tipo_usuario": "Tecnólogo",
-      "estado": "Pendiente",
-      "institucion": "Código Creativo",
-      "nombre_usuario": "andre.abreo2"
-    },
-    {
-      "id": "16",
-      "nombre": "ee",
-      "apellido": "ee",
-      "cedula": "31408118",
-      "fecha_nasc": "2024-07-01T03:00:00.000Z",
-      "telefono": [
-        "094429675"
-      ],
-      "email": "buitre51@gmail.com",
-      "password": "eeee1231",
-      "tipo_usuario": "Auxiliar Administrativo",
-      "estado": "Pendiente",
-      "institucion": "Código Creativo",
-      "nombre_usuario": "ee.ee"
-    },
-    {
-      "id": "17",
-      "nombre": "Andre",
-      "apellido": "Abreo",
-      "cedula": "31408118",
-      "fecha_nasc": "2024-07-01T03:00:00.000Z",
-      "telefono": [
-        "094429675"
-      ],
-      "email": "buitre51222@gmail.com",
-      "password": "wwww2222",
-      "tipo_usuario": "Auxiliar Administrativo",
-      "estado": "Pendiente",
-      "institucion": "Código Creativo",
-      "nombre_usuario": "andre.abreo3"
-    },
-    {
-      "id": "18",
-      "nombre": "Andre",
-      "apellido": "Abreo",
-      "cedula": "31408118",
-      "fecha_nasc": "2024-07-01T03:00:00.000Z",
-      "telefono": [
-        "094429675"
-      ],
-      "email": "buitre5@gmail.com",
-      "password": "ffff1122",
-      "tipo_usuario": "Auxiliar Administrativo",
-      "estado": "Pendiente",
-      "institucion": "Código Creativo",
-      "nombre_usuario": "andre.abreo4"
     }
   ],
   "equipos": [
     {
-      "id": "1",
-      "nombre": "Laptop Dell",
-      "tipo_equipo": "Mecánico",
-      "marca": "Dell",
-      "modelo": "XPS 15",
-      "num_serie": 123456,
-      "garantia": 24,
-      "pais": "USA",
-      "proveedor": "Dell Inc.",
-      "fecha_adq": "2023-01-15T00:00:00.000Z",
-      "id_interno": "D123",
-      "ubicacion": "Oficina 1",
-      "imagen": "imagen1.jpg",
-      "estado": "Activo"
-    },
-    {
       "id": "2",
-      "nombre": "ww",
+      "nombre": "ffr",
       "tipo_equipo": "Mecánico",
       "modelo": "U4K",
       "num_serie": 22,
@@ -163,35 +36,39 @@
     },
     {
       "id": "3",
-      "nombre": "Andre",
+      "nombre": "monitor",
       "tipo_equipo": "Mecánico",
       "modelo": "HD",
-      "num_serie": 1,
-      "garantia": 2,
+      "num_serie": 33,
+      "garantia": 33,
       "pais": "Brasil",
       "proveedor": "Districomp",
       "marca": "Lg",
       "fecha_adq": "2024-07-10T03:00:00.000Z",
-      "id_interno": "2",
-      "imagen": "2",
+      "id_interno": "33",
+      "imagen": "33",
       "ubicacion": "Cti",
-      "estado": "Activo"
+      "estado": "Inactivo"
+    }
+  ],
+  "bajas_equipos": [
+    {
+      "id": "1",
+      "nombre": "ww",
+      "fecha_baja": "2024-07-10T03:00:00.000Z",
+      "usuario": "yo",
+      "razon": "f",
+      "comentarios": "",
+      "estado": "Inactivo"
     },
     {
-      "id": "4",
-      "nombre": "d",
-      "tipo_equipo": "Mecánico",
-      "modelo": "HD",
-      "num_serie": 4,
-      "garantia": 4,
-      "pais": "Brasil",
-      "proveedor": "Districomp",
-      "marca": "Lg",
-      "fecha_adq": "2024-07-10T03:00:00.000Z",
-      "id_interno": "2",
-      "imagen": "2",
-      "ubicacion": "Cti",
-      "estado": "Activo"
+      "id": "2",
+      "nombre": "monitor",
+      "fecha_baja": "2024-07-10T03:00:00.000Z",
+      "usuario": "yo",
+      "razon": "33",
+      "comentarios": "33",
+      "estado": "Inactivo"
     }
   ]
 }

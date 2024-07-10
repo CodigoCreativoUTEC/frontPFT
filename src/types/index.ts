@@ -34,5 +34,15 @@ export interface EquipoModel {
 
 }
 
+export interface BajaEquipoModel {
+    id: number;
+    nombre: string;
+    fecha_baja: Date;
+    usuario: string;
+    razon: string;
+    comentarios: string;
+    estado: ReferrerEnum.INACTIVO;
+}
+
 export { ReferrerEnum, Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion };
 
