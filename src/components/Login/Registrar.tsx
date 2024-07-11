@@ -48,7 +48,17 @@ export default function Registrar() {
     }, [formData.nombre, formData.apellido]);
 
     const validate = () => {
-        let tempErrors = {};
+        let tempErrors = {
+          cedula: '',
+          fechaNacimiento: '',
+          nombre: '',
+          apellido: '',
+          nombreUsuario: '',
+          email: '',
+          contrasenia: '',
+          confirmPassword: '',
+          idPerfil: 1
+      };
 
         // Validar cédula uruguaya
         const cedulaRegex = /^\d{8,8}$/;
@@ -73,29 +83,32 @@ export default function Registrar() {
         }
 
         // Validar fecha de nacimiento
-        const today = new Date();
-        const eighteenYearsAgo = new Date(
+        if (!formData.fechaNacimiento) {
+          tempErrors.fechaNacimiento = "La fecha de nacimiento es requerida.";
+        } else {
+          const today = new Date();
+          const eighteenYearsAgo = new Date(
             today.getFullYear() - 18,
             today.getMonth(),
             today.getDate()
-        );
+          );
         const birthDate = new Date(formData.fechaNacimiento);
-
         if (birthDate > eighteenYearsAgo) {
-            tempErrors.fechaNacimiento = "Debes tener al menos 18 años.";
+          tempErrors.fechaNacimiento = "Debes tener al menos 18 años.";
+        }
         }
 
         setErrors(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
 
-    const handleChange = (e) => {
+    const handleChange = (e: { target: { name: any; value: any; }; }) => {
         const { name, value } = e.target;
         const newValue = name === 'idPerfil' ? parseInt(value, 10) : value;
         setFormData({ ...formData, [name]: newValue });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         if (!validate()) {
             return;
@@ -126,12 +139,12 @@ export default function Registrar() {
     };
 
      // Calcular la fecha máxima permitida para ser mayor de 18 años
-     const today = new Date();
-     const maxDate = new Date(
-         today.getFullYear() - 18,
-         today.getMonth(),
-         today.getDate()
-     ).toISOString().split('T')[0];
+    const today = new Date();
+    const maxDate = new Date(
+        today.getFullYear() - 18,
+        today.getMonth(),
+        today.getDate()
+    ).toISOString().split('T')[0];
 
     return (
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

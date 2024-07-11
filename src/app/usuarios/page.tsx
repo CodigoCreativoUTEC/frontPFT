@@ -9,7 +9,7 @@ const UsuariosRead = () => {
   const [usuarios, setUsuarios] = useState<UsuarioModel[]>([]);
 
   const fetcher = async () => {
-    const res = await fetch("/api/usuarios", {
+    const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/ListarTodosLosUsuarios", {
       headers: {
         "Content-Type": "application/json",
       },

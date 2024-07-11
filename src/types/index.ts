@@ -6,11 +6,15 @@ export interface UsuarioModel {
     apellido: string;
     cedula: string;
     fecha_nasc: Date;
+    fechaNacimiento: Date;
     telefono: Object;
+    usuariosTelefono: Object;
     nombre_usuario: string;
+    nombreUsuario: string;
     email: string;
     password: string;
     tipo_usuario: ReferrerEnum;
+    nombrePerfil: string;
     estado: ReferrerEnum; 
     institucion: ReferrerEnum;
 
