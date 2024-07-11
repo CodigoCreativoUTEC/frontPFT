@@ -8,15 +8,19 @@ interface BajaEquiposListProps extends BajaEquipoModel {
 
 const BajaEquiposList: React.FC<BajaEquiposListProps> = (params) => {
   return (
-    <tr className="border-b dark:border-neutral-500 ">
-      <td className='px-2 py-2'>{params.id}</td>
-      <td className=' px-2 py-2'>{params.nombre}</td>
-      <td className='px-2 py-2'>{new Date(params.fecha_baja).toLocaleDateString()}</td>
-      <td className='px-2 py-2'>{params.usuario}</td>
-      <td className='px-2 py-2'>{params.razon}</td>
-      <td className='px-2 py-2'>{params.comentarios}</td>
-      <td className='px-2 py-2'>{params.estado}</td>
-      <td className='px-2 py-2'>
+    <tr className="bg-gray-2 text-center dark:bg-meta-4">
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.id}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.nombre}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{new Date(params.fecha_baja).toLocaleDateString()}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.usuario}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.razon}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.comentarios}</td>
+      <td className={`px-2 py-2 ${
+                         params.estado === "Inactivo"
+                          ? "bg-rose-200 text-danger"
+                          : "bg-amber-200 text-warning"
+                    }`}>{params.estado}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>
         <span>  
         <Link 
           href={`/equipos/baja/${params.id}`}

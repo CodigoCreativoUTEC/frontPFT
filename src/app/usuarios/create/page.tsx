@@ -5,6 +5,10 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import es from 'date-fns/locale/es';
 import { UsuarioModel, ReferrerEnum } from '@/types';
+import Image from "next/image";
+import Link from "next/link";
+import DefaultLayout from '@/components/Layouts/DefaultLayout';
+
 
 const UsuariosCreate = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -111,92 +115,121 @@ const UsuariosCreate = () => {
   };
 
   return (
-    <div className='flex justify-center items-center w-full h-screen'>
-      <form className='w-4/12 bg-white p-10' onSubmit={(e) => e.preventDefault()}>
-        <span className='font-bold text-black py-2 block underline text-2xl'>
+    <DefaultLayout>
+    <div className='flex flex-wrap items-start'>
+      <div className="hidden w-full xl:block xl:w-1/4">
+          <div className="px-6 py-7.5 text-center">
+            <Link className="mb-5.5 inline-block" href="/">
+              
+              <Image
+                className="hidden dark:block"
+                src={"/images/logo/LogoCodigo.jpg"}
+                alt="Logo"
+                width={176}
+                height={32}
+              />
+              <Image
+                className="dark:hidden"
+                src={"/images/logo/LogoCodigo.jpg"}
+                alt="Logo"
+                width={176}
+                height={32}
+              />
+            </Link>
+
+            <p className="2xl:px-20">
+              Bienvenido al ingreso al sistema de gestion de mantenimiento de equipos clínicos hospitalarios.
+            </p>
+          </div>
+        </div>
+        <div className='w-full border-stroke dark:border-strokedark xl:w-3/4 xl:border-l-2'>
+        <div className='w-full p-4 sm:p-12.5 xl:p-17.5"'>
+          
+        <span className='mb-1.5 block text-2xl font-extrabold'>
           Agregar Usuario
         </span>
+      <form onSubmit={(e) => e.preventDefault()}>
         {errors.length > 0 && (
-          <div className='bg-red-200 p-2 mb-4'>
+          <div className='bg-rose-200 p-2 mb-4'>
             <ul>
               {errors.map((error, index) => (
-                <li key={index} className='text-red-700'>{error}</li>
+                <li key={index} className='text-rose-700'>{error}</li>
               ))}
             </ul>
           </div>
         )}
         <div className='w-full py-2'>
-          <label htmlFor="nombre" className='text-sm text-black font-bold py-2 block'>
+          <label htmlFor="nombre" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Nombre
           </label>
           <input 
             type="text" 
             name="nombre"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             value={name}
             onChange={(e) => setName(e.target.value)}
-          />
+            />
         </div>
         <div className='w-full py-2'>
-          <label htmlFor="apellido" className='text-sm text-black font-bold py-2 block'>
+          <label htmlFor="apellido" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Apellido
           </label>
           <input 
             type="text" 
             name="apellido"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             value={apellido}
             onChange={(e) => setApellido(e.target.value)}
-          />
+            />
         </div>
         <div className='w-full py-2'>
-          <label htmlFor="cedula" className='text-sm text-black font-bold py-2 block'>
+          <label htmlFor="cedula" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Cédula
           </label>
           <input 
             type="text" 
             name="cedula"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             value={cedula}
             onChange={(e) => setCedula(e.target.value)}
-          />
+            />
         </div>
         <div className='w-full py-2'>
-          <label htmlFor="password" className='text-sm text-black font-bold py-2 block'>
+          <label htmlFor="password" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Password
           </label>
           <input 
             type="password" 
             name="password"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-          />
+            />
         </div>
         <div className='w-full py-2'>
-          <label htmlFor="fecha_nasc" className='text-sm text-black font-bold py-2 block'>
+          <label htmlFor="fecha_nasc" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Fecha de Nacimiento
           </label>
           <DatePicker 
             selected={fechaNasc}
             onChange={(date: Date | null, event: React.SyntheticEvent<any> | undefined) => setFechaNasc(date)}
             dateFormat="yyyy-MM-dd"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             locale="es"
-          />
+            />
         </div>
         <div className='w-full py-2'>
-          <label htmlFor="telefonos" className='text-sm text-black font-bold py-2 block'>
+          <label htmlFor="telefonos" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Teléfonos
           </label>
           {telefonos.map((tel, index) => (
             <input 
-              key={index}
-              type="text" 
-              name={`telefono_${index}`}
-              className='w-full text-black border-[1px] mt-2'
-              value={tel}
-              onChange={(e) => handleTelefonoChange(index, e.target.value)}
+            key={index}
+            type="text" 
+            name={`telefono_${index}`}
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary mt-2'
+            value={tel}
+            onChange={(e) => handleTelefonoChange(index, e.target.value)}
             />
           ))}
           <button type="button" onClick={addTelefono} className='w-full mt-2 p-2 text-white border-gray-600 border-[1px] rounded bg-green-500'>
@@ -204,27 +237,27 @@ const UsuariosCreate = () => {
           </button>
         </div>
         <div className='w-full py-2'>
-          <label htmlFor="email" className='text-sm text-black font-bold py-2 block'>
+          <label htmlFor="email" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Email
           </label>
           <input 
             type="text" 
             name="email"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-          />
+            />
         </div>
         <div className='w-full py-2'>
-          <label htmlFor="tipo_usuario" className='text-sm text-black font-bold py-2 block'>
+          <label htmlFor="tipo_usuario" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Tipo de Usuario
           </label>
           <select
             name="tipo_usuario"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             value={tipoUsuario}
             onChange={(e) => setTipoUsuario(e.target.value)}
-          >
+            >
             <option value="">Seleccione un tipo de usuario</option>
             <option value={ReferrerEnum.AUXILIAR_ADMINISTRATIVO}>Auxiliar Administrativo</option>
             <option value={ReferrerEnum.INGENIERO_BIOMEDICO}>Ingeniero Biomédico</option>
@@ -237,46 +270,48 @@ const UsuariosCreate = () => {
             type='button'
             onClick={() => setShowConfirmModal(true)}
             className='w-20 p-2 text-white border-gray-600 border-[1px] rounded bg-green-500'
-          >
+            >
             Enviar
           </button>
           <button
             onClick={() => router.push('/usuarios')}
             className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
-          >
+            >
             Volver
           </button>
         </div>
       </form>
       {showModal && (
         <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-          <div className='bg-white p-4 rounded shadow-md'>
+          <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
             <h2 className='text-xl mb-4'>Errores en el formulario</h2>
             <ul className='list-disc list-inside'>
               {errors.map((error, index) => (
-                <li key={index} className='text-red-600'>{error}</li>
+                <li key={index} className='text-rose-600'>{error}</li>
               ))}
             </ul>
             <button
               onClick={() => setShowModal(false)}
               className='mt-4 bg-violet-800 text-white p-2 rounded'
-            >
+              >
               Cerrar
             </button>
           </div>
+          
+          
         </div>
       )}
 
       {showConfirmModal && (
         <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-          <div className='bg-white p-4 rounded shadow-md'>
+          <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
             <h2 className='text-xl mb-4'>Confirmar creación</h2>
             <p>¿Estás seguro de que deseas guardar este usuario?</p>
             <div className='mt-4'>
               <button
                 onClick={handleConfirm}
                 className='bg-green-500 text-white p-2 rounded mr-4'
-              >
+                >
                 Aceptar
               </button>
               <button
@@ -289,7 +324,10 @@ const UsuariosCreate = () => {
           </div>
         </div>
       )}
+      </div>
+      </div>
     </div>
+    </DefaultLayout>
   );
 }
 

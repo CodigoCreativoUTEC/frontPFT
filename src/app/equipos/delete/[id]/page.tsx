@@ -5,6 +5,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import es from 'date-fns/locale/es';
 import { EquipoModel, BajaEquipoModel, ReferrerEnum } from '@/types';
+import Image from "next/image";
+import Link from "next/link";
+import DefaultLayout from '@/components/Layouts/DefaultLayout';
 
 const DeleteEquipo = () => {
   const router = useRouter();
@@ -86,80 +89,109 @@ const DeleteEquipo = () => {
   if (!equipo) return <div>...loading</div>;
 
   return (
-    <div className='flex justify-center items-center w-full h-screen'>
-      <form className='w-4/12 bg-white p-10' onSubmit={(e) => e.preventDefault()}>
-        <span className='font-bold text-black py-2 block underline text-2xl'>
+    <DefaultLayout>
+    <div className='flex flex-wrap items-start'>
+    <div className="hidden w-full xl:block xl:w-1/4">
+          <div className="px-6 py-7.5 text-center">
+            <Link className="mb-5.5 inline-block" href="/">
+              
+              <Image
+                className="hidden dark:block"
+                src={"/images/logo/LogoCodigo.jpg"}
+                alt="Logo"
+                width={176}
+                height={32}
+              />
+              <Image
+                className="dark:hidden"
+                src={"/images/logo/LogoCodigo.jpg"}
+                alt="Logo"
+                width={176}
+                height={32}
+              />
+            </Link>
+
+            <p className="2xl:px-20">
+              Bienvenido al ingreso al sistema de gestion de mantenimiento de equipos clínicos hospitalarios.
+            </p>
+          </div>
+        </div>
+        <div className='w-full border-stroke dark:border-strokedark xl:w-3/4 xl:border-l-2'>
+    <div className='w-full p-4 sm:p-12.5 xl:p-17.5'>
+        <span className='mb-1.5 block text-2xl font-extrabold'>
           Baja de Equipo
         </span>
+
+      <form onSubmit={(e) => e.preventDefault()}>
         {errors.length > 0 && (
           <div className='bg-rose-200 p-2 mb-4'>
             <ul>
               {errors.map((error, index) => (
-                <li key={index} className='text-red-700'>{error}</li>
+                <li key={index} className='text-rose-700'>{error}</li>
               ))}
             </ul>
           </div>
         )}
-        <div className='w-full py-2'>
-          <label htmlFor="nombre" className='text-sm text-black font-bold py-2 block'>
+        <div className='mb-4'>
+          <label htmlFor="nombre" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Nombre
           </label>
           <input 
             type="text" 
             name="nombre"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             value={equipo.nombre}
             readOnly
           />
         </div>
-        <div className='w-full py-2'>
-          <label htmlFor="fecha_baja" className='text-sm text-black font-bold py-2 block'>
+        <div className='mb-4'>
+          <label htmlFor="fecha_baja" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Fecha de Baja
           </label>
           <DatePicker 
             selected={fechaBaja}
             onChange={(date: Date | null, event: React.SyntheticEvent<any> | undefined) => setFechaBaja(date)}
             dateFormat="yyyy-MM-dd"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             locale="es"
           />
         </div>
-        <div className='w-full py-2'>
-          <label htmlFor="usuario" className='text-sm text-black font-bold py-2 block'>
+        <div className='mb-4'>
+          <label htmlFor="usuario" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Usuario
           </label>
           <input 
             type="text" 
             name="usuario"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             value={usuario}
             onChange={(e) => setUsuario(e.target.value)}
           />
         </div>
-        <div className='w-full py-2'>
-          <label htmlFor="razon" className='text-sm text-black font-bold py-2 block'>
+        <div className='mb-4'>
+          <label htmlFor="razon" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Razón de la Baja
           </label>
           <input 
             type="text" 
             name="razon"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             value={razon}
             onChange={(e) => setRazon(e.target.value)}
           />
         </div>
-        <div className='w-full py-2'>
-          <label htmlFor="comentarios" className='text-sm text-black font-bold py-2 block'>
+        <div className='mb-4'>
+          <label htmlFor="comentarios" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Comentarios
           </label>
           <textarea 
             name="comentarios"
-            className='w-full text-black border-[1px]'
+            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             value={comentarios}
             onChange={(e) => setComentarios(e.target.value)}
           />
         </div>
-        <div className='w-full py-2'>
+        <div className='mb-4'>
           <button 
             type='button'
             onClick={() => setShowConfirmModal(true)}
@@ -178,7 +210,7 @@ const DeleteEquipo = () => {
 
       {showModal && (
         <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-          <div className='bg-white p-4 rounded shadow-md'>
+          <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
             <h2 className='text-xl mb-4'>Errores en el formulario</h2>
             <ul className='list-disc list-inside'>
               {errors.map((error, index) => (
@@ -197,7 +229,7 @@ const DeleteEquipo = () => {
 
       {showConfirmModal && (
         <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-          <div className='bg-white p-4 rounded shadow-md'>
+          <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
             <h2 className='text-xl mb-4'>Confirmar baja</h2>
             <p>¿Estás seguro de que deseas dar de baja este equipo?</p>
             <div className='mt-4'>
@@ -217,7 +249,10 @@ const DeleteEquipo = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
+    </div>
+    </DefaultLayout>
   );
 }
 

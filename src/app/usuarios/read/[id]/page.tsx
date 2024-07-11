@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { UsuarioModel } from '@/types';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
+import Image from "next/image";
+import Link from "next/link";
+
 
 const UsuarioDetail = () => {
   const router = useRouter();
@@ -32,9 +35,35 @@ const UsuarioDetail = () => {
 
   return (
     <DefaultLayout>
-      <div className='container mx-auto'>
-        <h1 className='text-2xl font-bold mb-4'>Detalles del Usuario</h1>
-        <div className='bg-white p-4 rounded shadow-md'>
+      <div className="flex flex-wrap items-start">
+      <div className="hidden w-full xl:block xl:w-1/4">
+          <div className="px-6 py-7.5 text-center">
+            <Link className="mb-5.5 inline-block" href="/">
+              
+              <Image
+                className="hidden dark:block"
+                src={"/images/logo/LogoCodigo.jpg"}
+                alt="Logo"
+                width={176}
+                height={32}
+              />
+              <Image
+                className="dark:hidden"
+                src={"/images/logo/LogoCodigo.jpg"}
+                alt="Logo"
+                width={176}
+                height={32}
+              />
+            </Link>
+
+            <p className="2xl:px-20">
+              Bienvenido al ingreso al sistema de gestion de mantenimiento de equipos clínicos hospitalarios.
+            </p>
+          </div>
+        </div>
+      <div className='w-full items-center text-center xl:w-2/4 rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
+        <h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>Detalles del Usuario</h1>
+        <div className='w-full p-4 sm:p-12.5 xl:p-7.5'>
           <p><strong>ID:</strong> {usuario.id}</p>
           <p><strong>Nombre:</strong> {usuario.nombre}</p>
           <p><strong>Apellido:</strong> {usuario.apellido}</p>
@@ -52,6 +81,7 @@ const UsuarioDetail = () => {
         >
           Volver
         </button>
+      </div>
       </div>
     </DefaultLayout>
   );

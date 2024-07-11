@@ -30,20 +30,20 @@ const UsuariosList: React.FC<UsuariosListProps> = (params) => {
   };
 
   return (
-    <tr className="border-b dark:border-neutral-500 ">
-      <td className='px-2 py-2'>{params.id}</td>
-      <td className=' px-2 py-2'>{params.nombre}</td>
-      <td className='px-2 py-2'>{params.apellido}</td>
-      <td className='px-2 py-2'>{params.cedula}</td>
-      <td className='px-2 py-2'>{new Date(params.fecha_nasc).toLocaleDateString()}</td>
-      <td className='px-2 py-2'>
+    <tr className="bg-gray-2 text-center dark:bg-meta-4 ">
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.id}</td>
+      <td className=' px-2 py-2 font-medium text-black dark:text-white'>{params.nombre}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.apellido}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.cedula}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{new Date(params.fecha_nasc).toLocaleDateString()}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>
         {params.telefono ? (Array.isArray(params.telefono) ? params.telefono.join(', ') : Object.values(params.telefono).join(', ')) : ''}
       </td>
-      <td className='px-2 py-2'>{params.email}</td>
-      <td className='px-2 py-2'>{params.nombre_usuario}</td>
-      <td className='px-2 py-2'>{params.tipo_usuario}</td>
-      <td className='px-2 py-2'>{params.estado}</td>
-      <td className='px-2 py-2'>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.email}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.nombre_usuario}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.tipo_usuario}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.estado}</td>
+      <td className='px-2 py-2 font-medium text-black dark:text-white'>
         <span 
           className='bg-rose-500 p-2 inline-block ml-3 text-white text-xs rounded cursor-pointer'
           onClick={() => borrarUsuario(params.id)}

@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { UsuarioModel, ReferrerEnum } from '@/types';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
+import Image from "next/image";
+import Link from "next/link";
 
 const EditUsuario = () => {
   const router = useRouter();
@@ -102,60 +104,88 @@ const EditUsuario = () => {
 
   return (
     <DefaultLayout>
-      <div className='container mx-auto'>
-        <h1 className='text-2xl font-bold mb-4'>Editar Usuario</h1>
-        <form className='bg-white p-4 rounded shadow-md' onSubmit={(e) => e.preventDefault()}>
+      <div className='flex flex-wrap items-start'>
+      <div className="hidden w-full xl:block xl:w-1/4">
+          <div className="px-6 py-7.5 text-center">
+            <Link className="mb-5.5 inline-block" href="/">
+              
+              <Image
+                className="hidden dark:block"
+                src={"/images/logo/LogoCodigo.jpg"}
+                alt="Logo"
+                width={176}
+                height={32}
+              />
+              <Image
+                className="dark:hidden"
+                src={"/images/logo/LogoCodigo.jpg"}
+                alt="Logo"
+                width={176}
+                height={32}
+              />
+            </Link>
+
+            <p className="2xl:px-20">
+              Bienvenido al ingreso al sistema de gestion de mantenimiento de equipos clínicos hospitalarios.
+            </p>
+          </div>
+        </div>
+        <div className='w-full border-stroke dark:border-strokedark xl:w-3/4 xl:border-l-2'>
+        <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
+        <h1 className='mb-1.5 block text-2xl font-extrabold'>Editar Usuario</h1>
+
+        <form onSubmit={(e) => e.preventDefault()}>
           {errors.length > 0 && (
-            <div className='bg-red-200 p-2 mb-4'>
+            <div className='bg-rose-200 p-2 mb-4'>
               <ul>
                 {errors.map((error, index) => (
-                  <li key={index} className='text-red-700'>{error}</li>
+                  <li key={index} className='text-rose-700'>{error}</li>
                 ))}
               </ul>
             </div>
           )}
           <div className='mb-4'>
-            <label className='block text-sm font-bold mb-2'>Nombre:</label>
+            <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Nombre:</label>
             <input
               type='text'
               name='nombre'
               value={usuario.nombre}
               onChange={handleChange}
-              className='w-full p-2 border rounded'
+              className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             />
           </div>
           <div className='mb-4'>
-            <label className='block text-sm font-bold mb-2'>Apellido:</label>
+            <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Apellido:</label>
             <input
               type='text'
               name='apellido'
               value={usuario.apellido}
               onChange={handleChange}
-              className='w-full p-2 border rounded'
+              className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             />
           </div>
           <div className='mb-4'>
-            <label className='block text-sm font-bold mb-2'>Cédula:</label>
+            <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Cédula:</label>
             <input
               type='text'
               name='cedula'
               value={usuario.cedula}
               onChange={handleChange}
-              className='w-full p-2 border rounded'
+              className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             />
           </div>
           <div className='mb-4'>
-            <label className='block text-sm font-bold mb-2'>Fecha de Nacimiento:</label>
+            <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Fecha de Nacimiento:</label>
             <input
               type='date'
               name='fecha_nasc'
               value={new Date(usuario.fecha_nasc).toISOString().split('T')[0]}
               onChange={handleChange}
-              className='w-full p-2 border rounded'
+              className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             />
           </div>
           <div className='mb-4'>
-            <label className='block text-sm font-bold mb-2'>Teléfonos:</label>
+            <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Teléfonos:</label>
             {Array.isArray(usuario.telefono) ? (
               usuario.telefono.map((tel, index) => (
                 <input
@@ -164,7 +194,7 @@ const EditUsuario = () => {
                   name={`telefono_${index}`}
                   value={tel}
                   onChange={(e) => handleTelefonoChange(index, e.target.value)}
-                  className='w-full p-2 border rounded mb-2'
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary mb-2'
                 />
               ))
             ) : (
@@ -175,28 +205,28 @@ const EditUsuario = () => {
                   name={`telefono_${key}`}
                   value={value as string}
                   onChange={(e) => handleTelefonoChange(Number(key), e.target.value)}
-                  className='w-full p-2 border rounded mb-2'
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary mb-2'
                 />
               ))
             )}
           </div>
           <div className='mb-4'>
-            <label className='block text-sm font-bold mb-2'>Email:</label>
+            <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Email:</label>
             <input
               type='email'
               name='email'
               value={usuario.email}
               onChange={handleChange}
-              className='w-full p-2 border rounded'
+              className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             />
           </div>
           <div className='mb-4'>
-            <label className='block text-sm font-bold mb-2'>Tipo de Usuario:</label>
+            <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Tipo de Usuario:</label>
             <select
               name='tipo_usuario'
               value={usuario.tipo_usuario}
               onChange={handleChange}
-              className='w-full p-2 border rounded'
+              className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             >
               <option value="">Seleccione un tipo de usuario</option>
               <option value={ReferrerEnum.ADMIN}>Admin</option>
@@ -207,12 +237,12 @@ const EditUsuario = () => {
             </select>
           </div>
           <div className='mb-4'>
-            <label className='block text-sm font-bold mb-2'>Estado:</label>
+            <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Estado:</label>
             <select
               name='estado'
               value={usuario.estado}
               onChange={handleChange}
-              className='w-full p-2 border rounded'
+              className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             >
               <option value={ReferrerEnum.ACTIVO}>Activo</option>
               <option value={ReferrerEnum.INACTIVO}>Inactivo</option>
@@ -234,14 +264,16 @@ const EditUsuario = () => {
             Volver
           </button>
         </form>
+        </div>
+        </div>
 
         {showModal && (
           <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-            <div className='bg-white p-4 rounded shadow-md'>
+            <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
               <h2 className='text-xl mb-4'>Errores en el formulario</h2>
               <ul className='list-disc list-inside'>
                 {errors.map((error, index) => (
-                  <li key={index} className='text-red-600'>{error}</li>
+                  <li key={index} className='text-rose-600'>{error}</li>
                 ))}
               </ul>
               <button
@@ -256,7 +288,7 @@ const EditUsuario = () => {
 
         {showConfirmModal && (
           <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-            <div className='bg-white p-4 rounded shadow-md'>
+            <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
               <h2 className='text-xl mb-4'>Confirmar cambios</h2>
               <p>¿Estás seguro de que deseas guardar los cambios?</p>
               <div className='mt-4'>
@@ -268,7 +300,7 @@ const EditUsuario = () => {
                 </button>
                 <button
                   onClick={() => setShowConfirmModal(false)}
-                  className='bg-red-500 bg-violet-800 text-white p-2 rounded'
+                  className='bg-violet-800 text-white p-2 rounded'
                 >
                   Cancelar
                 </button>
