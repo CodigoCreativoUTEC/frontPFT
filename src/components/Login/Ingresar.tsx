@@ -20,7 +20,12 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
     if (errorParam) {
       setErrorMessage(errorParam);
     }
+    if (searchParams.get('callbackUrl')) {
+      setErrorMessage("Debes iniciar sesión para acceder a esta página");
+    }
   }, [searchParams]);
+
+    
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
