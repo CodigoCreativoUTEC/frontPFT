@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import crypto from "crypto";
 
 class CustomError extends Error {
   constructor(message: string) {
@@ -52,11 +53,15 @@ const handler = NextAuth({
         usuario: { label: "Usuario", type: "text" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials): Promise<User | null> {
+      async authorize(credentials, req): Promise<User | null> {
+        const hashedPassword = credentials ? crypto.createHash('sha256').update(credentials.password).digest('hex') : '';
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(credentials)
+          body: JSON.stringify({
+            usuario: credentials?.usuario,
+            password: hashedPassword
+          })
         });
 
         const data = await res.json();
@@ -102,7 +107,6 @@ const handler = NextAuth({
         });
         const data = await res.json();
         console.log(data);
-
         if (data.userNeedsAdditionalInfo) {
           return `/auth/signup?email=${profile?.email}`;
         }

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import flatpickr from "flatpickr";
+import crypto from 'crypto';
 
 export default function Registrar() {
     const router = useRouter();
@@ -51,10 +51,12 @@ export default function Registrar() {
         }
 
 
-
+        // Encriptar la contraseña
+        const hash = crypto.createHash('sha256').update(formData.contrasenia).digest('hex');
         // Construir el objeto UsuarioDto con idPerfil como PerfilDto
     const usuarioDto = {
         ...formData,
+        contrasenia: hash,
         idPerfil: { id: formData.idPerfil }, // Aquí formData.id_perfil es el ID del perfil seleccionado
         idInstitucion : { id: 1 }, // Aquí se debe asignar el ID de la institución
     };
