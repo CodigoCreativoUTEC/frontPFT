@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import crypto from 'crypto';
+import { max } from 'date-fns';
 
 export default function Registrar() {
     const router = useRouter();
@@ -71,6 +72,19 @@ export default function Registrar() {
             tempErrors.confirmPassword = "Las contraseñas no coinciden.";
         }
 
+        // Validar fecha de nacimiento
+        const today = new Date();
+        const eighteenYearsAgo = new Date(
+            today.getFullYear() - 18,
+            today.getMonth(),
+            today.getDate()
+        );
+        const birthDate = new Date(formData.fechaNacimiento);
+
+        if (birthDate > eighteenYearsAgo) {
+            tempErrors.fechaNacimiento = "Debes tener al menos 18 años.";
+        }
+
         setErrors(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
@@ -110,6 +124,14 @@ export default function Registrar() {
             alert('Error al registrar usuario.');
         }
     };
+
+     // Calcular la fecha máxima permitida para ser mayor de 18 años
+     const today = new Date();
+     const maxDate = new Date(
+         today.getFullYear() - 18,
+         today.getMonth(),
+         today.getDate()
+     ).toISOString().split('T')[0];
 
     return (
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -181,9 +203,13 @@ export default function Registrar() {
                                     id="fechaNacimiento"
                                     value={formData.fechaNacimiento}
                                     onChange={handleChange}
-                                    className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                />
-                            </div>
+                                    max={maxDate}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                      errors.fechaNacimiento ? 'border-red-500' : ''
+                                  }`}
+                              />
+                              {errors.fechaNacimiento && <p className="bg-rose-500 text-neutral-300">{errors.fechaNacimiento}</p>}
+                          </div>
                             <div className="mb-4">
                                 <label htmlFor="nombre" className="mb-2.5 block font-medium text-black dark:text-white">
                                     Nombre
