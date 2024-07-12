@@ -44,21 +44,24 @@ const UsuariosRead = () => {
   if (!usuarios.length) return <div>...loading</div>;
   return (
     <DefaultLayout>
-      <div className='flex flex-col'>
+      <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
         <div className=''>
           <Link href="/usuarios/create" 
-            className='bg-green-500 p-2 inline-block text-white'
+            className='bg-green-500 p-2 inline-block text-white mb-4'
           >
             Agregar
           </Link>
         </div>
+        <h4 className="text-2xl font-bold mb-4 text-black dark:text-white">
+        Lista de Usuarios
+      </h4>
         <div className="flex flex-col overflow-x-auto">
           <div className="sm:-mx-6 lg:-mx-8">
             <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
                   <thead className="border-b font-medium dark:border-neutral-500">
-                    <tr>
+                    <tr className='bg-gray-2 text-center dark:bg-meta-4'>
                       <td className="px-2 py-2">ID</td>
                       <td className='px-2 py-2'>Nombre</td>
                       <td className='px-2 py-2'>Apellido</td>
@@ -69,7 +72,7 @@ const UsuariosRead = () => {
                       <td className='px-2 py-2'>Nombre de Usuario</td>
                       <td className='px-2 py-2'>Tipo de Usuario</td>
                       <td className='px-2 py-2'>Estado</td>
-                      <td className='px-2 py-2'>Acciones</td>
+                      <td className='px-4 py-4 font-medium text-black dark:text-white'>Acciones</td>
                     </tr>
                   </thead>
                   <tbody className='bg-white items-center text-xs'>

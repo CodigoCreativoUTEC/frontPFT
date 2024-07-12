@@ -27,8 +27,44 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
 
     
 
+const Ingresar = ({ callbackUrl, error }: Props) => {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Lee el parámetro de error de la URL y establece el mensaje de error
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      setErrorMessage(errorParam);
+    }
+    if (searchParams.get('callbackUrl')) {
+      setErrorMessage("Debes iniciar sesión para acceder a esta página");
+    }
+  }, [searchParams]);
+
+    
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrorMessage(null); // Reset error message
+
+    const usuario = e.currentTarget["usuario"].value;
+    const password = e.currentTarget["password"].value;
+
+    const res = await signIn("credentials", {
+      usuario,
+      password,
+      redirect: false,
+      callbackUrl: callbackUrl ?? "/",
+    });
+    if (res?.error) {
+      console.error("Error:", res.error);
+      setErrorMessage(res.error);
+    } else {
+      window.location.href = callbackUrl ?? "/";
+    }
+  };
+
     setErrorMessage(null); // Reset error message
 
     const usuario = e.currentTarget["usuario"].value;
@@ -208,6 +244,7 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
       </div>
     </div>
   );
+};
 };
 
 export default Ingresar;

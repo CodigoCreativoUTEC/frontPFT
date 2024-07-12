@@ -34,9 +34,9 @@ const BajaEquipoDetail = () => {
 
   return (
     <DefaultLayout>
-      <div className='container mx-auto'>
-        <h1 className='text-2xl font-bold mb-4'>Detalles del Equipo</h1>
-        <div className='bg-white p-4 rounded shadow-md'>
+      <div className='w-full items-center text-center xl:w-2/4 rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
+        <h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>Detalles del Equipo</h1>
+        <div className='w-full p-4 sm:p-12.5 xl:p-7.5'>
           <p><strong>ID:</strong> {bajaEquipo.id}</p>
           <p><strong>Nombre:</strong> {bajaEquipo.nombre}</p>
           <p><strong>Fecha de Baja:</strong> {new Date(bajaEquipo.fecha_baja).toLocaleDateString()}</p>
@@ -47,7 +47,7 @@ const BajaEquipoDetail = () => {
         </div>
         <button
           onClick={() => router.push('/equipos/baja')}
-          className='mt-4 bg-blue-500 text-white p-2 rounded'
+          className='m-2 bg-blue-500 text-white p-2 rounded'
         >
           Volver
         </button>
