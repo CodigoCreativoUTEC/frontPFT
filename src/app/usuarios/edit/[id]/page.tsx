@@ -62,7 +62,7 @@ const EditUsuario = () => {
     if (!usuario?.nombre) newErrors.push("Nombre es obligatorio");
     if (!usuario?.apellido) newErrors.push("Apellido es obligatorio");
     if (!usuario?.cedula) newErrors.push("Cédula es obligatoria");
-    if (!usuario?.fecha_nasc) newErrors.push("Fecha de nacimiento es obligatoria");
+    if (!usuario?.fechaNacimiento) newErrors.push("Fecha de nacimiento es obligatoria");
     if (!usuario?.telefono || (Array.isArray(usuario.telefono) && usuario.telefono.some(tel => !tel))) newErrors.push("Teléfono de contacto es obligatorio");
     if (!usuario?.email) newErrors.push("Email es obligatorio");
     if (usuario?.email && !/\S+@\S+\.\S+/.test(usuario.email)) newErrors.push("Formato de email no válido");
@@ -71,7 +71,7 @@ const EditUsuario = () => {
     setErrors(newErrors);
     return newErrors.length === 0;
   };
-
+  //PUT a modificar usuario
   const handleSubmit = async () => {
     if (usuario && validateForm()) {
       const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/modificar`, {
