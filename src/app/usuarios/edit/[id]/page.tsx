@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { UsuarioModel, ReferrerEnum } from '@/types';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
+import { useSession } from 'next-auth/react';
 
 const EditUsuario = () => {
   const router = useRouter();
@@ -11,13 +12,16 @@ const EditUsuario = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const { data: session, status } = useSession();
+
 
   useEffect(() => {
     if (id) {
       const fetchUsuario = async () => {
-        const res = await fetch(`/api/usuarios/${id}`, {
+        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/BuscarUsuarioPorId?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
+            "authorization": "Bearer " + (session?.user?.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -68,10 +72,11 @@ const EditUsuario = () => {
 
   const handleSubmit = async () => {
     if (usuario && validateForm()) {
-      const res = await fetch(`/api/usuarios/${id}`, {
+      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/modificar`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
+          "authorization": "Bearer " + (session?.user?.accessToken || ''),
         },
         body: JSON.stringify(usuario),
       });
@@ -148,8 +153,8 @@ const EditUsuario = () => {
             <label className='block text-sm font-bold mb-2'>Fecha de Nacimiento:</label>
             <input
               type='date'
-              name='fecha_nasc'
-              value={new Date(usuario.fecha_nasc).toISOString().split('T')[0]}
+              name='fechaNacimiento'
+              value={new Date(usuario.fechaNacimiento).toISOString().split('T')[0]}
               onChange={handleChange}
               className='w-full p-2 border rounded'
             />
@@ -167,18 +172,19 @@ const EditUsuario = () => {
                   className='w-full p-2 border rounded mb-2'
                 />
               ))
-            ) : (
-              Object.entries(usuario.telefono).map(([key, value], index) => (
-                <input
-                  key={key}
-                  type='text'
-                  name={`telefono_${key}`}
-                  value={value as string}
-                  onChange={(e) => handleTelefonoChange(Number(key), e.target.value)}
-                  className='w-full p-2 border rounded mb-2'
-                />
-              ))
-            )}
+            ) : ( <p>Telefono: </p>)
+              //Object.entries(usuario.usuariosTelefono).map(([key, value], index) => (
+                //<input
+                 // key={key}
+                 // type='text'
+                  //name={`telefono_${key}`}
+                  //value={value as string}
+                  //onChange={(e) => handleTelefonoChange(Number(key), e.target.value)}
+                  //className='w-full p-2 border rounded mb-2'
+               // />
+              //))
+            
+            }
           </div>
           <div className='mb-4'>
             <label className='block text-sm font-bold mb-2'>Email:</label>

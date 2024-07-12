@@ -4,14 +4,19 @@ import Link from 'next/link';
 import { UsuarioModel, ReferrerEnum } from '@/types';
 import UsuariosList from '@/components/Usuarios';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
+import { signIn, useSession } from 'next-auth/react';
+
+
 
 const UsuariosRead = () => {
+  const { data: session, status } = useSession();
   const [usuarios, setUsuarios] = useState<UsuarioModel[]>([]);
 
   const fetcher = async () => {
     const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/ListarTodosLosUsuarios", {
       headers: {
         "Content-Type": "application/json",
+        "authorization": "Bearer " + (session?.user?.accessToken || ''),
       },
     });
     const result = await res.json();
@@ -33,7 +38,9 @@ const UsuariosRead = () => {
 
     fetcher(); // Actualiza la lista de usuarios
   };
-
+  if (!session) {signIn();return null;}
+  const user = session?.user?.data;
+  console.log(user);
   if (!usuarios.length) return <div>...loading</div>;
   return (
     <DefaultLayout>

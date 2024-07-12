@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import crypto from "crypto";
+import { getToken } from "next-auth/jwt";
 
 class CustomError extends Error {
   constructor(message: string) {
@@ -53,6 +54,8 @@ const handler = NextAuth({
         usuario: { label: "Usuario", type: "text" },
         password: { label: "Password", type: "password" }
       },
+
+      
       async authorize(credentials, req): Promise<User | null> {
         const hashedPassword = credentials ? crypto.createHash('sha256').update(credentials.password).digest('hex') : '';
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/login`, {
@@ -116,6 +119,7 @@ const handler = NextAuth({
         } else {
           user.accessToken = data.token;
           user.data = data.user;
+          console.log( "esto va a la sesion",{...user.data, accessToken: data.token});
           return { ...user.data, accessToken: data.token };
         }
       } else {
@@ -132,6 +136,7 @@ const handler = NextAuth({
 
     async session({ session, token }) {
       session.user = token.user;
+      console.log("session", session);
       return session;
     }
   },
