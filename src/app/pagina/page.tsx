@@ -1,7 +1,12 @@
 "use client"
 import { useSession, signIn } from 'next-auth/react';
 
-
+class CustomError extends Error {
+  constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, CustomError.prototype);
+  }
+}
 const ProtectedPage = () => {
   const { data: session, status } = useSession();
   console.log(session);

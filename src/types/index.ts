@@ -1,19 +1,17 @@
 import { ReferrerEnum, Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from "./emuns";
 
 export interface UsuarioModel {
-    id: number;
     nombre: string;
     apellido: string;
     cedula: string;
-    fecha_nasc: Date;
-    telefono: Object;
-    nombre_usuario: string;
+    fechaNacimiento: Date;
+    usuariosTelefono: Object;
+    nombreUsuario: string;
     email: string;
     password: string;
-    tipo_usuario: ReferrerEnum;
+    nombrePerfil: ReferrerEnum; // Sirve para mostrar el nombre del perfil
     estado: ReferrerEnum; 
     institucion: ReferrerEnum;
-
 }
 
 export interface EquipoModel {
