@@ -28,10 +28,11 @@ const UsuariosRead = () => {
   }, []);
 
   const handleAddUser = async (newUser: UsuarioModel) => {
-    await fetch("/api/usuarios", {
+    await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/crear", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "authorization": "Bearer " + (session?.user?.accessToken || ''),
       },
       body: JSON.stringify(newUser),
     });
