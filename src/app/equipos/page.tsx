@@ -5,14 +5,18 @@ import { EquipoModel, ReferrerEnum } from '@/types';
 import EquiposList from '@/components/Equipos';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from '@/types/emuns';
+import { signIn, useSession } from 'next-auth/react';
+
 
 const EquiposRead = () => {
+  const { data: session, status } = useSession();
   const [equipos, setEquipos] = useState<EquipoModel[]>([]);
 
   const fetcher = async () => {
-    const res = await fetch("/api/equipos", {
+    const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ListarTodosLosEquipos", {
       headers: {
         "Content-Type": "application/json",
+        "authorization": "Bearer " + (session?.user?.accessToken || ''),
       },
     });
     const result = await res.json();
@@ -24,7 +28,7 @@ const EquiposRead = () => {
   }, []);
 
   const handleAddEquip = async (newEquip: EquipoModel) => {
-    await fetch("/api/equipos", {
+    await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/api/equipos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

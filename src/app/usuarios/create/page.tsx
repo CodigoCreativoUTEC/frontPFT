@@ -4,12 +4,14 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import { Session } from 'next-auth';
+import { signIn, useSession } from 'next-auth/react';
 
 // Obtener la sesion, si no la hay enviar al login
 
 
 export default function Registrar() {
+    const { data: session, status } = useSession();
+    
     const router = useRouter();
     const searchParams = useSearchParams();
     const [formData, setFormData] = useState({
@@ -126,7 +128,7 @@ export default function Registrar() {
         };
 
         try {
-            debugger;
+            
             const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/crear', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -167,6 +169,8 @@ export default function Registrar() {
         today.getMonth(),
         today.getDate()
     ).toISOString().split('T')[0];
+
+    if (!session) {signIn();return null;}
 
     return (
         <DefaultLayout>
@@ -285,6 +289,7 @@ export default function Registrar() {
                                         type="text"
                                         name="nombreUsuario"
                                         id="nombreUsuario"
+                                        disabled
                                         value={formData.nombreUsuario}
                                         onChange={handleChange}
                                         className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
