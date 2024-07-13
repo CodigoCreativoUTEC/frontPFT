@@ -6,7 +6,7 @@ export enum ReferrerEnum {
     TECNICO = "Técnico",
     ACTIVO = "Activo",
     INACTIVO = "Inactivo",
-    PENDIENTE = "Pendiente",
+    SIN_VALIDAR = "Sin Validar",
     INSTITUCION = "Código Creativo"
   }
 //import { Tipo } from '@/types/emuns'

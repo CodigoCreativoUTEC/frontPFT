@@ -1,334 +1,400 @@
-"use client";
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import es from 'date-fns/locale/es';
-import { UsuarioModel, ReferrerEnum } from '@/types';
-import Image from "next/image";
-import Link from "next/link";
+"use client"
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
+import { Session } from 'next-auth';
+
+// Obtener la sesion, si no la hay enviar al login
 
 
-const UsuariosCreate = () => {
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
-  const router = useRouter();
-  const [name, setName] = useState<string>("");
-  const [apellido, setApellido] = useState<string>("");
-  const [cedula, setCedula] = useState<string>("");
-  const [fechaNasc, setFechaNasc] = useState<Date | null>(null);
-  const [telefonos, setTelefonos] = useState<string[]>([""]);
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [tipoUsuario, setTipoUsuario] = useState<string>("");
-  const [errors, setErrors] = useState<string[]>([]);
-
-  const addTelefono = () => {
-    setTelefonos([...telefonos, ""]);
-  };
-
-  const handleTelefonoChange = (index: number, value: string) => {
-    const newTelefonos = telefonos.map((tel, i) => (i === index ? value : tel));
-    setTelefonos(newTelefonos);
-  };
-
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password: string) => {
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    return passwordRegex.test(password);
-  };
-
-  const validateForm = () => {
-    const newErrors: string[] = [];
-    if (!name) newErrors.push("Nombre es obligatorio");
-    if (!apellido) newErrors.push("Apellido es obligatorio");
-    if (!cedula) newErrors.push("Cédula es obligatoria");
-    if (!fechaNasc) newErrors.push("Fecha de nacimiento es obligatoria");
-    if (!telefonos[0]) newErrors.push("Teléfono de contacto es obligatorio");
-    if (!email) newErrors.push("Email es obligatorio");
-    if (!validateEmail(email)) newErrors.push("El formato del email es inválido");
-    if (!password) newErrors.push("Contraseña es obligatoria");
-    if (!validatePassword(password)) newErrors.push("La contraseña debe contener al menos 8 caracteres, incluyendo letras y números");
-    if (!Object.values(ReferrerEnum).includes(tipoUsuario as ReferrerEnum)) newErrors.push("Tipo de Usuario es obligatorio");
-    setErrors(newErrors);
-    return newErrors.length === 0;
-  };
-
-  const fetchNewId = async () => {
-    const res = await fetch("/api/usuarios", {
-      headers: {
-        "Content-Type": "application/json",
-      },
+export default function Registrar() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [formData, setFormData] = useState({
+        cedula: '',
+        fechaNacimiento: '',
+        nombre: '',
+        apellido: '',
+        nombreUsuario: '',
+        email: searchParams.get('email') || '',
+        contrasenia: '',
+        confirmPassword: '',
+        usuariosTelefonos: [],
+        idPerfil: 1
     });
-    const users = await res.json();
-    const newId = users.length > 0 ? Math.max(...users.map((u: { id: number | string }) => Number(u.id))) + 1 : 1;
-    return newId;
-  };
 
-  const addUsuario = async () => {
-    if (validateForm()) {
-      const newId = await fetchNewId();
-      const formData: UsuarioModel = {
-        id: newId, // Usar el nuevo ID generado como número
-        nombre: name,
-        apellido: apellido,
-        cedula: cedula,
-        fecha_nasc: fechaNasc as Date, // Aquí hacemos un type assertion
-        telefono: telefonos, // Adaptar según tu estructura
-        email: email,
-        password: password,
-        tipo_usuario: tipoUsuario as ReferrerEnum,
-        estado: ReferrerEnum.PENDIENTE,
-        institucion: ReferrerEnum.INSTITUCION,
-        nombre_usuario: ''
-      };
+    const [errors, setErrors] = useState({});
 
-      const add = await fetch("/api/usuarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+    const perfilOptions = [
+        { type: Number, value: 1, label: 'Administrador' },
+        { type: Number, value: 2, label: 'Aux administrativo' },
+        { type: Number, value: 3, label: 'Ingeniero biomédico' },
+        { type: Number, value: 4, label: 'Tecnico' }
+    ];
 
-      const data = await add.json();
+    useEffect(() => {
+        setFormData(prevState => ({
+            ...prevState,
+            email: searchParams.get('email') || '',
+            nombre: searchParams.get('name') || ''
+        }));
+    }, [searchParams]);
 
-      if (add.ok) {
-        router.push("/usuarios");
-      } else {
-        setErrors([data.error]);
-        setShowModal(true);
-      }
-    } else {
-      setShowModal(true);
-    }
-  };
+    useEffect(() => {
+        if (formData.nombre && formData.apellido) {
+            setFormData(prevState => ({
+                ...prevState,
+                nombreUsuario: `${formData.nombre.toLowerCase()}.${formData.apellido.toLowerCase()}`
+            }));
+        }
+    }, [formData.nombre, formData.apellido]);
 
-  const handleConfirm = () => {
-    setShowConfirmModal(false);
-    addUsuario();
-  };
+    const validate = () => {
+        let tempErrors = {
+            cedula: '',
+            fechaNacimiento: '',
+            nombre: '',
+            apellido: '',
+            nombreUsuario: '',
+            email: '',
+            contrasenia: '',
+            confirmPassword: '',
+            idPerfil: ''
+        };
 
-  return (
-    <DefaultLayout>
-    <div className='flex flex-wrap items-start'>
-      <div className="hidden w-full xl:block xl:w-1/4">
-          <div className="px-6 py-7.5 text-center">
-            <Link className="mb-5.5 inline-block" href="/">
-              
-              <Image
-                className="hidden dark:block"
-                src={"/images/logo/LogoCodigo.jpg"}
-                alt="Logo"
-                width={176}
-                height={32}
-              />
-              <Image
-                className="dark:hidden"
-                src={"/images/logo/LogoCodigo.jpg"}
-                alt="Logo"
-                width={176}
-                height={32}
-              />
-            </Link>
+        // Validar cédula uruguaya
+        const cedulaRegex = /^\d{8,8}$/;
+        if (!cedulaRegex.test(formData.cedula)) {
+            tempErrors.cedula = "Cédula inválida. Debe tener 8 dígitos.";
+        }
 
-            <p className="2xl:px-20">
-              Bienvenido al ingreso al sistema de gestion de mantenimiento de equipos clínicos hospitalarios.
-            </p>
-          </div>
-        </div>
-        <div className='w-full border-stroke dark:border-strokedark xl:w-3/4 xl:border-l-2'>
-        <div className='w-full p-4 sm:p-12.5 xl:p-17.5"'>
-          
-        <span className='mb-1.5 block text-2xl font-extrabold'>
-          Agregar Usuario
-        </span>
-      <form onSubmit={(e) => e.preventDefault()}>
-        {errors.length > 0 && (
-          <div className='bg-rose-200 p-2 mb-4'>
-            <ul>
-              {errors.map((error, index) => (
-                <li key={index} className='text-rose-700'>{error}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-        <div className='w-full py-2'>
-          <label htmlFor="nombre" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Nombre
-          </label>
-          <input 
-            type="text" 
-            name="nombre"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            />
-        </div>
-        <div className='w-full py-2'>
-          <label htmlFor="apellido" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Apellido
-          </label>
-          <input 
-            type="text" 
-            name="apellido"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={apellido}
-            onChange={(e) => setApellido(e.target.value)}
-            />
-        </div>
-        <div className='w-full py-2'>
-          <label htmlFor="cedula" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Cédula
-          </label>
-          <input 
-            type="text" 
-            name="cedula"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={cedula}
-            onChange={(e) => setCedula(e.target.value)}
-            />
-        </div>
-        <div className='w-full py-2'>
-          <label htmlFor="password" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Password
-          </label>
-          <input 
-            type="password" 
-            name="password"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            />
-        </div>
-        <div className='w-full py-2'>
-          <label htmlFor="fecha_nasc" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Fecha de Nacimiento
-          </label>
-          <DatePicker 
-            selected={fechaNasc}
-            onChange={(date: Date | null, event: React.SyntheticEvent<any> | undefined) => setFechaNasc(date)}
-            dateFormat="yyyy-MM-dd"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            locale="es"
-            />
-        </div>
-        <div className='w-full py-2'>
-          <label htmlFor="telefonos" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Teléfonos
-          </label>
-          {telefonos.map((tel, index) => (
-            <input 
-            key={index}
-            type="text" 
-            name={`telefono_${index}`}
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary mt-2'
-            value={tel}
-            onChange={(e) => handleTelefonoChange(index, e.target.value)}
-            />
-          ))}
-          <button type="button" onClick={addTelefono} className='w-full mt-2 p-2 text-white border-gray-600 border-[1px] rounded bg-green-500'>
-            Agregar Teléfono
-          </button>
-        </div>
-        <div className='w-full py-2'>
-          <label htmlFor="email" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Email
-          </label>
-          <input 
-            type="text" 
-            name="email"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            />
-        </div>
-        <div className='w-full py-2'>
-          <label htmlFor="tipo_usuario" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Tipo de Usuario
-          </label>
-          <select
-            name="tipo_usuario"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={tipoUsuario}
-            onChange={(e) => setTipoUsuario(e.target.value)}
-            >
-            <option value="">Seleccione un tipo de usuario</option>
-            <option value={ReferrerEnum.AUXILIAR_ADMINISTRATIVO}>Auxiliar Administrativo</option>
-            <option value={ReferrerEnum.INGENIERO_BIOMEDICO}>Ingeniero Biomédico</option>
-            <option value={ReferrerEnum.TECNICO}>Técnico</option>
-            <option value={ReferrerEnum.TECNOLOGO}>Tecnólogo</option>
-          </select>
-        </div>
-        <div className='w-full py-2'>
-          <button
-            type='button'
-            onClick={() => setShowConfirmModal(true)}
-            className='w-20 p-2 text-white border-gray-600 border-[1px] rounded bg-green-500'
-            >
-            Enviar
-          </button>
-          <button
-            onClick={() => router.push('/usuarios')}
-            className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
-            >
-            Volver
-          </button>
-        </div>
-      </form>
-      {showModal && (
-        <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-          <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
-            <h2 className='text-xl mb-4'>Errores en el formulario</h2>
-            <ul className='list-disc list-inside'>
-              {errors.map((error, index) => (
-                <li key={index} className='text-rose-600'>{error}</li>
-              ))}
-            </ul>
-            <button
-              onClick={() => setShowModal(false)}
-              className='mt-4 bg-violet-800 text-white p-2 rounded'
-              >
-              Cerrar
-            </button>
-          </div>
-          
-          
-        </div>
-      )}
+        // Validar email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            tempErrors.email = "Email inválido.";
+        }
 
-      {showConfirmModal && (
-        <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-          <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
-            <h2 className='text-xl mb-4'>Confirmar creación</h2>
-            <p>¿Estás seguro de que deseas guardar este usuario?</p>
-            <div className='mt-4'>
-              <button
-                onClick={handleConfirm}
-                className='bg-green-500 text-white p-2 rounded mr-4'
-                >
-                Aceptar
-              </button>
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className='bg-violet-800 text-white p-2 rounded'
-              >
-                Cancelar
-              </button>
+        // Validar contraseña
+        if (formData.contrasenia.length < 8) {
+            tempErrors.contrasenia = "La contraseña debe tener al menos 8 caracteres.";
+        }
+
+        // Validar confirmación de contraseña
+        if (formData.contrasenia !== formData.confirmPassword) {
+            tempErrors.confirmPassword = "Las contraseñas no coinciden.";
+        }
+
+        // Validar fecha de nacimiento
+        if (!formData.fechaNacimiento) {
+            tempErrors.fechaNacimiento = "La fecha de nacimiento es requerida.";
+        } else {
+            const today = new Date();
+            const eighteenYearsAgo = new Date(
+                today.getFullYear() - 18,
+                today.getMonth(),
+                today.getDate()
+            );
+            const birthDate = new Date(formData.fechaNacimiento);
+            if (birthDate > eighteenYearsAgo) {
+                tempErrors.fechaNacimiento = "Debes tener al menos 18 años.";
+            }
+        }
+
+        setErrors(tempErrors);
+        // Comprueba si hay algún error
+        return Object.values(tempErrors).every(error => error === '');
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        const newValue = name === 'idPerfil' ? parseInt(value, 10) : value;
+        setFormData({ ...formData, [name]: newValue });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!validate()) {
+            return;
+        }
+
+        const usuarioDto = {
+            ...formData,
+            idPerfil: { id: formData.idPerfil },
+            idInstitucion: { id: 1 },
+        };
+
+        try {
+            debugger;
+            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/crear', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(usuarioDto),
+            });
+
+            if (res.ok) {
+                alert('Registro exitoso. Ahora puedes iniciar sesión.');
+                router.push('/auth/signin');
+            } else {
+                const errorData = await res.json();
+                console.error(errorData);
+                alert('Error al registrar usuario.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error al conectar con el servidor.');
+        }
+    };
+
+    const handleAddTelefono = () => {
+        setFormData({
+            ...formData,
+            usuariosTelefonos: [...formData.usuariosTelefonos, { numero: '' }]
+        });
+    };
+
+    const handleTelefonoChange = (index, value) => {
+        const updatedTelefonos = formData.usuariosTelefonos.map((telefono, i) => (
+            i === index ? { ...telefono, numero: value } : telefono
+        ));
+        setFormData({ ...formData, usuariosTelefonos: updatedTelefonos });
+    };
+
+    const today = new Date();
+    const maxDate = new Date(
+        today.getFullYear() - 18,
+        today.getMonth(),
+        today.getDate()
+    ).toISOString().split('T')[0];
+
+    return (
+        <DefaultLayout>
+            <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                <div className="flex flex-wrap items-center">
+                    <div className="hidden w-full xl:block xl:w-1/2">
+                        <div className="px-26 py-17.5 text-center">
+                            <Link className="mb-5.5 inline-block" href="/">
+                                <Image
+                                    className="hidden dark:block"
+                                    src={"/images/logo/logo.svg"}
+                                    alt="Logo"
+                                    width={176}
+                                    height={32}
+                                />
+                                <Image
+                                    className="dark:hidden"
+                                    src={"/images/logo/logo-dark.svg"}
+                                    alt="Logo"
+                                    width={176}
+                                    height={32}
+                                />
+                            </Link>
+                            <p className="2xl:px-20">
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit suspendisse.
+                            </p>
+                            <span className="mt-15 inline-block">
+                                <svg
+                                    width="350"
+                                    height="350"
+                                    viewBox="0 0 350 350"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    {/* SVG content */}
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                    <div className="w-full xl:w-1/2">
+                        <div className="px-12.5 py-17.5 sm:px-25 sm:py-30">
+                            <h2 className="mb-9 text-2xl font-bold text-black dark:text-white">
+                                Registrarse
+                            </h2>
+                            <form onSubmit={handleSubmit}>
+                                <div className="mb-4">
+                                    <label htmlFor="cedula" className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Cédula
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="cedula"
+                                        id="cedula"
+                                        value={formData.cedula}
+                                        onChange={handleChange}
+                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                            errors.cedula ? 'border-rose-500 dark:border-rose-500' : ''
+                                        }`}
+                                    />
+                                    {errors.cedula && <p className="bg-rose-500 text-neutral-300">{errors.cedula}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="fechaNacimiento" className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Fecha de Nacimiento
+                                    </label>
+                                    <input
+                                        type="date"
+                                        name="fechaNacimiento"
+                                        id="fechaNacimiento"
+                                        value={formData.fechaNacimiento}
+                                        onChange={handleChange}
+                                        max={maxDate}
+                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                            errors.fechaNacimiento ? 'border-rose-500 dark:border-rose-500' : ''
+                                        }`}
+                                    />
+                                    {errors.fechaNacimiento && <p className="bg-rose-500 text-neutral-300">{errors.fechaNacimiento}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="nombre" className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Nombre
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="nombre"
+                                        id="nombre"
+                                        value={formData.nombre}
+                                        onChange={handleChange}
+                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                            errors.nombre ? 'border-rose-500 dark:border-rose-500' : ''
+                                        }`}
+                                    />
+                                    {errors.nombre && <p className="bg-rose-500 text-neutral-300">{errors.nombre}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="apellido" className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Apellido
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="apellido"
+                                        id="apellido"
+                                        value={formData.apellido}
+                                        onChange={handleChange}
+                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                            errors.apellido ? 'border-rose-500 dark:border-rose-500' : ''
+                                        }`}
+                                    />
+                                    {errors.apellido && <p className="bg-rose-500 text-neutral-300">{errors.apellido}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="nombreUsuario" className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Nombre de Usuario
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="nombreUsuario"
+                                        id="nombreUsuario"
+                                        value={formData.nombreUsuario}
+                                        onChange={handleChange}
+                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                            errors.nombreUsuario ? 'border-rose-500 dark:border-rose-500' : ''
+                                        }`}
+                                    />
+                                    {errors.nombreUsuario && <p className="bg-rose-500 text-neutral-300">{errors.nombreUsuario}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="email" className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        id="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                            errors.email ? 'border-rose-500 dark:border-rose-500' : ''
+                                        }`}
+                                    />
+                                    {errors.email && <p className="bg-rose-500 text-neutral-300">{errors.email}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="contrasenia" className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Contraseña
+                                    </label>
+                                    <input
+                                        type="password"
+                                        name="contrasenia"
+                                        id="contrasenia"
+                                        value={formData.contrasenia}
+                                        onChange={handleChange}
+                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                            errors.contrasenia ? 'border-rose-500 dark:border-rose-500' : ''
+                                        }`}
+                                    />
+                                    {errors.contrasenia && <p className="bg-rose-500 text-neutral-300">{errors.contrasenia}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="confirmPassword" className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Confirmar Contraseña
+                                    </label>
+                                    <input
+                                        type="password"
+                                        name="confirmPassword"
+                                        id="confirmPassword"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                            errors.confirmPassword ? 'border-rose-500 dark:border-rose-500' : ''
+                                        }`}
+                                    />
+                                    {errors.confirmPassword && <p className="bg-rose-500 text-neutral-300">{errors.confirmPassword}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="idPerfil" className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Perfil
+                                    </label>
+                                    <select
+                                        name="idPerfil"
+                                        id="idPerfil"
+                                        value={formData.idPerfil}
+                                        onChange={handleChange}
+                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                            errors.idPerfil ? 'border-rose-500 dark:border-rose-500' : ''
+                                        }`}
+                                    >
+                                        {perfilOptions.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.idPerfil && <p className="bg-rose-500 text-neutral-300">{errors.idPerfil}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="telefonos" className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Teléfonos
+                                    </label>
+                                    {formData.usuariosTelefonos.map((telefono, index) => (
+                                        <div key={index} className="mb-2 flex items-center">
+                                            <input
+                                                type="text"
+                                                value={telefono.numero}
+                                                onChange={(e) => handleTelefonoChange(index, e.target.value)}
+                                                className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                            />
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={handleAddTelefono}
+                                        className="mt-2 rounded-lg border border-primary bg-primary px-4 py-2 text-white hover:bg-primary-dark"
+                                    >
+                                        Añadir Teléfono
+                                    </button>
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="mt-4 w-full rounded-lg bg-primary py-4 px-6 text-white hover:bg-primary-dark"
+                                >
+                                    Registrarse
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      )}
-      </div>
-      </div>
-    </div>
-    </DefaultLayout>
-  );
+        </DefaultLayout>
+    );
 }
-
-export default UsuariosCreate;

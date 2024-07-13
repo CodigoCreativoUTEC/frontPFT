@@ -3,8 +3,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import crypto from 'crypto';
-import { max } from 'date-fns';
 
 export default function Registrar() {
     const router = useRouter();
@@ -49,16 +47,16 @@ export default function Registrar() {
 
     const validate = () => {
         let tempErrors = {
-          cedula: '',
-          fechaNacimiento: '',
-          nombre: '',
-          apellido: '',
-          nombreUsuario: '',
-          email: '',
-          contrasenia: '',
-          confirmPassword: '',
-          idPerfil: 1
-      };
+            cedula: '',
+            fechaNacimiento: '',
+            nombre: '',
+            apellido: '',
+            nombreUsuario: '',
+            email: '',
+            contrasenia: '',
+            confirmPassword: '',
+            idPerfil: ''
+        };
 
         // Validar cédula uruguaya
         const cedulaRegex = /^\d{8,8}$/;
@@ -84,61 +82,66 @@ export default function Registrar() {
 
         // Validar fecha de nacimiento
         if (!formData.fechaNacimiento) {
-          tempErrors.fechaNacimiento = "La fecha de nacimiento es requerida.";
+            tempErrors.fechaNacimiento = "La fecha de nacimiento es requerida.";
         } else {
-          const today = new Date();
-          const eighteenYearsAgo = new Date(
-            today.getFullYear() - 18,
-            today.getMonth(),
-            today.getDate()
-          );
-        const birthDate = new Date(formData.fechaNacimiento);
-        if (birthDate > eighteenYearsAgo) {
-          tempErrors.fechaNacimiento = "Debes tener al menos 18 años.";
-        }
+            const today = new Date();
+            const eighteenYearsAgo = new Date(
+                today.getFullYear() - 18,
+                today.getMonth(),
+                today.getDate()
+            );
+            const birthDate = new Date(formData.fechaNacimiento);
+            if (birthDate > eighteenYearsAgo) {
+                tempErrors.fechaNacimiento = "Debes tener al menos 18 años.";
+            }
         }
 
         setErrors(tempErrors);
-        return Object.keys(tempErrors).length === 0;
+        // Comprueba si hay algún error
+        return Object.values(tempErrors).every(error => error === '');
     };
 
-    const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         const newValue = name === 'idPerfil' ? parseInt(value, 10) : value;
         setFormData({ ...formData, [name]: newValue });
     };
 
-    const handleSubmit = async (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) {
             return;
         }
 
-        // Encriptar la contraseña
-        const hash = crypto.createHash('sha256').update(formData.contrasenia).digest('hex');
+        
         const usuarioDto = {
             ...formData,
-            contrasenia: hash,
             idPerfil: { id: formData.idPerfil },
             idInstitucion: { id: 1 },
         };
 
-        const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/crear', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(usuarioDto),
-        });
+        try {
+            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/crear', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(usuarioDto),
+            });
 
-        if (res.ok) {
-            alert('Registro exitoso. Ahora puedes iniciar sesión.');
-            router.push('/auth/signin');
-        } else {
-            console.error(res);
-            alert('Error al registrar usuario.');
+            if (res.ok) {
+                alert('Registro exitoso. Ahora puedes iniciar sesión.');
+                router.push('/auth/signin');
+            } else {
+                const errorData = await res.json();
+                console.error(errorData);
+                alert('Error al registrar usuario.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error al conectar con el servidor.');
         }
     };
 
-     // Calcular la fecha máxima permitida para ser mayor de 18 años
+    // Calcular la fecha máxima permitida para ser mayor de 18 años
     const today = new Date();
     const maxDate = new Date(
         today.getFullYear() - 18,
@@ -168,8 +171,7 @@ export default function Registrar() {
                             />
                         </Link>
                         <p className="2xl:px-20">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit
-                            suspendisse.
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit suspendisse.
                         </p>
                         <span className="mt-15 inline-block">
                             <svg
@@ -218,11 +220,11 @@ export default function Registrar() {
                                     onChange={handleChange}
                                     max={maxDate}
                                     className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
-                                      errors.fechaNacimiento ? 'border-red-500' : ''
-                                  }`}
-                              />
-                              {errors.fechaNacimiento && <p className="bg-rose-500 text-neutral-300">{errors.fechaNacimiento}</p>}
-                          </div>
+                                        errors.fechaNacimiento ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
+                                />
+                                {errors.fechaNacimiento && <p className="bg-rose-500 text-neutral-300">{errors.fechaNacimiento}</p>}
+                            </div>
                             <div className="mb-4">
                                 <label htmlFor="nombre" className="mb-2.5 block font-medium text-black dark:text-white">
                                     Nombre
@@ -233,8 +235,11 @@ export default function Registrar() {
                                     id="nombre"
                                     value={formData.nombre}
                                     onChange={handleChange}
-                                    className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.nombre ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
                                 />
+                                {errors.nombre && <p className="bg-rose-500 text-neutral-300">{errors.nombre}</p>}
                             </div>
                             <div className="mb-4">
                                 <label htmlFor="apellido" className="mb-2.5 block font-medium text-black dark:text-white">
@@ -246,8 +251,11 @@ export default function Registrar() {
                                     id="apellido"
                                     value={formData.apellido}
                                     onChange={handleChange}
-                                    className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.apellido ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
                                 />
+                                {errors.apellido && <p className="bg-rose-500 text-neutral-300">{errors.apellido}</p>}
                             </div>
                             <div className="mb-4">
                                 <label htmlFor="nombreUsuario" className="mb-2.5 block font-medium text-black dark:text-white">
@@ -258,13 +266,16 @@ export default function Registrar() {
                                     name="nombreUsuario"
                                     id="nombreUsuario"
                                     value={formData.nombreUsuario}
-                                    readOnly
-                                    className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary bg-gray-200 cursor-not-allowed"
+                                    onChange={handleChange}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.nombreUsuario ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
                                 />
+                                {errors.nombreUsuario && <p className="bg-rose-500 text-neutral-300">{errors.nombreUsuario}</p>}
                             </div>
                             <div className="mb-4">
                                 <label htmlFor="email" className="mb-2.5 block font-medium text-black dark:text-white">
-                                    Email
+                                    Correo electrónico
                                 </label>
                                 <input
                                     type="email"
@@ -319,25 +330,30 @@ export default function Registrar() {
                                     id="idPerfil"
                                     value={formData.idPerfil}
                                     onChange={handleChange}
-                                    className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.idPerfil ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
                                 >
-                                    {perfilOptions.map((option) => (
+                                    {perfilOptions.map(option => (
                                         <option key={option.value} value={option.value}>
                                             {option.label}
                                         </option>
                                     ))}
                                 </select>
+                                {errors.idPerfil && <p className="bg-rose-500 text-neutral-300">{errors.idPerfil}</p>}
                             </div>
-                            <button
-                                type="submit"
-                                className="mt-4 w-full inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                                Registrarse
-                            </button>
+                            <div className="mb-5.5">
+                                <button
+                                    type="submit"
+                                    className="w-full rounded-lg bg-primary p-4 text-white transition hover:bg-opacity-90"
+                                >
+                                    Registrarse
+                                </button>
+                            </div>
                         </form>
-                        <p className="mt-6 text-center text-sm text-gray-600">
-                            ¿Ya tienes una cuenta?{' '}
-                            <Link href="/auth/signin" className="text-indigo-600 hover:text-indigo-500">
+                        <p className="text-center text-base font-medium text-body-color">
+                            ¿Ya tienes una cuenta?
+                            <Link href="/auth/signin" className="text-primary hover:underline">
                                 Iniciar sesión
                             </Link>
                         </p>
