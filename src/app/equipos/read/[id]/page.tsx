@@ -5,11 +5,13 @@ import { EquipoModel } from '@/types';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import Image from "next/image";
 import Link from "next/link";
+import { signIn, useSession } from 'next-auth/react';
 
 
 
 
 const EquipoDetail = () => {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const { id } = useParams();
   const [equipo, setEquipo] = useState<EquipoModel | null>(null);
@@ -17,9 +19,10 @@ const EquipoDetail = () => {
   useEffect(() => {
     if (id) {
       const fetchEquipo = async () => {
-        const res = await fetch(`/api/equipos/${id}`, {
+        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/BuscarEquipo?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
+            "authorization": "Bearer " + (session?.user?.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -68,17 +71,17 @@ const EquipoDetail = () => {
         <div className='w-full p-4 sm:p-12.5 xl:p-7.5'>
           <p><strong>ID:</strong> {equipo.id}</p>
           <p><strong>Nombre:</strong> {equipo.nombre}</p>
-          <p><strong>Imagen:</strong> {equipo.imagen}</p>
-          <p><strong>Marca:</strong> {equipo.marca}</p>
-          <p><strong>Modelo:</strong> {equipo.modelo}</p>
-          <p><strong>Número de Serie:</strong> {equipo.num_serie}</p>
+          <p><strong>Imagen:</strong> <img src={equipo.imagen} /></p>
+          <p><strong>Marca:</strong> {equipo.idModelo.idMarca.nombre}</p>
+          <p><strong>Modelo:</strong> {equipo.idModelo.nombre}</p>
+          <p><strong>Número de Serie:</strong> {equipo.nroSerie}</p>
           <p><strong>Garantía:</strong> {equipo.garantia}</p>
-          <p><strong>País:</strong> {equipo.pais}</p>
-          <p><strong>Proveedor:</strong> {equipo.proveedor}</p>
-          <p><strong>Fecha de Adquirido:</strong> {new Date(equipo.fecha_adq).toLocaleDateString()}</p>
-          <p><strong>ID Interno:</strong> {equipo.id_interno}</p>
-          <p><strong>Ubicación:</strong> {equipo.ubicacion}</p>
-          <p><strong>Tipo de Equipo:</strong> {equipo.tipo_equipo}</p>
+          <p><strong>País:</strong> {equipo.idPais.nombre}</p>
+          <p><strong>Proveedor:</strong> {equipo.idProveedor.nombre}</p>
+          <p><strong>Fecha de Adquirido:</strong> {new Date(equipo.fechaAdquisicion).toLocaleDateString()}</p>
+          <p><strong>ID Interno:</strong> {equipo.idInterno}</p>
+          <p><strong>Ubicación:</strong> {equipo.idUbicacion.nombre} / {equipo.idUbicacion.sector}</p>
+          <p><strong>Tipo de Equipo:</strong> {equipo.idTipo.nombreTipo}</p>
           <p><strong>Estado:</strong> {equipo.estado}</p>
         </div>
         <button

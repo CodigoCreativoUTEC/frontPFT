@@ -8,13 +8,15 @@ import { EquipoModel, BajaEquipoModel, ReferrerEnum } from '@/types';
 import Image from "next/image";
 import Link from "next/link";
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
+import { useSession } from 'next-auth/react';
 
 const DeleteEquipo = () => {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const { id } = useParams();
   const [equipo, setEquipo] = useState<EquipoModel | null>(null);
   const [fechaBaja, setFechaBaja] = useState<Date | null>(null);
-  const [usuario, setUsuario] = useState<string>("");
+  const [idUsuario, setUsuario] = useState<string>("");
   const [razon, setRazon] = useState<string>("");
   const [comentarios, setComentarios] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
@@ -24,9 +26,10 @@ const DeleteEquipo = () => {
   useEffect(() => {
     if (id) {
       const fetchEquipo = async () => {
-        const res = await fetch(`/api/equipos/${id}`, {
+        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/BuscarEquipo?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
+            "authorization": "Bearer " + (session?.user?.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -42,9 +45,9 @@ const DeleteEquipo = () => {
 
   const validateForm = () => {
     const newErrors: string[] = [];
-    if (!equipo?.nombre) newErrors.push("Nombre es obligatorio");
+    //if (!equipo?.nombre) newErrors.push("Nombre es obligatorio");
     if (!fechaBaja) newErrors.push("Fecha de baja es obligatoria");
-    if (!usuario) newErrors.push("Usuario es obligatorio");
+    //if (!idUsuario) newErrors.push("Usuario es obligatorio");
     if (!razon) newErrors.push("Razón de la baja es obligatoria");
     if (!comentarios) newErrors.push("Comentarios de la baja es obligatoria");
     setErrors(newErrors);
@@ -54,19 +57,19 @@ const DeleteEquipo = () => {
   const handleSubmit = async () => {
     if (validateForm()) {
       const formData: BajaEquipoModel = {
-        id: equipo!.id,
-        nombre: equipo!.nombre,
-        fecha_baja: fechaBaja!,
-        usuario: usuario,
+        idEquipo: equipo,
+        fecha: fechaBaja!,
+        idUsuario: session?.user.data,
         razon: razon,
         comentarios: comentarios,
         estado: ReferrerEnum.INACTIVO, // Use enum value
       };
 
-      const res = await fetch(`/api/equipos/baja`, {
-        method: 'POST',
+      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/Inactivar`, {
+        method: 'PUT',
         headers: {
           "Content-Type": "application/json",
+          "authorization": "Bearer " + (session?.user?.accessToken || ''),
         },
         body: JSON.stringify(formData),
       });
@@ -134,7 +137,7 @@ const DeleteEquipo = () => {
         )}
         <div className='mb-4'>
           <label htmlFor="nombre" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Nombre
+            Nombre de equipo a borrar
           </label>
           <input 
             type="text" 
@@ -145,7 +148,7 @@ const DeleteEquipo = () => {
           />
         </div>
         <div className='mb-4'>
-          <label htmlFor="fecha_baja" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
+          <label htmlFor="fecha" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
             Fecha de Baja
           </label>
           <DatePicker 
@@ -154,18 +157,6 @@ const DeleteEquipo = () => {
             dateFormat="yyyy-MM-dd"
             className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             locale="es"
-          />
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="usuario" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Usuario
-          </label>
-          <input 
-            type="text" 
-            name="usuario"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
           />
         </div>
         <div className='mb-4'>
