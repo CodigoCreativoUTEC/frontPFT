@@ -5,9 +5,11 @@ import { UsuarioModel } from '@/types';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from 'next-auth/react';
 
 
 const UsuarioDetail = () => {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const { id } = useParams();
   const [usuario, setUsuario] = useState<UsuarioModel | null>(null);
@@ -15,9 +17,10 @@ const UsuarioDetail = () => {
   useEffect(() => {
     if (id) {
       const fetchUsuario = async () => {
-        const res = await fetch(`/api/usuarios/${id}`, {
+        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/BuscarUsuarioPorId?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
+            "authorization": "Bearer " + (session?.user?.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -68,11 +71,13 @@ const UsuarioDetail = () => {
           <p><strong>Nombre:</strong> {usuario.nombre}</p>
           <p><strong>Apellido:</strong> {usuario.apellido}</p>
           <p><strong>Cédula:</strong> {usuario.cedula}</p>
-          <p><strong>Fecha de Nacimiento:</strong> {new Date(usuario.fecha_nasc).toLocaleDateString()}</p>
-          <p><strong>Teléfonos:</strong> {usuario.telefono ? (Array.isArray(usuario.telefono) ? usuario.telefono.join(', ') : Object.values(usuario.telefono).join(', ')) : ''}</p>
+          <p><strong>Fecha de Nacimiento:</strong> {new Date(usuario.fechaNacimiento).toLocaleDateString()}</p>
+          <p><strong>Teléfonos:</strong> {usuario.usuariosTelefonos ? (
+      usuario.usuariosTelefonos.map((telefono) => telefono.numero).join(', ')
+    ) : ''}</p>
           <p><strong>Email:</strong> {usuario.email}</p>
-          <p><strong>Nombre de Usuario:</strong> {usuario.nombre_usuario}</p>
-          <p><strong>Tipo de Usuario:</strong> {usuario.tipo_usuario}</p>
+          <p><strong>Nombre de Usuario:</strong> {usuario.nombreUsuario}</p>
+          <p><strong>Tipo de Usuario:</strong> {usuario.idPerfil.nombrePerfil}</p>
           <p><strong>Estado:</strong> {usuario.estado}</p>
         </div>
         <button

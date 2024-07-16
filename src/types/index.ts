@@ -33,7 +33,7 @@ export interface EquipoModel {
 }
 
 export interface BajaEquipoModel {
-    id: number;
+    idEquipo: any;
     nombre: string;
     fecha_baja: Date;
     usuario: string;
