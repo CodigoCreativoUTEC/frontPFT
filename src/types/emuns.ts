@@ -4,9 +4,9 @@ export enum ReferrerEnum {
     INGENIERO_BIOMEDICO = "Ingeniero Biomédico",
     TECNOLOGO = "Tecnólogo",
     TECNICO = "Técnico",
-    ACTIVO = "Activo",
-    INACTIVO = "Inactivo",
-    SIN_VALIDAR = "Sin Validar",
+    ACTIVO = "ACTIVO",
+    INACTIVO = "INACTIVO",
+    SIN_VALIDAR = "SIN_VALIDAR",
     INSTITUCION = "Código Creativo"
   }
 //import { Tipo } from '@/types/emuns'
