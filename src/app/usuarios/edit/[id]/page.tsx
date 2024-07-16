@@ -252,7 +252,7 @@ const EditUsuario = () => {
             >
               <option value={ReferrerEnum.ACTIVO}>Activo</option>
               <option value={ReferrerEnum.INACTIVO}>Inactivo</option>
-              <option value={ReferrerEnum.PENDIENTE}>Pendiente</option>
+              <option value={ReferrerEnum.SIN_VALIDAR}>Sin validar</option>
             </select>
           </div>
           <button
