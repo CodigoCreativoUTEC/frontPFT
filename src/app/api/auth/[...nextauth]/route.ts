@@ -129,12 +129,15 @@ const handler = NextAuth({
 
     async jwt({ token, user }) {
       if (user) {
+        token.accessToken = user.accessToken;
+
         token.user = user;
       }
       return token;
     },
 
     async session({ session, token }) {
+      session.accessToken = token.accessToken
       session.user = token.user;
       console.log("session", session);
       return session;
@@ -142,6 +145,7 @@ const handler = NextAuth({
   },
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,// 30 dias de expiracion
   },
   secret: process.env.SECRET,
   jwt: {
