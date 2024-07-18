@@ -13,12 +13,7 @@ export const metadata: Metadata = {
 const Registrarse: React.FC = function() {
 
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Ingresar" />
-      
       <Registrar />
-
-    </DefaultLayout>
   );
 };
 

@@ -1,9 +1,10 @@
 "use client"
 import Link from "next/link";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
+import { Router, useRouter } from "next/router";
 
 type Props = {
   callbackUrl?: string;
@@ -13,6 +14,8 @@ type Props = {
 const Ingresar = ({ callbackUrl, error }: Props) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
+  
 
   useEffect(() => {
     // Lee el parámetro de error de la URL y establece el mensaje de error
@@ -48,10 +51,20 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
       window.location.href = callbackUrl ?? "/";
     }
   };
+  //si hay sesion redirige a la pagina principal
+  if (session) {
+    redirect("/usuarios");
+  }
 
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-      {errorMessage && (
+<div className="min-h-full h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      
+      <div className="max-w-md w-full space-y-8">
+        
+
+        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+          <div className="w-full p-9 sm:p-9 xl:p-9">
+          {errorMessage && (
               <div className="flex w-full border-l-6 border-[#F87171] bg-[#F87171] bg-opacity-[15%] px-7 py-8 shadow-md dark:bg-[#1B1B24] dark:bg-opacity-30 md:p-9">
               <div className="mr-5 flex h-9 w-full max-w-[36px] items-center justify-center rounded-lg bg-[#F87171]">
                 <svg
@@ -68,7 +81,7 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
                   ></path>
                 </svg>
               </div>
-              <div className="w-full">
+              <div className="w-full p-5">
                 <h5 className="mb-3 font-semibold text-[#B45454]">
                   Oops! Ocurrio un problema
                 </h5>
@@ -80,36 +93,9 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
               </div>
             </div>
             )}
-      <div className="flex flex-wrap items-center">
-        <div className="hidden w-full xl:block xl:w-1/2">
-          <div className="px-26 py-17.5 text-center">
-            <Link className="mb-5.5 inline-block" href="/">
-              <Image
-                className="hidden dark:block"
-                src={"/images/logo/logo.svg"}
-                alt="Logo"
-                width={176}
-                height={32}
-              />
-              <Image
-                className="dark:hidden"
-                src={"/images/logo/logo-dark.svg"}
-                alt="Logo"
-                width={176}
-                height={32}
-              />
-            </Link>
-
-            <p className="2xl:px-20">
-              Bienvenido al ingreso al sistema de gestion de mantenimiento de equipos clínicos hospitalarios.
-            </p>
-          </div>
-        </div>
-
-        <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
-          <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
+          <span className=" block font-medium">Inicio de sesión</span>  
+          <img src="/images/logo/LogoCodigo.jpg" alt="Workflow" className="mx-auto w-auto" />
             
-            <span className="mb-1.5 block font-medium">Inicio de sesión</span>
 
             <form onSubmit={onSubmit}>
               <div className="mb-4">

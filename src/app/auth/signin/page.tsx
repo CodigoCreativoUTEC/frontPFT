@@ -13,10 +13,7 @@ export const metadata: Metadata = {
 const SignIn: React.FC = function() {
 
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Ingresar" />
       <Ingresar />
-    </DefaultLayout>
   );
 };
 
