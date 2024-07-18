@@ -5,14 +5,17 @@ import { BajaEquipoModel, ReferrerEnum } from '@/types';
 import BajaEquiposList from '@/components/BajaEquipos';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from '@/types/emuns';
+import { useSession } from 'next-auth/react';
 
 const EquiposBaja = () => {
   const [bajaEquipos, setBajaEquipos] = useState<BajaEquipoModel[]>([]);
-
+  const { data: session, status } = useSession();
+  
   const fetcher = async () => {
-    const res = await fetch("/api/equipos/baja", {
+    const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ListarBajaEquipos", {
       headers: {
         "Content-Type": "application/json",
+        "authorization": "Bearer " + (session?.user?.accessToken || ''),
       },
     });
     const result = await res.json();

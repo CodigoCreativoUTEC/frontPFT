@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { BajaEquipoModel } from '@/types';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
+import { useSession } from 'next-auth/react';
 
 
 
 const BajaEquipoDetail = () => {
+  const { data: session } = useSession();
   const router = useRouter();
   const { id } = useParams();
   const [bajaEquipo, setBajaEquipo] = useState<BajaEquipoModel | null>(null);
@@ -14,9 +16,10 @@ const BajaEquipoDetail = () => {
   useEffect(() => {
     if (id) {
       const fetchBajaEquipo = async () => {
-        const res = await fetch(`/api/equipos/baja/${id}`, {
+        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/VerEquipoInactivo?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
+            "authorization": "Bearer " + (session?.user?.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -38,9 +41,9 @@ const BajaEquipoDetail = () => {
         <h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>Detalles del Equipo</h1>
         <div className='w-full p-4 sm:p-12.5 xl:p-7.5'>
           <p><strong>ID:</strong> {bajaEquipo.id}</p>
-          <p><strong>Nombre:</strong> {bajaEquipo.nombre}</p>
-          <p><strong>Fecha de Baja:</strong> {new Date(bajaEquipo.fecha_baja).toLocaleDateString()}</p>
-          <p><strong>Usuario:</strong> {bajaEquipo.usuario}</p>
+          <p><strong>Nombre:</strong> {bajaEquipo.idEquipo.idTipo.nombreTipo}</p>
+          <p><strong>Fecha de Baja:</strong> {new Date(bajaEquipo.fecha).toLocaleDateString()}</p>
+          <p><strong>Usuario:</strong> {bajaEquipo.idUsuario.email}</p>
           <p><strong>Razón:</strong> {bajaEquipo.razon}</p>
           <p><strong>Comentarios:</strong> {bajaEquipo.comentarios}</p>
           <p><strong>Estado:</strong> {bajaEquipo.estado}</p>
