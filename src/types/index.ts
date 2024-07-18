@@ -33,10 +33,11 @@ export interface EquipoModel {
 }
 
 export interface BajaEquipoModel {
+    id: number;
     idEquipo: any;
     nombre: string;
-    fecha_baja: Date;
-    usuario: string;
+    fecha: Date;
+    idUsuario: { email: any };
     razon: string;
     comentarios: string;
     estado: ReferrerEnum.INACTIVO;
