@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { UsuarioModel, ReferrerEnum } from '@/types';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import Image from "next/image";
 import Link from "next/link";
 
@@ -15,7 +15,6 @@ const EditUsuario = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const { data: session, status } = useSession();
-
 
   useEffect(() => {
     if (id) {
@@ -40,49 +39,76 @@ const EditUsuario = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (usuario) {
       const { name, value } = e.target;
-      setUsuario({ ...usuario, [name]: value });
+      if (name === 'idPerfil.id') {
+        setUsuario({
+          ...usuario,
+          idPerfil: {
+            ...usuario.idPerfil,
+            id: parseInt(value, 10),
+          },
+        });
+      } else {
+        setUsuario({ ...usuario, [name]: value });
+      }
     }
   };
 
   const handleTelefonoChange = (index: number, value: string) => {
+    if (usuario && Array.isArray(usuario.usuariosTelefonos)) {
+      const newTelefonos = [...usuario.usuariosTelefonos];
+      newTelefonos[index].numero = value;
+      setUsuario({ ...usuario, usuariosTelefonos: newTelefonos });
+    }
+  };
+
+  const handleAddTelefono = () => {
     if (usuario) {
-      if (Array.isArray(usuario.usuariosTelefono)) {
-        const newTelefonos = [...usuario.usuariosTelefono];
-        newTelefonos[index] = value;
-        setUsuario({ ...usuario, usuariosTelefono: newTelefonos });
-      } else {
-        const newTelefonos = { ...usuario.usuariosTelefono, [index]: value };
-        setUsuario({ ...usuario, usuariosTelefono: newTelefonos });
-      }
+      const newTelefonos = usuario.usuariosTelefonos ? [...usuario.usuariosTelefonos, { id: 0, numero: '' }] : [{ id: 0, numero: '' }];
+      setUsuario({ ...usuario, usuariosTelefonos: newTelefonos });
+    }
+  };
+
+  const handleRemoveTelefono = (index: number) => {
+    if (usuario && Array.isArray(usuario.usuariosTelefonos)) {
+      const newTelefonos = [...usuario.usuariosTelefonos];
+      newTelefonos.splice(index, 1);
+      setUsuario({ ...usuario, usuariosTelefonos: newTelefonos });
     }
   };
 
   const validateForm = () => {
     const newErrors: string[] = [];
-    debugger;
     if (!usuario?.nombre) newErrors.push("Nombre es obligatorio");
     if (!usuario?.apellido) newErrors.push("Apellido es obligatorio");
     if (!usuario?.cedula) newErrors.push("Cédula es obligatoria");
     if (!usuario?.fechaNacimiento) newErrors.push("Fecha de nacimiento es obligatoria");
-    //if (!usuario?.usuariosTelefono || (Array.isArray(usuario.usuariosTelefono) && usuario.usuariosTelefono.some(tel => !tel))) newErrors.push("Teléfono de contacto es obligatorio");
     if (!usuario?.email) newErrors.push("Email es obligatorio");
     if (usuario?.email && !/\S+@\S+\.\S+/.test(usuario.email)) newErrors.push("Formato de email no válido");
-    if (!usuario?.idPerfil) newErrors.push("Tipo de usuario es obligatorio"); //TODO: arreglar
 
     setErrors(newErrors);
     return newErrors.length === 0;
   };
-  //PUT a modificar usuario
+
   const handleSubmit = async () => {
     if (usuario && validateForm()) {
+      const payload = {
+        ...usuario,
+        fechaNacimiento: usuario.fechaNacimiento ? [
+          new Date(usuario.fechaNacimiento).getFullYear(),
+          new Date(usuario.fechaNacimiento).getMonth() + 1,
+          new Date(usuario.fechaNacimiento).getDate()
+        ] : null,
+      };
+      
       const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/modificar`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
           "authorization": "Bearer " + (session?.user?.accessToken || ''),
         },
-        body: JSON.stringify(usuario),
+        body: JSON.stringify(payload),
       });
+
       if (res.ok) {
         router.push('/usuarios');
       } else {
@@ -107,216 +133,212 @@ const EditUsuario = () => {
   };
 
   if (!usuario) return <div>...loading</div>;
+  if (!session) {signIn();return null;}
 
   return (
-      <DefaultLayout>
-        <div className='flex flex-wrap items-start'>
-          <div className="hidden w-full xl:block xl:w-1/4">
-            <div className="px-6 py-7.5 text-center">
-              <Link className="mb-5.5 inline-block" href="/">
-
-                <Image
-                    className="hidden dark:block"
-                    src={"/images/logo/LogoCodigo.jpg"}
-                    alt="Logo"
-                    width={176}
-                    height={32}
-                />
-                <Image
-                    className="dark:hidden"
-                    src={"/images/logo/LogoCodigo.jpg"}
-                    alt="Logo"
-                    width={176}
-                    height={32}
-                />
-              </Link>
-
-              <p className="2xl:px-20">
-                Bienvenido al ingreso al sistema de gestion de mantenimiento de equipos clínicos hospitalarios.
-              </p>
-            </div>
+    <DefaultLayout>
+      <div className='flex flex-wrap items-start'>
+        <div className="hidden w-full xl:block xl:w-1/4">
+          <div className="px-6 py-7.5 text-center">
+            <Link className="mb-5.5 inline-block" href="/">
+              <Image
+                className="hidden dark:block"
+                src={"/images/logo/LogoCodigo.jpg"}
+                alt="Logo"
+                width={176}
+                height={32}
+              />
+              <Image
+                className="dark:hidden"
+                src={"/images/logo/LogoCodigo.jpg"}
+                alt="Logo"
+                width={176}
+                height={32}
+              />
+            </Link>
+            <p className="2xl:px-20">
+              Bienvenido al ingreso al sistema de gestion de mantenimiento de equipos clínicos hospitalarios.
+            </p>
           </div>
-          <div className='w-full border-stroke dark:border-strokedark xl:w-3/4 xl:border-l-2'>
-            <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-              <h1 className='mb-1.5 block text-2xl font-extrabold'>Editar Usuario</h1>
-
-              <form onSubmit={(e) => e.preventDefault()}>
-                {errors.length > 0 && (
-                    <div className='bg-rose-200 p-2 mb-4'>
-                      <ul>
-                        {errors.map((error, index) => (
-                            <li key={index} className='text-rose-700'>{error}</li>
-                        ))}
-                      </ul>
-                    </div>
-                )}
-                <div className='mb-4'>
-                  <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Nombre:</label>
-                  <input
-                      type='text'
-                      name='nombre'
-                      value={usuario.nombre}
-                      onChange={handleChange}
-                      className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                  />
-                </div>
-                <div className='mb-4'>
-                  <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Apellido:</label>
-                  <input
-                      type='text'
-                      name='apellido'
-                      value={usuario.apellido}
-                      onChange={handleChange}
-                      className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                  />
-                </div>
-                <div className='mb-4'>
-                  <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Cédula:</label>
-                  <input
-                      type='text'
-                      name='cedula'
-                      value={usuario.cedula}
-                      onChange={handleChange}
-                      className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                  />
-                </div>
-                <div className='mb-4'>
-                  <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Fecha de Nacimiento:</label>
-                  <input
-                      type='date'
-                      name='fechaNacimiento'
-                      value={new Date(usuario.fechaNacimiento).toISOString().split('T')[0]}
-                      onChange={handleChange}
-                      className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                  />
-                </div>
-                <div className='mb-4'>
-                  <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Teléfonos:</label>
-                  {Array.isArray(usuario.usuariosTelefono) ? (
-                      usuario.usuariosTelefono.map((tel, index) => (
-                          <input
-                              key={index}
-                              type='text'
-                              name={`usuariosTelefono_${index}`}
-                              value={tel}
-                              onChange={(e) => handleTelefonoChange(index, e.target.value)}
-                              className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary mb-2'
-                          />
-                      ))
-                  ) : ( <p>Telefono: </p>)
-                    //Object.entries(usuario.usuariosTelefono).map(([key, value], index) => (
-                    //<input
-                    // key={key}
-                    // type='text'
-                    //name={`usuariosTelefono_${key}`}
-                    //value={value as string}
-                    //onChange={(e) => handleTelefonoChange(Number(key), e.target.value)}
-                    //className='w-full p-2 border rounded mb-2'
-                    // />
-                    //))
-
-                  }
-                </div>
-                <div className='mb-4'>
-                  <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Email:</label>
-                  <input
-                      type='email'
-                      name='email'
-                      value={usuario.email}
-                      onChange={handleChange}
-                      className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                  />
-                </div>
-                <div className='mb-4'>
-                  <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Tipo de Usuario:</label>
-                  <select
-                      name='tipo_usuario'
-                      /*value={usuario.nombrePerfil}*/
-                      onChange={handleChange}
-                      className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                  >
-                    <option value="">Seleccione un tipo de usuario</option>
-                    <option value={ReferrerEnum.ADMIN}>Admin</option>
-                    <option value={ReferrerEnum.AUXILIAR_ADMINISTRATIVO}>Auxiliar Administrativo</option>
-                    <option value={ReferrerEnum.INGENIERO_BIOMEDICO}>Ingeniero Biomédico</option>
-                    <option value={ReferrerEnum.TECNICO}>Técnico</option>
-                    <option value={ReferrerEnum.TECNOLOGO}>Tecnólogo</option>
-                  </select>
-                </div>
-                <div className='mb-4'>
-                  <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Estado:</label>
-                  <select
-                      name='estado'
-                      value={usuario.estado}
-                      onChange={handleChange}
-                      className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                  >
-                    <option value={ReferrerEnum.ACTIVO}>Activo</option>
-                    <option value={ReferrerEnum.INACTIVO}>Inactivo</option>
-                    <option value={ReferrerEnum.SIN_VALIDAR}>Sin validar</option>
-                  </select>
-                </div>
-                <button
-                    type='button'
-                    onClick={() => setShowConfirmModal(true)}
-                    className='bg-green-500 text-white p-2 rounded'
-                >
-                  Guardar
-                </button>
-                <button
-                    type='button'
-                    onClick={handleBack}
-                    className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
-                >
-                  Volver
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {showModal && (
-              <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-                <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
-                  <h2 className='text-xl mb-4'>Errores en el formulario</h2>
-                  <ul className='list-disc list-inside'>
+        </div>
+        <div className='w-full border-stroke dark:border-strokedark xl:w-3/4 xl:border-l-2'>
+          <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
+            <h1 className='mb-1.5 block text-2xl font-extrabold'>Editar Usuario</h1>
+            <form onSubmit={(e) => e.preventDefault()}>
+              {errors.length > 0 && (
+                <div className='bg-rose-200 p-2 mb-4'>
+                  <ul>
                     {errors.map((error, index) => (
-                        <li key={index} className='text-rose-600'>{error}</li>
+                      <li key={index} className='text-rose-700'>{error}</li>
                     ))}
                   </ul>
-                  <button
-                      onClick={() => setShowModal(false)}
-                      className='mt-4 bg-violet-800 text-white p-2 rounded'
-                  >
-                    Cerrar
-                  </button>
                 </div>
+              )}
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Nombre:</label>
+                <input
+                  type='text'
+                  name='nombre'
+                  value={usuario.nombre}
+                  onChange={handleChange}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
               </div>
-          )}
-
-          {showConfirmModal && (
-              <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-                <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
-                  <h2 className='text-xl mb-4'>Confirmar cambios</h2>
-                  <p>¿Estás seguro de que deseas guardar los cambios?</p>
-                  <div className='mt-4'>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Apellido:</label>
+                <input
+                  type='text'
+                  name='apellido'
+                  value={usuario.apellido}
+                  onChange={handleChange}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Cédula:</label>
+                <input
+                  type='text'
+                  name='cedula'
+                  value={usuario.cedula}
+                  onChange={handleChange}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Fecha de Nacimiento:</label>
+                <input
+                  type='date'
+                  name='fechaNacimiento'
+                  value={new Date(usuario.fechaNacimiento).toISOString().split('T')[0]}
+                  onChange={handleChange}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Teléfonos:</label>
+                {Array.isArray(usuario.usuariosTelefonos) && usuario.usuariosTelefonos.map((tel, index) => (
+                  <div key={index} className='mb-2 flex items-center'>
+                    <input
+                      type='text'
+                      name={`usuariosTelefono_${index}`}
+                      value={tel.numero}
+                      onChange={(e) => handleTelefonoChange(index, e.target.value)}
+                      className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                    />
                     <button
-                        onClick={handleConfirm}
-                        className='bg-green-500 text-white p-2 rounded mr-4'
+                      type='button'
+                      onClick={() => handleRemoveTelefono(index)}
+                      className='ml-2 text-red-600'
                     >
-                      Aceptar
-                    </button>
-                    <button
-                        onClick={() => setShowConfirmModal(false)}
-                        className='bg-violet-800 text-white p-2 rounded'
-                    >
-                      Cancelar
+                      Eliminar
                     </button>
                   </div>
-                </div>
+                ))}
+                <button
+                  type='button'
+                  onClick={handleAddTelefono}
+                  className='bg-blue-500 text-white py-2 px-4 rounded'
+                >
+                  Agregar Teléfono
+                </button>
               </div>
-          )}
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Email:</label>
+                <input
+                  type='email'
+                  name='email'
+                  value={usuario.email}
+                  onChange={handleChange}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Tipo de Usuario:</label>
+                <select
+                  name='idPerfil.id'
+                  value={usuario.idPerfil.id}
+                  onChange={handleChange}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                >
+                  <option value="">Seleccione un tipo de usuario</option>
+                  <option value={1}>Admin</option>
+                  <option value={2}>Auxiliar Administrativo</option>
+                  <option value={3}>Ingeniero Biomédico</option>
+                  <option value={4}>Técnico</option>
+                </select>
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Estado:</label>
+                <select
+                  name='estado'
+                  value={usuario.estado}
+                  onChange={handleChange}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                >
+                  <option value={ReferrerEnum.ACTIVO}>Activo</option>
+                  <option value={ReferrerEnum.INACTIVO}>Inactivo</option>
+                  <option value={ReferrerEnum.SIN_VALIDAR}>Sin validar</option>
+                </select>
+              </div>
+              <button
+                type='button'
+                onClick={() => setShowConfirmModal(true)}
+                className='bg-green-500 text-white p-2 rounded'
+              >
+                Guardar
+              </button>
+              <button
+                type='button'
+                onClick={handleBack}
+                className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
+              >
+                Volver
+              </button>
+            </form>
+          </div>
         </div>
-      </DefaultLayout>
+        {showModal && (
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+            <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
+              <h2 className='text-xl mb-4'>Errores en el formulario</h2>
+              <ul className='list-disc list-inside'>
+                {errors.map((error, index) => (
+                  <li key={index} className='text-rose-600'>{error}</li>
+                ))}
+              </ul>
+              <button
+                onClick={() => setShowModal(false)}
+                className='mt-4 bg-violet-800 text-white p-2 rounded'
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
+        {showConfirmModal && (
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+            <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
+              <h2 className='text-xl mb-4'>Confirmar cambios</h2>
+              <p>¿Estás seguro de que deseas guardar los cambios?</p>
+              <div className='mt-4'>
+                <button
+                  onClick={handleConfirm}
+                  className='bg-green-500 text-white p-2 rounded mr-4'
+                >
+                  Aceptar
+                </button>
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className='bg-violet-800 text-white p-2 rounded'
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </DefaultLayout>
   );
 }
 

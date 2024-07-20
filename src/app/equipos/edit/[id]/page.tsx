@@ -6,6 +6,7 @@ import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from '@/types/emuns';
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from 'next-auth/react';
 
 const EditEquipo = () => {
   const router = useRouter();
@@ -14,13 +15,15 @@ const EditEquipo = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     if (id) {
       const fetchEquipo = async () => {
-        const res = await fetch(`/api/equipos/${id}`, {
+        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/BuscarEquipo?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
+            "authorization": "Bearer " + (session?.user?.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -62,10 +65,11 @@ const EditEquipo = () => {
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      const res = await fetch(`/api/equipos/${id}`, {
+      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
+          "authorization": "Bearer " + (session?.user?.accessToken || ''),
         },
         body: JSON.stringify(equipo),
       });
@@ -153,8 +157,7 @@ const EditEquipo = () => {
               className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             >
               <option value="">Seleccione un tipo de equipo</option>
-              <option value={Tipo.DIGITAL}>Digital</option>
-              <option value={Tipo.MECANICO}>Mecánico</option>
+              {}
             </select>
           </div>
           <div className='mb-4'>
@@ -233,8 +236,8 @@ const EditEquipo = () => {
             <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Fecha de Adquisición:</label>
             <input
               type='date'
-              name='fecha_adq'
-              value={new Date(equipo.fecha_adq).toISOString().split('T')[0]}
+              name='fechaAdquisicion'
+              value={new Date(equipo.fechaAdquisicion).toISOString().split('T')[0]}
               onChange={handleChange}
               className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             />

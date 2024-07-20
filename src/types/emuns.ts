@@ -10,10 +10,11 @@ export enum ReferrerEnum {
     INSTITUCION = "Código Creativo"
   }
 //import { Tipo } from '@/types/emuns'
- export enum Tipo {
-    MECANICO = "Mecánico",
-    DIGITAL = "Digital"
-  }
+export const Tipo = [
+  { id: 1, nombreTipo: "Mecánico" },
+  { id: 2, nombreTipo: "Digital" },
+  { id: 3, nombreTipo: "Monitor de signos" }
+];
   export enum Marca {
     LG = "Lg",
     MOTOROLA = "Motorola"
