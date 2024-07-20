@@ -213,7 +213,7 @@ export default function Registrar() {
                     <div className="w-full xl:w-1/2">
                         <div className="px-12.5 py-17.5 sm:px-25 sm:py-30">
                             <h2 className="mb-9 text-2xl font-bold text-black dark:text-white">
-                                Registrarse
+                                Crear usuario
                             </h2>
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-4">
@@ -393,7 +393,7 @@ export default function Registrar() {
                                     type="submit"
                                     className="mt-4 w-full rounded-lg bg-primary py-4 px-6 text-white hover:bg-primary-dark"
                                 >
-                                    Registrarse
+                                    Registrar
                                 </button>
                             </form>
                         </div>

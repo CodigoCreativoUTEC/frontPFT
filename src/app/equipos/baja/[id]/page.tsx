@@ -3,9 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { BajaEquipoModel } from '@/types';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import { useSession } from 'next-auth/react';
-
-
+import { signIn, useSession } from 'next-auth/react';
 
 const BajaEquipoDetail = () => {
   const { data: session } = useSession();
@@ -31,8 +29,9 @@ const BajaEquipoDetail = () => {
       };
       fetchBajaEquipo();
     }
-  }, [id]);
-
+  }, [id, session?.user?.accessToken]);
+  
+  if (!session) {signIn();return null;}
   if (!bajaEquipo) return <div>...loading</div>;
 
   return (

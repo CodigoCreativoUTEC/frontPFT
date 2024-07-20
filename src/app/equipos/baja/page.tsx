@@ -5,7 +5,7 @@ import { BajaEquipoModel, ReferrerEnum } from '@/types';
 import BajaEquiposList from '@/components/BajaEquipos';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from '@/types/emuns';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 
 const EquiposBaja = () => {
   const [bajaEquipos, setBajaEquipos] = useState<BajaEquipoModel[]>([]);
@@ -25,7 +25,7 @@ const EquiposBaja = () => {
   useEffect(() => {
     fetcher().then(() => console.log("Obteniendo equipos de baja"));
   }, []);
-
+  if (!session) {signIn();return null;}
   
   return (
     <DefaultLayout>

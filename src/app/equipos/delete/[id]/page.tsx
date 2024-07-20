@@ -8,7 +8,7 @@ import { EquipoModel, BajaEquipoModel, ReferrerEnum } from '@/types';
 import Image from "next/image";
 import Link from "next/link";
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 
 const DeleteEquipo = () => {
   const { data: session, status } = useSession();
@@ -90,7 +90,7 @@ const DeleteEquipo = () => {
   };
 
   if (!equipo) return <div>...loading</div>;
-
+  if (!session) {signIn();return null;}
   return (
     <DefaultLayout>
     <div className='flex flex-wrap items-start'>
