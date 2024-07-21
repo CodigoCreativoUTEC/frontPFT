@@ -15,21 +15,20 @@ export interface UsuarioModel {
 }
 
 export interface EquipoModel {
-    id: number;
+    id: number | null;
     nombre: string;
-    tipo_equipo: Tipo;
+    idTipo: Tipo;
     marca: Marca;
-    modelo: Modelo;
-    num_serie: number;
+    idModelo: Modelo;
+    nroSerie: number;
     garantia: number;
-    pais: Pais;
-    proveedor: Proveedor;
-    fecha_adq: Date;
-    id_interno: string;
-    ubicacion: Ubicacion;
+    idPais: Pais;
+    idProveedor: Proveedor;
+    fechaAdquisicion: Date;
+    idInterno: string;
+    idUbicacion: Ubicacion;
     imagen: string;
     estado: ReferrerEnum;
-
 }
 
 export interface BajaEquipoModel {
