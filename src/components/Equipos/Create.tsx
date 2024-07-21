@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { EquipoModel } from '@/types';
-import { tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from '@/types/emuns';
+import { tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones, ReferrerEnum } from '@/types/emuns';
 import Image from "next/image";
 import Link from "next/link";
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 
 const EquiposCreate = () => {
   const router = useRouter();
@@ -95,7 +95,7 @@ const EquiposCreate = () => {
           fechaAdquisicion.getMonth() + 1,
           fechaAdquisicion.getDate()
         ] : [],
-        estado: "ACTIVO"
+        estado: ReferrerEnum.ACTIVO
       };
 
       const add = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/", {
@@ -126,6 +126,8 @@ const EquiposCreate = () => {
   const handleBack = () => {
     router.push('/equipos');
   };
+
+  if (!session) {signIn();return null;}
 
   return (
       <div className='flex flex-wrap items-start'>

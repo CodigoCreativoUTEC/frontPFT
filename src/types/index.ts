@@ -1,6 +1,7 @@
 import { ReferrerEnum, Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from "./emuns";
-
+type nombrePerfil = any;
 export interface UsuarioModel {
+    id: number | null;
     nombre: string;
     apellido: string;
     cedula: string;
@@ -12,6 +13,7 @@ export interface UsuarioModel {
     nombrePerfil: ReferrerEnum; // Sirve para mostrar el nombre del perfil
     estado: ReferrerEnum; 
     institucion: ReferrerEnum;
+    idPerfil: number | nombrePerfil;
 }
 
 export interface EquipoModel {
@@ -20,11 +22,11 @@ export interface EquipoModel {
     idTipo: Tipo;
     marca: Marca;
     idModelo: Modelo;
-    nroSerie: number;
-    garantia: number;
+    nroSerie: number | string;
+    garantia: number | string;
     idPais: Pais;
     idProveedor: Proveedor;
-    fechaAdquisicion: Date;
+    fechaAdquisicion: Date | any;
     idInterno: string;
     idUbicacion: Ubicacion;
     imagen: string;
