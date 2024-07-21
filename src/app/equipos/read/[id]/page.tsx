@@ -71,7 +71,9 @@ const EquipoDetail = () => {
         <div className='w-full p-4 sm:p-12.5 xl:p-7.5'>
           <p><strong>ID:</strong> {equipo.id}</p>
           <p><strong>Nombre:</strong> {equipo.nombre}</p>
-          <p><strong>Imagen:</strong> <img src={equipo.imagen} /></p>
+          <div className="flex justify-center mb-4">
+            <img src={equipo.imagen} alt={equipo.nombre} className="max-w-xs" />
+          </div>
           <p><strong>Marca:</strong> {equipo.idModelo.idMarca.nombre}</p>
           <p><strong>Modelo:</strong> {equipo.idModelo.nombre}</p>
           <p><strong>Número de Serie:</strong> {equipo.nroSerie}</p>

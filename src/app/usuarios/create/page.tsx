@@ -33,7 +33,7 @@ export default function Registrar() {
         { type: Number, value: 1, label: 'Administrador' },
         { type: Number, value: 2, label: 'Aux administrativo' },
         { type: Number, value: 3, label: 'Ingeniero biomédico' },
-        { type: Number, value: 4, label: 'Tecnico' }
+        { type: Number, value: 4, label: 'Técnico' }
     ];
 
     useEffect(() => {
@@ -181,21 +181,21 @@ export default function Registrar() {
                             <Link className="mb-5.5 inline-block" href="/">
                                 <Image
                                     className="hidden dark:block"
-                                    src={"/images/logo/logo.svg"}
+                                    src={"/images/logo/LogoCodigo.jpg"}
                                     alt="Logo"
                                     width={176}
                                     height={32}
                                 />
                                 <Image
                                     className="dark:hidden"
-                                    src={"/images/logo/logo-dark.svg"}
+                                    src={"/images/logo/LogoCodigo.jpg"}
                                     alt="Logo"
                                     width={176}
                                     height={32}
                                 />
                             </Link>
                             <p className="2xl:px-20">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit suspendisse.
+                                Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
                             </p>
                             <span className="mt-15 inline-block">
                                 <svg

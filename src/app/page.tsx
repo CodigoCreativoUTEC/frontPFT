@@ -5,7 +5,7 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 export const metadata: Metadata = {
   title:
     "MA-MED - Iniciar Sesión",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
+  description: "Sistema de gestión de mantenimiento de equipos clínicos hospitalarios.",
 };
 
 export default function Home() {
