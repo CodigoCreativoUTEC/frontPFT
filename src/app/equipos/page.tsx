@@ -2,7 +2,7 @@ import React from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import EquiposRead from "@/components/Equipos/Listar";
+import EquiposRead from "@/components/Equipos/listarEquipos";
 
 export const metadata: Metadata = {
     title: "Listado de equipos",

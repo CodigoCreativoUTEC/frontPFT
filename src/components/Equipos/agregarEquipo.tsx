@@ -156,7 +156,6 @@ const EquiposCreate = () => {
         </div>
         <div className='w-full border-stroke dark:border-strokedark xl:w-3/4 xl:border-l-2'>
           <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-            <h1 className='mb-1.5 block text-2xl font-extrabold'>Agregar Equipo</h1>
             <form onSubmit={(e) => e.preventDefault()}>
               {errors.length > 0 && (
                 <div className='bg-rose-200 p-2 mb-4'>

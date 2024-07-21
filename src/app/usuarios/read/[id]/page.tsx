@@ -2,7 +2,7 @@ import React from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import UsuarioDetail from "@/components/Usuarios/Detalle";
+import UsuarioDetail from "@/components/Usuarios/verUsuario";
 
 export const metadata: Metadata = {
   title: "Detalles del usuario",

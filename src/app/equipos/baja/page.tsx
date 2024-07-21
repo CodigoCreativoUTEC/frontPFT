@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { BajaEquipoModel, ReferrerEnum } from '@/types';
-import BajaEquiposList from '@/components/BajaEquipos';
+import BajaEquiposList from '@/components/Equipos/BajaEquipos';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from '@/types/emuns';
 import { signIn, useSession } from 'next-auth/react';
