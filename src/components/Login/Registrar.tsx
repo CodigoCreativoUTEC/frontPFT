@@ -1,9 +1,19 @@
-"use client"
+"use client";
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import LoginLayout from "@/components/Layouts/LoginLayout";
+
+// Función para generar el hash SHA-256
+const hashPassword = async (password) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+};
 
 export default function Registrar() {
     const router = useRouter();
@@ -102,21 +112,24 @@ export default function Registrar() {
         return Object.values(tempErrors).every(error => error === '');
     };
 
-    const handleChange = (e) => {
+    const handleChange = (e: { target: { name: any; value: any; }; }) => {
         const { name, value } = e.target;
         const newValue = name === 'idPerfil' ? parseInt(value, 10) : value;
         setFormData({ ...formData, [name]: newValue });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         if (!validate()) {
             return;
         }
 
-        
+        // Hashear la contraseña antes de enviarla
+        const hashedPassword = await hashPassword(formData.contrasenia);
+
         const usuarioDto = {
             ...formData,
+            contrasenia: hashedPassword,
             idPerfil: { id: formData.idPerfil },
             idInstitucion: { id: 1 },
         };

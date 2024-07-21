@@ -2,12 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams, redirect } from 'next/navigation';
 import { UsuarioModel } from '@/types';
-import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import Image from "next/image";
 import Link from "next/link";
 import { signIn, useSession } from 'next-auth/react';
-import { sign } from 'crypto';
-
 
 const UsuarioDetail = () => {
   const { data: session, status } = useSession();

@@ -6,7 +6,7 @@ import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from '@/types/emuns';
 import Image from "next/image";
 import Link from "next/link";
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 
 const EditEquipo = () => {
   const router = useRouter();
@@ -38,6 +38,7 @@ const EditEquipo = () => {
       fetchEquipo();
     }
   }, [id]);
+  if (!session) { signIn(); return null; }
 
   const validateForm = () => {
     const newErrors: string[] = [];

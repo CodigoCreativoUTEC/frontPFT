@@ -65,7 +65,7 @@ const UsuariosList: React.FC<UsuariosListProps> = (params) => {
 
     return (
         <>
-            <tr className="border-b text-black bold dark:border-neutral-500 odd:bg-blue-200 ">
+            <tr className="border-b text-black bold dark:border-neutral-500 odd:bg-blue-200 dark:odd:bg-slate-700 dark:even:bg-slate-500 dark:odd:text-bodydark2">
                 <td className='px-1 py-1'>{params.id}</td>
                 <td className='px-1 py-1'>{params.nombre}</td>
                 <td className='px-1 py-1'>{params.apellido}</td>
@@ -82,10 +82,10 @@ const UsuariosList: React.FC<UsuariosListProps> = (params) => {
                 <td className='px-1 py-1'>
                     <p className={`inline-flex rounded-full bg-opacity-10 px-1 py-1 text-sm ${
                         params.estado === "ACTIVO"
-                            ? "bg-success text-success"
+                            ? "bg-success text-success dark:text-green-400 dark:bg-green-900"
                             : params.estado === "SIN_VALIDAR"
                                 ? "bg-danger text-danger"
-                                : "bg-warning text-yellow-700"
+                                : "bg-warning text-yellow-700 dark:text-yellow-400 dark:bg-yellow-900"
                     }`}>
                         {params.estado === "SIN_VALIDAR"
                             ? "Sin Validar"

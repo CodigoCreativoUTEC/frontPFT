@@ -1,6 +1,6 @@
 import "react-datepicker/dist/react-datepicker.css";
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import Create from '@/components/Equipos/Create';
+import Create from '@/components/Equipos/Crear';
 
 const EquiposCreate = () => {
   
