@@ -20,7 +20,7 @@ export interface EquipoModel {
     id: number | null;
     nombre: string;
     idTipo: Tipo;
-    marca: Marca;
+    marca: any | null;
     idModelo: Modelo;
     nroSerie: number | string;
     garantia: number | string;
@@ -31,6 +31,7 @@ export interface EquipoModel {
     idUbicacion: Ubicacion;
     imagen: string;
     estado: ReferrerEnum;
+    equiposUbicaciones: any;
 }
 
 export interface BajaEquipoModel {

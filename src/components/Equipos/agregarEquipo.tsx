@@ -95,7 +95,8 @@ const EquiposCreate = () => {
           fechaAdquisicion.getMonth() + 1,
           fechaAdquisicion.getDate()
         ] : [],
-        estado: ReferrerEnum.ACTIVO
+        estado: ReferrerEnum.ACTIVO,
+        marca: undefined
       };
 
       const add = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/", {
