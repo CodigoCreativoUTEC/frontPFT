@@ -3,89 +3,115 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import es from 'date-fns/locale/es';
-import { EquipoModel, ReferrerEnum, Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from '@/types';
+import { EquipoModel } from '@/types';
+import { tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from '@/types/emuns';
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from 'next-auth/react';
 
 const EquiposCreate = () => {
+  const router = useRouter();
+  const [errors, setErrors] = useState<string[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
-  const router = useRouter();
-  const [name, setName] = useState<string>("");
-  const [tipoEquipo, setTipoEquipo] = useState<string>("");
-  const [marca, setMarca] = useState<string>("");
-  const [modelo, setModelo] = useState<string>("");
-  const [numSerie, setNumSerie] = useState<number | undefined>();
-  const [garantia, setGarantia] = useState<number | undefined>();
-  const [pais, setPais] = useState<string>("");
-  const [proveedor, setProveedor] = useState<string>("");
-  const [fechaAdq, setFechaAdq] = useState<Date | null>(null);
+  const [nombre, setNombre] = useState<string>("");
+  const [selectedTipo, setSelectedTipo] = useState<number | null>(null);
+  const [selectedMarca, setSelectedMarca] = useState<number | null>(null);
+  const [selectedModelo, setSelectedModelo] = useState<number | null>(null);
+  const [nroSerie, setNroSerie] = useState<string>("");
+  const [garantia, setGarantia] = useState<Date | null>(null);
+  const [selectedPais, setSelectedPais] = useState<number | null>(null);
+  const [selectedProveedor, setSelectedProveedor] = useState<number | null>(null);
+  const [fechaAdquisicion, setFechaAdquisicion] = useState<Date | null>(null);
   const [idInterno, setIdInterno] = useState<string>("");
-  const [ubicacion, setUbicacion] = useState<string>("");
+  const [selectedUbicacion, setSelectedUbicacion] = useState<number | null>(null);
   const [imagen, setImagen] = useState<string>("");
-  const [errors, setErrors] = useState<string[]>([]);
+  const { data: session, status } = useSession();
 
   const validateForm = () => {
     const newErrors: string[] = [];
-    if (!name) newErrors.push("Nombre es obligatorio");
-    if (!tipoEquipo) newErrors.push("Tipo de equipo es obligatorio");
-    if (!marca) newErrors.push("Marca es obligatoria");
-    if (!modelo) newErrors.push("Modelo es obligatorio");
-    if (!numSerie) newErrors.push("Número de serie es obligatorio");
+    if (!nombre) newErrors.push("Nombre es obligatorio");
+    if (!selectedTipo) newErrors.push("Tipo de equipo es obligatorio");
+    if (!selectedMarca) newErrors.push("Marca es obligatoria");
+    if (!selectedModelo) newErrors.push("Modelo es obligatorio");
+    if (!nroSerie) newErrors.push("Número de serie es obligatorio");
     if (!garantia) newErrors.push("Garantía es obligatoria");
-    if (!pais) newErrors.push("País de origen es obligatorio");
-    if (!proveedor) newErrors.push("Proveedor es obligatorio");
-    if (!fechaAdq) newErrors.push("Fecha de adquisición es obligatoria");
+    if (!selectedPais) newErrors.push("País de origen es obligatorio");
+    if (!selectedProveedor) newErrors.push("Proveedor es obligatorio");
+    if (!fechaAdquisicion) newErrors.push("Fecha de adquisición es obligatoria");
     if (!idInterno) newErrors.push("Identificación interna es obligatoria");
-    if (!ubicacion) newErrors.push("Ubicación es obligatoria");
+    if (!selectedUbicacion) newErrors.push("Ubicación es obligatoria");
     if (!imagen) newErrors.push("Imagen del equipo es obligatoria");
 
     setErrors(newErrors);
     return newErrors.length === 0;
   };
 
-  const fetchNewId = async () => {
-    const res = await fetch("/api/equipos", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const equips = await res.json();
-    const newId = equips.length > 0 ? Math.max(...equips.map((u: { id: number | string }) => Number(u.id))) + 1 : 1;
-    return newId;
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch('https://api.imgbb.com/1/upload?key=7c25531eca2149d7618fe5241473b513', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          setImagen(result.data.url);
+        } else {
+          console.error('Error al subir la imagen a imgbb');
+        }
+      } catch (error) {
+        console.error('Error al subir la imagen:', error);
+      }
+    }
   };
 
   const addEquipo = async () => {
     if (validateForm()) {
-      const newId = await fetchNewId();
-      const formData: EquipoModel = {
-        id: newId,
-        nombre: name,
-        tipo_equipo: tipoEquipo as Tipo,
-        modelo: modelo as Modelo,
-        num_serie: numSerie!,
-        garantia: garantia!,
-        pais: pais as Pais,
-        proveedor: proveedor as Proveedor,
-        marca: marca as Marca,
-        fecha_adq: fechaAdq!,
-        id_interno: idInterno,
-        imagen: imagen,
-        ubicacion: ubicacion as Ubicacion,
-        estado: ReferrerEnum.ACTIVO
+      const payload: EquipoModel = {
+        id: null,
+        idInterno,
+        nroSerie,
+        garantia: garantia ? garantia.toISOString().split('T')[0] : "",
+        idTipo: { id: selectedTipo!, nombreTipo: tipoEquipos.find(tipo => tipo.id === selectedTipo)?.nombreTipo || "" },
+        idProveedor: { id: selectedProveedor!, nombre: proveedores.find(proveedor => proveedor.id === selectedProveedor)?.nombre || "" },
+        idPais: { id: selectedPais!, nombre: paises.find(pais => pais.id === selectedPais)?.nombre || "" },
+        idModelo: {
+          id: selectedModelo!,
+          nombre: modelos.find(modelo => modelo.id === selectedModelo)?.nombre || "",
+          idMarca: { id: selectedMarca!, nombre: marcas.find(marca => marca.id === selectedMarca)?.nombre || "" }
+        },
+        equiposUbicaciones: [],
+        idUbicacion: { id: selectedUbicacion!, nombre: ubicaciones.find(ubicacion => ubicacion.id === selectedUbicacion)?.nombre || "" },
+        nombre,
+        imagen,
+        fechaAdquisicion: fechaAdquisicion ? [
+          fechaAdquisicion.getFullYear(),
+          fechaAdquisicion.getMonth() + 1,
+          fechaAdquisicion.getDate()
+        ] : [],
+        estado: "ACTIVO"
       };
 
-      const add = await fetch("/api/equipos", {
+      const add = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "authorization": "Bearer " + (session?.user?.accessToken || ''),
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (add.ok) {
         router.push("/equipos");
+      } else {
+        const result = await add.json();
+        console.error('Error al crear el equipo:', result);
       }
     } else {
       setShowModal(true);
@@ -97,12 +123,15 @@ const EquiposCreate = () => {
     addEquipo();
   };
 
+  const handleBack = () => {
+    router.push('/equipos');
+  };
+
   return (
-    <div className="flex flex-wrap items-start">
+      <div className='flex flex-wrap items-start'>
         <div className="hidden w-full xl:block xl:w-1/4">
           <div className="px-6 py-7.5 text-center">
             <Link className="mb-5.5 inline-block" href="/">
-              
               <Image
                 className="hidden dark:block"
                 src={"/images/logo/LogoCodigo.jpg"}
@@ -118,248 +147,230 @@ const EquiposCreate = () => {
                 height={32}
               />
             </Link>
-
             <p className="2xl:px-20">
-              Bienvenido al ingreso al sistema de gestion de mantenimiento de equipos clínicos hospitalarios.
+              Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
             </p>
           </div>
         </div>
-    <div className="w-full border-stroke dark:border-strokedark xl:w-3/4 xl:border-l-2">
-        <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-        <span className="mb-1.5 block text-2xl font-extrabold">Agregar Equipo</span>
-
-      <form onSubmit={(e) => e.preventDefault()}>
-        {errors.length > 0 && (
-          <div className='bg-rose-200 p-2 mb-4'>
-            <ul>
-              {errors.map((error, index) => (
-                <li key={index} className='text-pink-700'>{error}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-        <div className='mb-4'>
-          <label htmlFor="nombre" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Nombre
-          </label>
-          <input 
-            type="text" 
-            name="nombre"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="marca" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Marca
-          </label>
-          <select
-            name="marca"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={marca}
-            onChange={(e) => setMarca(e.target.value)}
-          >
-            <option value="">Seleccione una marca</option>
-            <option value={Marca.LG}>Lg</option>
-            <option value={Marca.MOTOROLA}>Motorola</option>
-          </select>
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="modelo" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Modelo
-          </label>
-          <select
-            name="modelo"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={modelo}
-            onChange={(e) => setModelo(e.target.value)}
-          >
-            <option value="">Seleccione un modelo</option>
-            <option value={Modelo.HD}>HD</option>
-            <option value={Modelo.U4K}>U4K</option>
-          </select>
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="num_serie" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Número de Serie
-          </label>
-          <input 
-            type="number"
-            name="num_serie"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={numSerie}
-            onChange={(e) => setNumSerie(Number(e.target.value))}
-          />
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="garantia" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Garantía
-          </label>
-          <input 
-            type="number"
-            name="garantia"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={garantia}
-            onChange={(e) => setGarantia(Number(e.target.value))}
-          />
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="pais" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            País
-          </label>
-          <select
-            name="pais"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={pais}
-            onChange={(e) => setPais(e.target.value)}
-          >
-            <option value="">Seleccione un país</option>
-            <option value={Pais.BRASIL}>Brasil</option>
-            <option value={Pais.URUGUAY}>Uruguay</option>
-          </select>
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="proveedor" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Proveedor
-          </label>
-          <select
-            name="proveedor"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={proveedor}
-            onChange={(e) => setProveedor(e.target.value)}
-          >
-            <option value="">Seleccione un proveedor</option>
-            <option value={Proveedor.DISTRICOMP}>Districomp</option>
-            <option value={Proveedor.LOI}>Loi</option>
-          </select>
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="fecha_adq" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Fecha de Adquirido
-          </label>
-          <DatePicker 
-            selected={fechaAdq}
-            onChange={(date: Date | null, event: React.SyntheticEvent<any> | undefined) => setFechaAdq(date)}
-            dateFormat="yyyy-MM-dd"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            locale="es"
-          />
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="id_interno" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            ID interno
-          </label>
-          <input 
-            type="text" 
-            name="id_interno"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={idInterno}
-            onChange={(e) => setIdInterno(e.target.value)}
-          />
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="ubicacion" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Ubicación
-          </label>
-          <select
-            name="ubicacion"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={ubicacion}
-            onChange={(e) => setUbicacion(e.target.value)}
-          >
-            <option value="">Seleccione una ubicación</option>
-            <option value={Ubicacion.CTI}>CTI</option>
-            <option value={Ubicacion.SALA1}>Sala 1</option>
-          </select>
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="tipo_equipo" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Tipo de Equipo
-          </label>
-          <select
-            name="tipo_equipo"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={tipoEquipo}
-            onChange={(e) => setTipoEquipo(e.target.value)}
-          >
-            <option value="">Seleccione un tipo de equipo</option>
-            <option value={Tipo.MECANICO}>Mecánico</option>
-            <option value={Tipo.DIGITAL}>Digital</option>
-          </select>
-        </div>
-        <div className='mb-4'>
-          <label htmlFor="imagen" className='mb-2.5 block font-medium text-sm text-black dark:text-white'>
-            Imagen
-          </label>
-          <input 
-            type="text" 
-            name="imagen"
-            className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-            value={imagen}
-            onChange={(e) => setImagen(e.target.value)}
-          />
-        </div>
-        <div className='mb-4'>
-          <button
-            type='button'
-            onClick={() => setShowConfirmModal(true)}
-            className='w-20 p-2 text-white border-gray-600 border-[1px] rounded bg-green-500'
-          >
-            Enviar
-          </button>
-          <button
-            onClick={() => router.push('/equipos')}
-            className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
-          >
-            Volver
-          </button>
-        </div>
-      </form>
-      {showModal && (
-        <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
-          <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
-            <h2 className='text-xl mb-4'>Errores en el formulario</h2>
-            <ul className='list-disc list-inside'>
-              {errors.map((error, index) => (
-                <li key={index} className='text-rose-600'>{error}</li>
-              ))}
-            </ul>
-            <button
-              onClick={() => setShowModal(false)}
-              className='mt-4 bg-violet-800 text-white p-2 rounded'
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {showConfirmModal && (
-        <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center '>
-          <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
-            <h2 className='text-xl mb-4'>Confirmar creación</h2>
-            <p>¿Estás seguro de que deseas guardar este equipo?</p>
-            <div className='mt-4'>
+        <div className='w-full border-stroke dark:border-strokedark xl:w-3/4 xl:border-l-2'>
+          <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
+            <h1 className='mb-1.5 block text-2xl font-extrabold'>Agregar Equipo</h1>
+            <form onSubmit={(e) => e.preventDefault()}>
+              {errors.length > 0 && (
+                <div className='bg-rose-200 p-2 mb-4'>
+                  <ul>
+                    {errors.map((error, index) => (
+                      <li key={index} className='text-rose-700'>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Nombre:</label>
+                <input
+                  type='text'
+                  name='nombre'
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Tipo de Equipo:</label>
+                <select
+                  name='id'
+                  value={selectedTipo || ""}
+                  onChange={(e) => setSelectedTipo(parseInt(e.target.value, 10))}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                >
+                  <option value="">Seleccione un tipo de equipo</option>
+                  {tipoEquipos.map(tipo => (
+                    <option key={tipo.id} value={tipo.id}>{tipo.nombreTipo}</option>
+                  ))}
+                </select>
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Marca:</label>
+                <select
+                  name='id'
+                  value={selectedMarca || ""}
+                  onChange={(e) => setSelectedMarca(parseInt(e.target.value, 10))}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                >
+                  <option value="">Seleccione una marca</option>
+                  {marcas.map(marca => (
+                    <option key={marca.id} value={marca.id}>{marca.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Modelo:</label>
+                <select
+                  name='id'
+                  value={selectedModelo || ""}
+                  onChange={(e) => setSelectedModelo(parseInt(e.target.value, 10))}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                >
+                  <option value="">Seleccione un modelo</option>
+                  {modelos.filter(modelo => modelo.idMarca === selectedMarca).map(modelo => (
+                    <option key={modelo.id} value={modelo.id}>{modelo.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Número de Serie:</label>
+                <input
+                  type='text'
+                  name='nroSerie'
+                  value={nroSerie}
+                  onChange={(e) => setNroSerie(e.target.value)}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Garantía:</label>
+                <DatePicker
+                  selected={garantia}
+                  onChange={(date) => setGarantia(date)}
+                  dateFormat="yyyy-MM-dd"
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>País:</label>
+                <select
+                  name='id'
+                  value={selectedPais || ""}
+                  onChange={(e) => setSelectedPais(parseInt(e.target.value, 10))}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                >
+                  <option value="">Seleccione un país</option>
+                  {paises.map(pais => (
+                    <option key={pais.id} value={pais.id}>{pais.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Proveedor:</label>
+                <select
+                  name='id'
+                  value={selectedProveedor || ""}
+                  onChange={(e) => setSelectedProveedor(parseInt(e.target.value, 10))}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                >
+                  <option value="">Seleccione un proveedor</option>
+                  {proveedores.map(proveedor => (
+                    <option key={proveedor.id} value={proveedor.id}>{proveedor.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Fecha de Adquisición:</label>
+                <DatePicker
+                  selected={fechaAdquisicion}
+                  onChange={(date) => setFechaAdquisicion(date)}
+                  dateFormat="yyyy-MM-dd"
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>ID Interno:</label>
+                <input
+                  type='text'
+                  name='idInterno'
+                  value={idInterno}
+                  onChange={(e) => setIdInterno(e.target.value)}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Ubicación:</label>
+                <select
+                  name='id'
+                  value={selectedUbicacion || ""}
+                  onChange={(e) => setSelectedUbicacion(parseInt(e.target.value, 10))}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                >
+                  <option value="">Seleccione una ubicación</option>
+                  {ubicaciones.map(ubicacion => (
+                    <option key={ubicacion.id} value={ubicacion.id}>{ubicacion.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div className='mb-4'>
+                <label className='mb-2.5 block font-medium text-sm text-black dark:text-white'>Imagen:</label>
+                <input
+                  type='file'
+                  name='imagen'
+                  onChange={handleFileChange}
+                  className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                />
+                {imagen && (
+                  <div className='mt-2'>
+                    <img src={imagen} alt="Imagen del equipo" className='max-w-full h-auto' />
+                  </div>
+                )}
+              </div>
               <button
-                onClick={handleConfirm}
-                className='bg-green-500 text-white p-2 rounded mr-4'
+                type='button'
+                onClick={() => setShowConfirmModal(true)}
+                className='bg-green-500 text-white p-2 rounded'
               >
-                Aceptar
+                Guardar
               </button>
               <button
-                onClick={() => setShowConfirmModal(false)}
-                className='bg-violet-800 text-white p-2 rounded'
+                type='button'
+                onClick={handleBack}
+                className='mt-4 ml-4 bg-gray-500 text-white bg-violet-800 p-2 rounded'
               >
-                Cancelar
+                Volver
               </button>
-            </div>
+            </form>
+
+            {showModal && (
+              <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+                <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
+                  <h2 className='text-xl mb-4'>Errores en el formulario</h2>
+                  <ul className='list-disc list-inside'>
+                    {errors.map((error, index) => (
+                      <li key={index} className='text-rose-600'>{error}</li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className='mt-4 bg-violet-800 text-white p-2 rounded'
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {showConfirmModal && (
+              <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+                <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
+                  <h2 className='text-xl mb-4'>Confirmar creación</h2>
+                  <p>¿Estás seguro de que deseas guardar este equipo?</p>
+                  <div className='mt-4'>
+                    <button
+                      onClick={handleConfirm}
+                      className='bg-green-500 text-white p-2 rounded mr-4'
+                    >
+                      Aceptar
+                    </button>
+                    <button
+                      onClick={() => setShowConfirmModal(false)}
+                      className='bg-violet-800 text-white p-2 rounded'
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
       </div>
-    </div>
-    </div>
   );
 }
 

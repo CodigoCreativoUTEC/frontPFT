@@ -96,7 +96,7 @@ const EditEquipo = () => {
       formData.append('image', file);
 
       try {
-        const res = await fetch('https://api.imgbb.com/1/upload?key=TU_API_KEY', {
+        const res = await fetch('https://api.imgbb.com/1/upload?key=7c25531eca2149d7618fe5241473b513', {
           method: 'POST',
           body: formData,
         });
