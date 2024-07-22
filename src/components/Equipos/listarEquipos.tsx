@@ -29,21 +29,19 @@ const EquiposRead = () => {
     const [fechaAdquiridoFilter, setFechaAdquiridoFilter] = useState<string>('');
     const [idInternoFilter, setIdInternoFilter] = useState<string>('');
 
-    if (!session) {signIn();return null;}
-
     const fetcher = async () => {
-    const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ListarTodosLosEquipos", {
-        headers: {
-        "Content-Type": "application/json",
-        "authorization": "Bearer " + (session?.user?.accessToken || ''),
-        },
-    });
-    const result = await res.json();
+        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ListarTodosLosEquipos", {
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": "Bearer " + (session?.user?.accessToken || ''),
+            },
+        });
+        const result = await res.json();
 
-    const filteredResult = result.filter((equipo: EquipoModel) => equipo.estado !== ReferrerEnum.INACTIVO);
-    setEquipos(result);
-    setFilteredEquipos(filteredResult);
-    populateFilters(result);
+        const filteredResult = result.filter((equipo: EquipoModel) => equipo.estado !== ReferrerEnum.INACTIVO);
+        setEquipos(result);
+        setFilteredEquipos(filteredResult);
+        populateFilters(result);
     };
 
     const populateFilters = (equipos: EquipoModel[]) => {
@@ -87,48 +85,48 @@ const EquiposRead = () => {
     };
 
     const handleProveedorChange = (proveedor: string) => {
-    setSelectedProveedor(proveedor);
-    filterEquipos(nombreFilter, selectedMarca, selectedModelo, proveedor, selectedPais, selectedTipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
+        setSelectedProveedor(proveedor);
+        filterEquipos(nombreFilter, selectedMarca, selectedModelo, proveedor, selectedPais, selectedTipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
     };
 
     const handlePaisChange = (pais: string) => {
-    setSelectedPais(pais);
-    filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, pais, selectedTipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
+        setSelectedPais(pais);
+        filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, pais, selectedTipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
     };
 
     const handleTipoChange = (tipo: string) => {
-    setSelectedTipo(tipo);
-    filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, tipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
+        setSelectedTipo(tipo);
+        filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, tipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
     };
 
     const handleUbicacionChange = (ubicacion: string) => {
-    setSelectedUbicacion(ubicacion);
-    filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, ubicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
+        setSelectedUbicacion(ubicacion);
+        filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, ubicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
     };
 
     const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNombreFilter(e.target.value);
-    filterEquipos(e.target.value, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
+        setNombreFilter(e.target.value);
+        filterEquipos(e.target.value, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
     };
 
     const handleNumeroSerieChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNumeroSerieFilter(e.target.value);
-    filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, selectedUbicacion, e.target.value, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
+        setNumeroSerieFilter(e.target.value);
+        filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, selectedUbicacion, e.target.value, fechaAdquiridoFilter, idInternoFilter, estadoFilter);
     };
 
     const handleFechaAdquiridoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFechaAdquiridoFilter(e.target.value);
-    filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, selectedUbicacion, numeroSerieFilter, e.target.value, idInternoFilter, estadoFilter);
+        setFechaAdquiridoFilter(e.target.value);
+        filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, selectedUbicacion, numeroSerieFilter, e.target.value, idInternoFilter, estadoFilter);
     };
 
     const handleIdInternoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIdInternoFilter(e.target.value);
-    filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, e.target.value, estadoFilter);
+        setIdInternoFilter(e.target.value);
+        filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, e.target.value, estadoFilter);
     };
 
     const handleEstadoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setEstadoFilter(e.target.value);
-    filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, e.target.value);
+        setEstadoFilter(e.target.value);
+        filterEquipos(nombreFilter, selectedMarca, selectedModelo, selectedProveedor, selectedPais, selectedTipo, selectedUbicacion, numeroSerieFilter, fechaAdquiridoFilter, idInternoFilter, e.target.value);
     };
 
     const handleClearFilters = () => {
@@ -159,233 +157,244 @@ const EquiposRead = () => {
         idInterno: string,
         estado: string
     ) => {
-    let filtered = equipos.filter((equipo: EquipoModel) => {
-        let matchesNombre = !nombre || equipo.nombre.toLowerCase().includes(nombre.toLowerCase());
-        let matchesMarca = !marca || equipo.idModelo.idMarca.nombre === marca;
-        let matchesModelo = !modelo || equipo.idModelo.nombre === modelo;
-        let matchesProveedor = !proveedor || equipo.idProveedor.nombre === proveedor;
-        let matchesPais = !pais || equipo.idPais.nombre === pais;
-        let matchesTipo = !tipo || equipo.idTipo.nombreTipo === tipo;
-        let matchesUbicacion = !ubicacion || equipo.idUbicacion.nombre === ubicacion;
-        let matchesNumeroSerie = !numeroSerie || equipo.nroSerie.toLowerCase().includes(numeroSerie.toLowerCase());
-        let matchesFechaAdquirido = !fechaAdquirido || new Date(equipo.fechaAdquisicion).toLocaleDateString() === new Date(fechaAdquirido).toLocaleDateString();
-        let matchesIdInterno = !idInterno || equipo.idInterno.toLowerCase().includes(idInterno.toLowerCase());
-        let matchesEstado = !estado || equipo.estado === estado;
-    return matchesNombre && matchesMarca && matchesModelo && matchesProveedor && matchesPais && matchesTipo && matchesUbicacion && matchesNumeroSerie && matchesFechaAdquirido && matchesIdInterno && matchesEstado;
-    });
+        let filtered = equipos.filter((equipo: EquipoModel) => {
+            let matchesNombre = !nombre || equipo.nombre.toLowerCase().includes(nombre.toLowerCase());
+            let matchesMarca = !marca || equipo.idModelo.idMarca.nombre === marca;
+            let matchesModelo = !modelo || equipo.idModelo.nombre === modelo;
+            let matchesProveedor = !proveedor || equipo.idProveedor.nombre === proveedor;
+            let matchesPais = !pais || equipo.idPais.nombre === pais;
+            let matchesTipo = !tipo || equipo.idTipo.nombreTipo === tipo;
+            let matchesUbicacion = !ubicacion || equipo.idUbicacion.nombre === ubicacion;
+            let matchesNumeroSerie = !numeroSerie || equipo.nroSerie.toLowerCase().includes(numeroSerie.toLowerCase());
+            let matchesFechaAdquirido = !fechaAdquirido || new Date(equipo.fechaAdquisicion).toLocaleDateString() === new Date(fechaAdquirido).toLocaleDateString();
+            let matchesIdInterno = !idInterno || equipo.idInterno.toLowerCase().includes(idInterno.toLowerCase());
+            let matchesEstado = !estado || equipo.estado === estado;
+
+            return matchesNombre && matchesMarca && matchesModelo && matchesProveedor && matchesPais && matchesTipo && matchesUbicacion && matchesNumeroSerie && matchesFechaAdquirido && matchesIdInterno && matchesEstado;
+        });
         setFilteredEquipos(filtered);
     };
 
     const columns: TableColumn<EquipoModel>[] = [
-    { name: 'ID', selector: (row: EquipoModel) => row.id, sortable: true, width: '80px' },
-    { name: 'Nombre', selector: (row: EquipoModel) => row.nombre, sortable: true, grow: 2 },
-    { name: 'Tipo', selector: (row: EquipoModel) => row.idTipo.nombreTipo, sortable: true, grow: 2 },
-    {
-      name: 'Marca / Modelo',
-      cell: (row: EquipoModel) => (
-          <>
-            <div>{row.idModelo.idMarca.nombre} - {row.idModelo.nombre}</div>
-          </>
-      ),
-      sortable: true,
-      grow: 2,
-      maxWidth: '200px'
-    },
-    { name: 'Número de Serie', selector: (row: EquipoModel) => row.nroSerie, sortable: true },
-    { name: 'Garantía', selector: (row: EquipoModel) => row.garantia, sortable: true },
-    { name: 'País', selector: (row: EquipoModel) => row.idPais.nombre, sortable: true },
-    { name: 'Proveedor', selector: (row: EquipoModel) => row.idProveedor.nombre, sortable: true },
-    { name: 'Fecha de Adquirido', selector: (row: EquipoModel) => new Date(row.fechaAdquisicion).toLocaleDateString(), sortable: true },
-    { name: 'ID Interno', selector: (row: EquipoModel) => row.idInterno, sortable: true },
-    { name: 'Ubicación', selector: (row: EquipoModel) => `${row.idUbicacion.nombre}/${row.idUbicacion.sector}`, sortable: true },
-    { name: 'Imagen', selector: (row: EquipoModel) => <img src={row.imagen} height={50} width={50} />, sortable: false },
-    { name: 'Estado', selector: (row: EquipoModel) => row.estado, sortable: true },
-    {
-      name: 'Acciones',
-      cell: (row: EquipoModel) => (
-          <div className="flex justify-center">
-            <Link href={`/equipos/delete/${row.id}`} className='bg-rose-500 p-2 inline-block ml-1 text-white text-xs rounded cursor-pointer'>
-              <Trash size={14} />
-            </Link>
-            <Link href={`/equipos/edit/${row.id}`} className='bg-yellow-500 p-2 inline-block ml-1 text-white text-xs rounded cursor-pointer'>
-              <PencilSquare size={14} />
-            </Link>
-            <Link href={`/equipos/read/${row.id}`} className='bg-blue-500 p-2 inline-block ml-1 mr-1 text-white text-xs rounded cursor-pointer'>
-              <Eye size={14} />
-            </Link>
-          </div>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true
-    }
-  ];
+        { name: 'ID', selector: (row: EquipoModel) => row.id, sortable: true, width: '80px' },
+        { name: 'Nombre', selector: (row: EquipoModel) => row.nombre, sortable: true, grow: 2 },
+        { name: 'Tipo', selector: (row: EquipoModel) => row.idTipo.nombreTipo, sortable: true, grow: 2 },
+        {
+            name: 'Marca / Modelo',
+            cell: (row: EquipoModel) => (
+                <>
+                    <div>{row.idModelo.idMarca.nombre} - {row.idModelo.nombre}</div>
+                </>
+            ),
+            sortable: true,
+            grow: 2,
+            maxWidth: '200px'
+        },
+        { name: 'Número de Serie', selector: (row: EquipoModel) => row.nroSerie, sortable: true },
+        { name: 'Garantía', selector: (row: EquipoModel) => row.garantia, sortable: true },
+        { name: 'País', selector: (row: EquipoModel) => row.idPais.nombre, sortable: true },
+        { name: 'Proveedor', selector: (row: EquipoModel) => row.idProveedor.nombre, sortable: true },
+        { name: 'Fecha de Adquirido', selector: (row: EquipoModel) => new Date(row.fechaAdquisicion).toLocaleDateString(), sortable: true },
+        { name: 'ID Interno', selector: (row: EquipoModel) => row.idInterno, sortable: true },
+        { name: 'Ubicación', selector: (row: EquipoModel) => `${row.idUbicacion.nombre}/${row.idUbicacion.sector}`, sortable: true },
+        { name: 'Imagen', selector: (row: EquipoModel) => <img src={row.imagen} height={50} width={50} />, sortable: false },
+        { name: 'Estado', selector: (row: EquipoModel) => row.estado, sortable: true },
+        {
+            name: 'Acciones',
+            cell: (row: EquipoModel) => (
+                <div className="flex justify-center">
+                    <Link href={`/equipos/delete/${row.id}`} className='bg-rose-500 p-2 inline-block ml-1 text-white text-xs rounded cursor-pointer'>
+                        <Trash size={14} />
+                    </Link>
+                    <Link href={`/equipos/edit/${row.id}`} className='bg-yellow-500 p-2 inline-block ml-1 text-white text-xs rounded cursor-pointer'>
+                        <PencilSquare size={14} />
+                    </Link>
+                    <Link href={`/equipos/read/${row.id}`} className='bg-blue-500 p-2 inline-block ml-1 mr-1 text-white text-xs rounded cursor-pointer'>
+                        <Eye size={14} />
+                    </Link>
+                </div>
+            ),
+            ignoreRowClick: true,
+            allowOverflow: true,
+            button: true
+        }
+    ];
 
-  const customStyles = {
-    headCells: {
-      style: {
-        fontWeight: 'bold',
-        padding: '8px',
-        backgroundColor: '#1a202c',
-        color: '#cbd5e0',
-      },
-    },
-    cells: {
-      style: {
-        padding: '4px',
-        backgroundColor: '#2d3748',
-        color: '#cbd5e0',
-      },
-    },
-  };
+    const customStyles = {
+        headCells: {
+            style: {
+                fontWeight: 'bold',
+                padding: '8px',
+                backgroundColor: '#1a202c',
+                color: '#cbd5e0',
+            },
+        },
+        cells: {
+            style: {
+                padding: '4px',
+                backgroundColor: '#2d3748',
+                color: '#cbd5e0',
+            },
+        },
+
+    };
 
     const paginationComponentOptions = {
         rowsPerPageText: 'Filas por página',
         rangeSeparatorText: 'de',
         selectAllRowsItem: true,
         selectAllRowsItemText: 'Todos',
+
     };
 
     if (!equipos.length) return <div>...loading</div>;
-
     return (
-        <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
-            <div className='mb-4 flex flex-wrap gap-4'>
-            {/* Nombre Input */}
-            <input
-                type="text"
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                placeholder="Nombre"
-                value={nombreFilter}
-                onChange={handleNombreChange}
-            />
 
-            {/* Tipo Select */}
-            <select
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                value={selectedTipo || ''}
-                onChange={(e) => handleTipoChange(e.target.value)}
-            >
-              <option value="">Selecciona un Tipo</option>
-              {tipos.map((tipo, index) => (
-                  <option key={index} value={tipo}>{tipo}</option>
-              ))}
-            </select>
+            <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
+                <div className='mb-4 flex flex-wrap gap-4'>
+                    {/* Nombre Input */}
+                    <input
+                        type="text"
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        placeholder="Nombre"
+                        value={nombreFilter}
+                        onChange={handleNombreChange}
+                    />
 
-            {/* Marca Select */}
-            <select
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                value={selectedMarca || ''}
-                onChange={(e) => handleMarcaChange(e.target.value)}
-            >
-              <option value="">Selecciona una Marca</option>
-              {marcas.map((marca, index) => (
-                  <option key={index} value={marca}>{marca}</option>
-              ))}
-            </select>
+                    {/* Tipo Select */}
+                    <select
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        value={selectedTipo || ''}
+                        onChange={(e) => handleTipoChange(e.target.value)}
+                    >
+                        <option value="">Selecciona un Tipo</option>
+                        {tipos.map((tipo, index) => (
+                            <option key={index} value={tipo}>{tipo}</option>
+                        ))}
+                    </select>
 
-            {/* Modelo Select */}
-            <select
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                value={selectedModelo || ''}
-                onChange={(e) => handleModeloChange(e.target.value)}
-                disabled={!selectedMarca}
-            >
-              <option value="">Selecciona un Modelo</option>
-              {modelos.map((modelo, index) => (
-                  <option key={index} value={modelo}>{modelo}</option>
-              ))}
-            </select>
+                    {/* Marca Select */}
+                    <select
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        value={selectedMarca || ''}
+                        onChange={(e) => handleMarcaChange(e.target.value)}
+                    >
+                        <option value="">Selecciona una Marca</option>
+                        {marcas.map((marca, index) => (
+                            <option key={index} value={marca}>{marca}</option>
+                        ))}
+                    </select>
 
-            {/* Proveedor Select */}
-            <select
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                value={selectedProveedor || ''}
-                onChange={(e) => handleProveedorChange(e.target.value)}
-            >
-                <option value="">Selecciona un Proveedor</option>
-                {proveedores.map((proveedor, index) => (
-                <option key={index} value={proveedor}>{proveedor}</option>
-                ))}
-            </select>
+                    {/* Modelo Select */}
+                    <select
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        value={selectedModelo || ''}
+                        onChange={(e) => handleModeloChange(e.target.value)}
+                        disabled={!selectedMarca}
+                    >
+                        <option value="">Selecciona un Modelo</option>
+                        {modelos.map((modelo, index) => (
+                            <option key={index} value={modelo}>{modelo}</option>
+                        ))}
+                    </select>
 
-            {/* País Select */}
-            <select
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                value={selectedPais || ''}
-                onChange={(e) => handlePaisChange(e.target.value)}
-            >
-                <option value="">Selecciona un País</option>
-                    {paises.map((pais, index) => (
-                <option key={index} value={pais}>{pais}</option>
-                    ))}
-            </select>
+                    {/* Proveedor Select */}
+                    <select
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        value={selectedProveedor || ''}
+                        onChange={(e) => handleProveedorChange(e.target.value)}
+                    >
+                        <option value="">Selecciona un Proveedor</option>
+                        {proveedores.map((proveedor, index) => (
+                            <option key={index} value={proveedor}>{proveedor}</option>
+                        ))}
+                    </select>
 
-            {/* Número de Serie Input */}
-            <input
-                type="text"
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                placeholder="Número de Serie"
-                value={numeroSerieFilter}
-                onChange={handleNumeroSerieChange}
-            />
+                    {/* País Select */}
+                    <select
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        value={selectedPais || ''}
+                        onChange={(e) => handlePaisChange(e.target.value)}
+                    >
+                        <option value="">Selecciona un País</option>
+                        {paises.map((pais, index) => (
+                            <option key={index} value={pais}>{pais}</option>
+                        ))}
+                    </select>
 
-            {/* Fecha Adquirido Input */}
-            <input
-                type="date"
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                placeholder="Fecha de Adquirido"
-                value={fechaAdquiridoFilter}
-                onChange={handleFechaAdquiridoChange}
-            />
+                    {/* Número de Serie Input */}
+                    <input
+                        type="text"
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        placeholder="Número de Serie"
+                        value={numeroSerieFilter}
+                        onChange={handleNumeroSerieChange}
+                    />
 
-            {/* ID Interno Input */}
-            <input
-                type="text"
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                placeholder="ID Interno"
-                value={idInternoFilter}
-                onChange={handleIdInternoChange}
-            />
+                    {/* Fecha Adquirido Input */}
+                    <input
+                        type="date"
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        placeholder="Fecha de Adquirido"
+                        value={fechaAdquiridoFilter}
+                        onChange={handleFechaAdquiridoChange}
+                    />
 
-            {/* Ubicación Select */}
-            <select
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                value={selectedUbicacion || ''}
-                onChange={(e) => handleUbicacionChange(e.target.value)}
-            >
-              <option value="">Selecciona una Ubicación</option>
-              {ubicaciones.map((ubicacion, index) => (
-                  <option key={index} value={ubicacion}>{ubicacion}</option>
-              ))}
-            </select>
+                    {/* ID Interno Input */}
+                    <input
+                        type="text"
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        placeholder="ID Interno"
+                        value={idInternoFilter}
+                        onChange={handleIdInternoChange}
+                    />
 
-            {/* Estado Select */}
-            <select
-                className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
-                value={estadoFilter}
-                onChange={handleEstadoChange}
-            >
-                <option value="">Selecciona un Estado</option>
-                <option value="ACTIVO">ACTIVO</option>
-                <option value="INACTIVO">INACTIVO</option>
-            </select>
+                    {/* Ubicación Select */}
+                    <select
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        value={selectedUbicacion || ''}
+                        onChange={(e) => handleUbicacionChange(e.target.value)}
+                    >
+                        <option value="">Selecciona una Ubicación</option>
+                        {ubicaciones.map((ubicacion, index) => (
+                            <option key={index} value={ubicacion}>{ubicacion}</option>
+                        ))}
+                    </select>
 
-            {/* Botón de Limpiar Filtros */}
-            <button onClick={handleClearFilters} className="bg-red-500 text-white px-3 py-1 rounded">
-                Limpiar Filtros
-            </button>
-        </div>
+                    {/* Estado Select */}
+                    <select
+                        className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        value={estadoFilter}
+                        onChange={handleEstadoChange}
+                    >
+                        <option value="">Selecciona un Estado</option>
+                        <option value="ACTIVO">ACTIVO</option>
+                        <option value="INACTIVO">INACTIVO</option>
+                    </select>
 
-          {/* DataTable */}
-        <DataTable
-            columns={columns}
-            data={filteredEquipos}
-            pagination
-            customStyles={customStyles}
-            paginationComponentOptions={paginationComponentOptions}
-        />
-        </div>
-);}
+                    {/* Botón de Limpiar Filtros */}
+                    <button
+                        onClick={handleClearFilters}
+                        className="bg-violet-800 text-white px-3 py-1 rounded"
+                    >
+                        Limpiar Filtros
+                    </button>
+                </div>
+
+                <h4 className="text-2xl font-bold mb-4 text-black dark:text-white">
+                    Lista de Equipos
+                </h4>
+
+                {/* DataTable */}
+                <DataTable
+                    columns={columns}
+                    data={filteredEquipos}
+                    customStyles={customStyles}
+                    paginationComponentOptions={paginationComponentOptions}
+                />
+            </div>
+
+    );
+}
 
 export default EquiposRead;

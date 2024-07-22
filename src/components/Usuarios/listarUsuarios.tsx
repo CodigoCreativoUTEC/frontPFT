@@ -112,7 +112,7 @@ const UsuariosRead = () => {
                 {/* Nombre Input */}
                 <input
                     type="text"
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     placeholder="Nombre"
                     value={nombreFilter}
                     onChange={handleNombreChange}
@@ -121,7 +121,7 @@ const UsuariosRead = () => {
                 {/* Apellido Input */}
                 <input
                     type="text"
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     placeholder="Apellido"
                     value={apellidoFilter}
                     onChange={handleApellidoChange}
@@ -130,7 +130,7 @@ const UsuariosRead = () => {
                 {/* Nombre de Usuario Input */}
                 <input
                     type="text"
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     placeholder="Nombre de Usuario"
                     value={nombreUsuarioFilter}
                     onChange={handleNombreUsuarioChange}
@@ -139,7 +139,7 @@ const UsuariosRead = () => {
                 {/* Email Input */}
                 <input
                     type="text"
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     placeholder="Email"
                     value={emailFilter}
                     onChange={handleEmailChange}
@@ -147,7 +147,7 @@ const UsuariosRead = () => {
 
                 {/* Estado Select */}
                 <select
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     value={estadoFilter}
                     onChange={handleEstadoChange}
                 >
@@ -159,7 +159,7 @@ const UsuariosRead = () => {
 
                 {/* Tipo de Usuario Select */}
                 <select
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     value={tipoUsuarioFilter || ''}
                     onChange={(e) => handleTipoUsuarioChange(e.target.value)}
                 >
@@ -172,7 +172,7 @@ const UsuariosRead = () => {
                 {/* Botón de Limpiar Filtros */}
                 <button
                     onClick={handleClearFilters}
-                    className="bg-red-500 text-white px-3 py-1 rounded"
+                    className="bg-violet-800 text-white px-3 py-1 rounded"
                 >
                     Limpiar Filtros
                 </button>
