@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   description: "Editar usuario ingresado",
 };
 
-
 const editarUsuario: React.FC = function() {
 
   return (

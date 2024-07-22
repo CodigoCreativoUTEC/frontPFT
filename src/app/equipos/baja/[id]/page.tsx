@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Equips inactivo",
 };
 
-const listarBajaEquipos = () => {
+const mostrarDetallesEquipoBorrado = () => {
     return (
       <DefaultLayout>
         <Breadcrumb pageName="Detalles equipo inactivo" />
@@ -18,4 +18,4 @@ const listarBajaEquipos = () => {
     );
   }
 
-export default listarBajaEquipos;
+export default mostrarDetallesEquipoBorrado;

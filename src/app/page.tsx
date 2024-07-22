@@ -1,4 +1,4 @@
-import Login from "@/components/Login/Ingresar";
+import Login from "@/components/Usuarios/Login/Ingresar";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 

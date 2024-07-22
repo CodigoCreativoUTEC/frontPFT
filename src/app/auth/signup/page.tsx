@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import Registrar from "@/components/Login/Registrar";
+import Registrar from "@/components/Usuarios/Login/Registrar";
 
 export const metadata: Metadata = {
   title: "Ingreso al sistema",
