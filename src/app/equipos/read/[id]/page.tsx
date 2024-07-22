@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     description: "Página con el detalle del equipo en el sistema",
 };
 
-const listarEquipos: React.FC = function() {
+const verEquipo: React.FC = function() {
   return (
     <DefaultLayout>
         <Breadcrumb pageName="Detalle del equipo" />
@@ -18,4 +18,4 @@ const listarEquipos: React.FC = function() {
   );
 };
 
-export default listarEquipos;
+export default verEquipo;

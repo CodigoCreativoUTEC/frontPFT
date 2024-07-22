@@ -24,7 +24,7 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
     if (errorParam) {
       setErrorMessage(errorParam);
     }
-    //TODO: Revisar linea siguiente, cuando la callback sea el mismo login no debe aaprecer error
+    //cuando la callback sea el mismo login no debe aaprecer error
     if (searchParams.get('callbackUrl') == "http://localhost:3000/usuarios/create") {
       //setErrorMessage("Debes iniciar sesión para acceder a esta página");
       setErrorMessage(null);

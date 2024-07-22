@@ -2,12 +2,10 @@
 import React, { useState, ReactNode } from "react";
 import LoginHeader from "@/components/Header/LoginHeader";
 
-export default function LoginLayout({
-                                          children,
-                                      }: {
-    children: React.ReactNode;
-}) {
+export default function LoginLayout({children,}: {children: React.ReactNode;}) {
+
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    
     return (
         <>
                 {/* <!-- ===== Content Area Start ===== --> */}
