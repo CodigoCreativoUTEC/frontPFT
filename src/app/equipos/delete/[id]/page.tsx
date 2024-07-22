@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import es from 'date-fns/locale/es';
 import { EquipoModel, BajaEquipoModel, ReferrerEnum } from '@/types';
 import Image from "next/image";
 import Link from "next/link";
