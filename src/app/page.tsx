@@ -1,20 +1,15 @@
-import ECommerce from "@/components/Dashboard/E-commerce";
-import Login from "@/components/Login/Ingresar";
+import Login from "@/components/Usuarios/Login/Ingresar";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
 export const metadata: Metadata = {
   title:
     "MA-MED - Iniciar Sesión",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
+  description: "Sistema de gestión de mantenimiento de equipos clínicos hospitalarios.",
 };
 
 export default function Home() {
   return (
-    <>
-      <DefaultLayout>
         <Login />
-      </DefaultLayout>
-    </>
   );
 }

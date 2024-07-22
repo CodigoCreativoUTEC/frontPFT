@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import crypto from "crypto";
-import { getToken } from "next-auth/jwt";
+
 
 class CustomError extends Error {
   constructor(message: string) {
@@ -56,7 +56,7 @@ const handler = NextAuth({
       },
 
       
-      async authorize(credentials, req): Promise<User | null> {
+      async authorize(credentials){
         const hashedPassword = credentials ? crypto.createHash('sha256').update(credentials.password).digest('hex') : '';
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/login`, {
           method: 'POST',
@@ -68,10 +68,7 @@ const handler = NextAuth({
         });
 
         const data = await res.json();
-        console.log('Response data:', data);
-        console.log('Response status:', res.status);
         if (res.ok && data && data.user.estado === "ACTIVO") {
-          console.log("pase por aqui", data);
           // Transformar los datos según el formato deseado
           const transformedData = {
             id: data.user.id,
@@ -84,7 +81,7 @@ const handler = NextAuth({
             expires: data.expires,
             accessToken: data.token
           };
-          return transformedData;
+          return transformedData as any;
         } else if ( res.status === 401) {
           throw new CustomError(data.error);
         } else if (data.user.estado === "INACTIVO") {
@@ -109,7 +106,6 @@ const handler = NextAuth({
           body: JSON.stringify({ email: profile?.email, name: profile?.name }),
         });
         const data = await res.json();
-        console.log(data);
         if (data.userNeedsAdditionalInfo) {
           return `/auth/signup?email=${profile?.email}`;
         }
@@ -119,7 +115,6 @@ const handler = NextAuth({
         } else {
           user.accessToken = data.token;
           user.data = data.user;
-          console.log( "esto va a la sesion",{...user.data, accessToken: data.token});
           return { ...user.data, accessToken: data.token };
         }
       } else {
@@ -129,19 +124,22 @@ const handler = NextAuth({
 
     async jwt({ token, user }) {
       if (user) {
+        token.accessToken = user.accessToken;
+
         token.user = user;
       }
       return token;
     },
 
     async session({ session, token }) {
-      session.user = token.user;
-      console.log("session", session);
+      session.accessToken = token.accessToken as string;
+      session.user = token.user as { name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; accessToken?: string} | undefined;
       return session;
     }
   },
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,// 30 dias de expiracion
   },
   secret: process.env.SECRET,
   jwt: {

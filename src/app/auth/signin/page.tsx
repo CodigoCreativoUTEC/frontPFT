@@ -1,22 +1,17 @@
 import React from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import Ingresar from "@/components/Login/Ingresar";
+import Ingresar from "@/components/Usuarios/Login/Ingresar";
 
 export const metadata: Metadata = {
   title: "Ingreso al sistema",
-  description: "Pagina de ingreso al sistema",
+  description: "Página de ingreso al sistema",
 };
 
 
 const SignIn: React.FC = function() {
 
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Ingresar" />
       <Ingresar />
-    </DefaultLayout>
   );
 };
 

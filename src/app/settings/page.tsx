@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
-import Perfil from "@/components/usuario/perfil";
+import Perfil from "@/components/PerfilUser/perfil";
 
 export const metadata: Metadata = {
   title: "MAMED - Editar mis datos",

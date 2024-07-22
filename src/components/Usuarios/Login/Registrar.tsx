@@ -1,8 +1,19 @@
-"use client"
+"use client";
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import LoginLayout from "@/components/Layouts/LoginLayout";
+
+// Función para generar el hash SHA-256
+const hashPassword = async (password) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+};
 
 export default function Registrar() {
     const router = useRouter();
@@ -101,21 +112,24 @@ export default function Registrar() {
         return Object.values(tempErrors).every(error => error === '');
     };
 
-    const handleChange = (e) => {
+    const handleChange = (e: { target: { name: any; value: any; }; }) => {
         const { name, value } = e.target;
         const newValue = name === 'idPerfil' ? parseInt(value, 10) : value;
         setFormData({ ...formData, [name]: newValue });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         if (!validate()) {
             return;
         }
 
-        
+        // Hashear la contraseña antes de enviarla
+        const hashedPassword = await hashPassword(formData.contrasenia);
+
         const usuarioDto = {
             ...formData,
+            contrasenia: hashedPassword,
             idPerfil: { id: formData.idPerfil },
             idInstitucion: { id: 1 },
         };
@@ -150,6 +164,7 @@ export default function Registrar() {
     ).toISOString().split('T')[0];
 
     return (
+        <LoginLayout>
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex flex-wrap items-center">
                 <div className="hidden w-full xl:block xl:w-1/2">
@@ -157,21 +172,21 @@ export default function Registrar() {
                         <Link className="mb-5.5 inline-block" href="/">
                             <Image
                                 className="hidden dark:block"
-                                src={"/images/logo/logo.svg"}
+                                src={"/images/logo/LogoCodigo.jpg"}
                                 alt="Logo"
                                 width={176}
                                 height={32}
                             />
                             <Image
                                 className="dark:hidden"
-                                src={"/images/logo/logo-dark.svg"}
+                                src={"/images/logo/LogoCodigo.jpg"}
                                 alt="Logo"
                                 width={176}
                                 height={32}
                             />
                         </Link>
                         <p className="2xl:px-20">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit suspendisse.
+                            Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
                         </p>
                         <span className="mt-15 inline-block">
                             <svg
@@ -361,5 +376,6 @@ export default function Registrar() {
                 </div>
             </div>
         </div>
+        </LoginLayout>
     );
 }

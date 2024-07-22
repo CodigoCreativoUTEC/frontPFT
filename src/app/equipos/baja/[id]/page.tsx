@@ -1,59 +1,21 @@
-"use client"; // Asegúrate de incluir esto
-import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { BajaEquipoModel } from '@/types';
+import "react-datepicker/dist/react-datepicker.css";
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
+import { Metadata } from "next";
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import BajaEquipoDetail from "@/components/Equipos/Baja/detalleBajaEquipo";
 
+export const metadata: Metadata = {
+  title: "Equipo Inactivo",
+  description: "Equips inactivo",
+};
 
+const mostrarDetallesEquipoBorrado = () => {
+    return (
+      <DefaultLayout>
+        <Breadcrumb pageName="Detalles equipo inactivo" />
+        <BajaEquipoDetail />
+      </DefaultLayout>
+    );
+  }
 
-const BajaEquipoDetail = () => {
-  const router = useRouter();
-  const { id } = useParams();
-  const [bajaEquipo, setBajaEquipo] = useState<BajaEquipoModel | null>(null);
-
-  useEffect(() => {
-    if (id) {
-      const fetchBajaEquipo = async () => {
-        const res = await fetch(`/api/equipos/baja/${id}`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (res.ok) {
-          const result = await res.json();
-          setBajaEquipo(result);
-        } else {
-          console.error("Error al obtener el equipo");
-        }
-      };
-      fetchBajaEquipo();
-    }
-  }, [id]);
-
-  if (!bajaEquipo) return <div>...loading</div>;
-
-  return (
-    <DefaultLayout>
-      <div className='w-full items-center text-center xl:w-2/4 rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
-        <h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>Detalles del Equipo</h1>
-        <div className='w-full p-4 sm:p-12.5 xl:p-7.5'>
-          <p><strong>ID:</strong> {bajaEquipo.id}</p>
-          <p><strong>Nombre:</strong> {bajaEquipo.nombre}</p>
-          <p><strong>Fecha de Baja:</strong> {new Date(bajaEquipo.fecha_baja).toLocaleDateString()}</p>
-          <p><strong>Usuario:</strong> {bajaEquipo.usuario}</p>
-          <p><strong>Razón:</strong> {bajaEquipo.razon}</p>
-          <p><strong>Comentarios:</strong> {bajaEquipo.comentarios}</p>
-          <p><strong>Estado:</strong> {bajaEquipo.estado}</p>
-        </div>
-        <button
-          onClick={() => router.push('/equipos/baja')}
-          className='m-2 bg-blue-500 text-white p-2 rounded'
-        >
-          Volver
-        </button>
-      </div>
-    </DefaultLayout>
-  );
-}
-
-export default BajaEquipoDetail;
+export default mostrarDetallesEquipoBorrado;
