@@ -2,7 +2,7 @@ import React from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import UsuariosRead from "@/components/usuarios/listar";
+import UsuariosRead from "@/components/Usuarios/listarUsuarios";
 
 export const metadata: Metadata = {
   title: "Listado de usuarios",
@@ -14,7 +14,7 @@ const listadoUsuarios: React.FC = function() {
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Listado de usuarios" />
+      <Breadcrumb pageName="Lista de usuarios" />
       <UsuariosRead />
     </DefaultLayout>
   );

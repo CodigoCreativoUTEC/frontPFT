@@ -2,12 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams, redirect } from 'next/navigation';
 import { UsuarioModel } from '@/types';
-import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import Image from "next/image";
 import Link from "next/link";
 import { signIn, useSession } from 'next-auth/react';
-import { sign } from 'crypto';
-
 
 const UsuarioDetail = () => {
   const { data: session, status } = useSession();
@@ -67,7 +64,6 @@ const UsuarioDetail = () => {
           </div>
         </div>
       <div className='w-full items-center text-center xl:w-2/4 rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
-        <h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>Detalles del Usuario</h1>
         <div className='w-full p-4 sm:p-12.5 xl:p-7.5'>
           <p><strong>ID:</strong> {usuario.id}</p>
           <p><strong>Nombre:</strong> {usuario.nombre}</p>

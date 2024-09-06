@@ -1,8 +1,6 @@
 import React from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
-import Ingresar from "@/components/Login/Ingresar";
-import LoginLayout from "@/components/Layouts/LoginLayout";
+import Ingresar from "@/components/Usuarios/Login/Ingresar";
 
 export const metadata: Metadata = {
   title: "Ingreso al sistema",
@@ -13,9 +11,7 @@ export const metadata: Metadata = {
 const SignIn: React.FC = function() {
 
   return (
-
       <Ingresar />
-
   );
 };
 

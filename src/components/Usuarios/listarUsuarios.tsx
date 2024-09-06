@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { UsuarioModel, ReferrerEnum } from '@/types';
 import UsuariosList from '@/components/Usuarios';
 import { signIn, useSession } from 'next-auth/react';
@@ -106,23 +105,14 @@ const UsuariosRead = () => {
     };
 
     if (!session) { signIn(); return null; }
+
     return (
         <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
-            <div className=''>
-                <Link href="/usuarios/create"
-                      className='bg-green-500 p-2 inline-block text-white mb-4'
-                >
-                    Agregar
-                </Link>
-            </div>
-            <h4 className="text-2xl font-bold mb-4 text-black dark:text-white">
-                Lista de Usuarios
-            </h4>
             <div className='mb-4 flex flex-wrap gap-4'>
                 {/* Nombre Input */}
                 <input
                     type="text"
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     placeholder="Nombre"
                     value={nombreFilter}
                     onChange={handleNombreChange}
@@ -131,7 +121,7 @@ const UsuariosRead = () => {
                 {/* Apellido Input */}
                 <input
                     type="text"
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     placeholder="Apellido"
                     value={apellidoFilter}
                     onChange={handleApellidoChange}
@@ -140,7 +130,7 @@ const UsuariosRead = () => {
                 {/* Nombre de Usuario Input */}
                 <input
                     type="text"
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     placeholder="Nombre de Usuario"
                     value={nombreUsuarioFilter}
                     onChange={handleNombreUsuarioChange}
@@ -149,7 +139,7 @@ const UsuariosRead = () => {
                 {/* Email Input */}
                 <input
                     type="text"
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     placeholder="Email"
                     value={emailFilter}
                     onChange={handleEmailChange}
@@ -157,7 +147,7 @@ const UsuariosRead = () => {
 
                 {/* Estado Select */}
                 <select
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     value={estadoFilter}
                     onChange={handleEstadoChange}
                 >
@@ -169,7 +159,7 @@ const UsuariosRead = () => {
 
                 {/* Tipo de Usuario Select */}
                 <select
-                    className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
+                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     value={tipoUsuarioFilter || ''}
                     onChange={(e) => handleTipoUsuarioChange(e.target.value)}
                 >
@@ -182,7 +172,7 @@ const UsuariosRead = () => {
                 {/* Botón de Limpiar Filtros */}
                 <button
                     onClick={handleClearFilters}
-                    className="bg-red-500 text-white px-3 py-1 rounded"
+                    className="bg-violet-800 text-white px-3 py-1 rounded"
                 >
                     Limpiar Filtros
                 </button>
@@ -192,19 +182,19 @@ const UsuariosRead = () => {
                     <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
                         <div className="overflow-x-auto">
                             <table className="min-w-full text-left text-sm">
-                                <thead className="border-b font-medium dark:border-neutral-500">
+                                <thead className="border-b font-normal dark:border-neutral-500">
                                 <tr className='bg-gray-2 text-center dark:bg-meta-4'>
-                                    <td className="px-2 py-2">ID</td>
-                                    <td className='px-2 py-2'>Nombre</td>
-                                    <td className='px-2 py-2'>Apellido</td>
-                                    <td className='px-2 py-2'>Cédula</td>
-                                    <td className='px-2 py-2'>Fecha Nacimiento</td>
-                                    <td className='px-2 py-2'>Teléfonos</td>
-                                    <td className='px-2 py-2'>Email</td>
-                                    <td className='px-2 py-2'>Nombre de Usuario</td>
-                                    <td className='px-2 py-2'>Tipo de Usuario</td>
-                                    <td className='px-2 py-2'>Estado</td>
-                                    <td className='px-4 py-4 font-medium text-black dark:text-white'>Acciones</td>
+                                    <td className="px-1 py-1">ID</td>
+                                    <td className='px-1 py-1'>Nombre</td>
+                                    <td className='px-1 py-1'>Apellido</td>
+                                    <td className='px-1 py-1'>Cédula</td>
+                                    <td className='px-1 py-1'>Fecha Nacimiento</td>
+                                    <td className='px-1 py-1'>Teléfonos</td>
+                                    <td className='px-1 py-1'>Email</td>
+                                    <td className='px-1 py-1'>Nombre de Usuario</td>
+                                    <td className='px-1 py-1'>Tipo de Usuario</td>
+                                    <td className='px-1 py-1'>Estado</td>
+                                    <td className='px-1 py-1 font-medium text-black dark:text-white'>Acciones</td>
                                 </tr>
                                 </thead>
                                 <tbody className='bg-white items-center text-xs'>
