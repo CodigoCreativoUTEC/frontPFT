@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { EquipoModel } from '@/types';
-import { tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones, ReferrerEnum } from '@/types/emuns';
+import { tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones, ReferrerEnum } from '@/types/enums';
 import Image from "next/image";
 import Link from "next/link";
 import { signIn, useSession } from 'next-auth/react';
