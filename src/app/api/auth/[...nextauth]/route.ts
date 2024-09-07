@@ -110,7 +110,6 @@ const handler = NextAuth({
           return `/auth/signup?email=${profile?.email}`;
         }
         if (data.error === "Cuenta inactiva, por favor contacte al administrador") {
-          //throw new CustomError("Cuenta inactiva, por favor contacte al administrador");
           throw new CustomError(data.error || "Cuenta inactiva, por favor contacte al administrador");
         } else {
           user.accessToken = data.token;
@@ -133,7 +132,7 @@ const handler = NextAuth({
 
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
-      session.user = token.user as { name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; accessToken?: string} | undefined;
+      session.user = token.user as { name?: string | null; email?: string | null; image?: string | null; accessToken?: string};
       return session;
     }
   },
