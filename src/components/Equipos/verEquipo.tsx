@@ -30,7 +30,7 @@ const EquipoDetail = () => {
       };
       fetchEquipo();
     }
-  }, [id]);
+  }, [id, session?.user?.accessToken]);
   if (!session) { signIn(); return null; }
 
   if (!equipo) return <div>...loading</div>;
@@ -65,7 +65,10 @@ const EquipoDetail = () => {
           <p><strong>ID:</strong> {equipo.id}</p>
           <p><strong>Nombre:</strong> {equipo.nombre}</p>
           <div className="flex justify-center mb-4">
-            <img src={equipo.imagen} alt={equipo.nombre} className="max-w-xs" />
+            <picture>
+              <img src={equipo.imagen} alt={equipo.nombre} className="max-w-xs" />
+            </picture>
+            
           </div>
             <p><strong>Marca:</strong> {equipo.idModelo.idMarca.nombre}</p>
             <p><strong>Modelo:</strong> {equipo.idModelo.nombre}</p>

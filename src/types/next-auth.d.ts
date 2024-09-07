@@ -4,7 +4,10 @@ import { DefaultSession, DefaultUser } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
-    token: string;
+    user:{
+      accessToken?: string;
+    } & DefaultSession['user'];
+  token: string;
   accessToken: string;
   id: number;
   cedula: string;
@@ -70,6 +73,7 @@ declare module "next-auth" {
     data: object;
     token: string;
   accessToken: string;
+  accessToken?: string;
   id: number;
   cedula: string;
   email: string;

@@ -53,7 +53,10 @@ const DropdownUser = () => {
               <span className="block text-xs">{session.user?.data.email}</span>
             </span>
             <span className="h-12 w-12 rounded-full">
+              <picture>
               <img src={ imageUrl } className="rounded-full" alt="" />
+              </picture>
+              
             </span>
           </>
         ) : (

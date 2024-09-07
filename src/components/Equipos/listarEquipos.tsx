@@ -43,7 +43,7 @@ const EquiposRead = () => {
         setFilteredEquipos(filteredResult);
         populateFilters(result);
     };
-    if (!session) {signIn();return null;}
+
     const populateFilters = (equipos: EquipoModel[]) => {
         const marcasSet = new Set<string>();
         const proveedoresSet = new Set<string>();
@@ -70,8 +70,12 @@ const EquiposRead = () => {
     };
 
     useEffect(() => {
-        fetcher().then(() => console.log("Obteniendo equipos"));
-    }, []);
+        if (session) {
+            fetcher().then(() => console.log("Obteniendo equipos"));
+        } else {
+            signIn();
+        }
+    }, [session]);
 
     const handleMarcaChange = (marca: string) => {
         setSelectedMarca(marca);
@@ -197,7 +201,7 @@ const EquiposRead = () => {
         { name: 'Fecha de Adquirido', selector: (row: EquipoModel) => new Date(row.fechaAdquisicion).toLocaleDateString(), sortable: true },
         { name: 'ID Interno', selector: (row: EquipoModel) => row.idInterno, sortable: true },
         { name: 'Ubicación', selector: (row: EquipoModel) => `${row.idUbicacion.nombre}/${row.idUbicacion.sector}`, sortable: true },
-        { name: 'Imagen', selector: (row: EquipoModel) => <img src={row.imagen} height={50} width={50} />, sortable: false },
+        { name: 'Imagen', selector: (row: EquipoModel) => <picture><img src={row.imagen} height={50} width={50} alt={row.nombre}/></picture>, sortable: false },
         { name: 'Estado', selector: (row: EquipoModel) => row.estado, sortable: true },
         {
             name: 'Acciones',

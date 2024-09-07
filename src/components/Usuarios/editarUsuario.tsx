@@ -33,7 +33,7 @@ const EditUsuario = () => {
       };
       fetchUsuario();
     }
-  }, [id]);
+  }, [id, session?.user?.accessToken]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (usuario) {

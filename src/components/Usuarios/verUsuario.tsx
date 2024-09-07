@@ -32,7 +32,7 @@ const UsuarioDetail = () => {
       };
       fetchUsuario();
     }
-  }, [id]);
+  }, [id, session?.user?.accessToken]);
 
   if (!usuario) return <div>...loading</div>;
 

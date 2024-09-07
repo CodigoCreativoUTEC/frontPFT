@@ -1,4 +1,4 @@
-import { ReferrerEnum, Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from "./enums";
+import { ReferrerEnum, Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from "./emuns";
 type nombrePerfil = any;
 export interface UsuarioModel {
     id: number | null;

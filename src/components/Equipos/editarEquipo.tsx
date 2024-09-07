@@ -36,7 +36,7 @@ const EditEquipo = () => {
       };
       fetchEquipo();
     }
-  }, [id]);
+  }, [id, session?.user?.accessToken]);
   if (!session) { signIn(); return null; }
 
   const validateForm = () => {
@@ -335,8 +335,8 @@ const EditEquipo = () => {
                   className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                 />
                 {equipo.imagen && (
-                  <div className='mt-2'>
-                    <img src={equipo.imagen} alt="Imagen del equipo" className='max-w-full h-auto' />
+                  <div className='mt-2'><picture><img src={equipo.imagen} alt="Imagen del equipo" className='max-w-full h-auto' /></picture>
+                    
                   </div>
                 )}
               </div>

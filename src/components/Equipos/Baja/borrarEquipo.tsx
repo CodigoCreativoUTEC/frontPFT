@@ -39,7 +39,7 @@ const DeleteEquipo = () => {
       };
       fetchEquipo();
     }
-  }, [id]);
+  }, [id, session?.user?.accessToken]);
 
   const validateForm = () => {
     const newErrors: string[] = [];
