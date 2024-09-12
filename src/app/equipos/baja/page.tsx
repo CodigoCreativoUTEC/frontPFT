@@ -2,9 +2,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { BajaEquipoModel, ReferrerEnum } from '@/types';
-import BajaEquiposList from '@/components/BajaEquipos';
+import BajaEquiposList from '@/components/Equipos/Baja/BajaEquipos';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import { Tipo, Marca, Modelo, Pais, Proveedor, Ubicacion } from '@/types/enums';
+import { tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from '@/types/enums';
 import { signIn, useSession } from 'next-auth/react';
 
 const EquiposBaja = () => {

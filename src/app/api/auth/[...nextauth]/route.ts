@@ -57,6 +57,22 @@ const handler = NextAuth({
 
       
       async authorize(credentials){
+
+        // HARDCODED ADMIN LOGIN FOR DEVELOPMENT PURPOSES
+        // REMOVE THIS BLOCK BEFORE GOING TO PRODUCTION
+        if (credentials?.usuario === "admin@admin.com" && credentials?.password === "admin") {
+          return {
+            id: 1,
+            name: 'Admin',
+            email: 'admin@admin.com',
+            accessToken: 'fake-jwt-token-for-development',
+            data: {
+              estado: 'ACTIVO'
+            }
+          };
+        }
+        // termina harcoded
+
         const hashedPassword = credentials ? crypto.createHash('sha256').update(credentials.password).digest('hex') : '';
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/login`, {
           method: 'POST',
