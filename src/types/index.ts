@@ -50,5 +50,13 @@ export interface BajaEquipoModel {
     estado: ReferrerEnum.INACTIVO;
 }
 
+export interface MarcaModel {
+    id: number | null;
+    nombre: string;
+    estado: ReferrerEnum;
+}
+
+
+
 export { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones };
 

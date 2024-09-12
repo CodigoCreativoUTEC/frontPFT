@@ -2,21 +2,21 @@ import React from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import EditUsuario from "@/components/Usuarios/editarUsuario";
+import EditMarca from "@/components/Marcas/editarMarca";
 
 export const metadata: Metadata = {
-  title: "Editar usuario",
-  description: "Editar usuario ingresado",
+    title: "Editar marca",
+    description: "Editar marca ingresada",
 };
 
-const editarUsuario: React.FC = function() {
+const editarMarca: React.FC = function() {
 
-  return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Editar usuario" />
-      <EditUsuario />
-    </DefaultLayout>
-  );
+    return (
+        <DefaultLayout>
+            <Breadcrumb pageName="Editar marca" />
+            <EditMarca />
+        </DefaultLayout>
+    );
 };
 
-export default editarUsuario;
+export default editarMarca;
