@@ -16,7 +16,7 @@ const BajaEquiposList: React.FC<BajaEquiposListProps> = (params) => {
       <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.razon}</td>
       <td className='px-2 py-2 font-medium text-black dark:text-white'>{params.comentarios}</td>
       <td className={`px-2 py-2 ${
-                        params.estado === "INACTIVO"
+                        params.estado === ReferrerEnum.INACTIVO
                           ? "bg-rose-200 text-danger"
                           : "bg-amber-200 text-warning"
                     }`}>{params.estado}</td>

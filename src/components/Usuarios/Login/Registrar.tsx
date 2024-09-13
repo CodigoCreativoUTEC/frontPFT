@@ -24,7 +24,7 @@ export default function Registrar() {
         nombre: '',
         apellido: '',
         nombreUsuario: '',
-        email: searchParams.get('email') || '',
+        email: searchParams.get('email') ?? '',
         contrasenia: '',
         confirmPassword: '',
         idPerfil: 1
@@ -42,8 +42,8 @@ export default function Registrar() {
     useEffect(() => {
         setFormData(prevState => ({
             ...prevState,
-            email: searchParams.get('email') || '',
-            nombre: searchParams.get('name') || ''
+            email: searchParams.get('email') ?? '',
+            nombre: searchParams.get('name') ?? ''
         }));
     }, [searchParams]);
 
@@ -70,7 +70,7 @@ export default function Registrar() {
         };
 
         // Validar cédula uruguaya
-        const cedulaRegex = /^\d{8,8}$/;
+        const cedulaRegex = /^\d{8}$/;
         if (!cedulaRegex.test(formData.cedula)) {
             tempErrors.cedula = "Cédula inválida. Debe tener 8 dígitos.";
         }

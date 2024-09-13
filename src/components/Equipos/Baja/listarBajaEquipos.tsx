@@ -12,7 +12,7 @@ const EquiposBaja = () => {
     const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ListarBajaEquipos", {
       headers: {
         "Content-Type": "application/json",
-        "authorization": "Bearer " + (session?.user?.accessToken || ''),
+        "authorization": "Bearer " + (session.accessToken || ''),
       },
     });
     const result = await res.json();

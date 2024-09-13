@@ -46,3 +46,4 @@ export interface BajaEquipoModel {
 }
 
 
+export {ReferrerEnum} from '../types/emuns';

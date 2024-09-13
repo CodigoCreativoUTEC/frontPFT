@@ -46,7 +46,7 @@ const EquiposCreate = () => {
     setErrors(newErrors);
     return newErrors.length === 0;
   };
-
+//TODO: Manejar el posible error de que el servicio no funcione
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -99,17 +99,17 @@ const EquiposCreate = () => {
         marca: undefined
       };
 
-      const add = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/", {
+      const add = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/CrearEquipo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "authorization": "Bearer " + (session?.user?.accessToken || ''),
+          "authorization": "Bearer " + (session.accessToken || ''),
         },
         body: JSON.stringify(payload),
       });
 
       if (add.ok) {
-        router.push("/equipos");
+        router.push("/equipos/CrearEquipo");
       } else {
         const result = await add.json();
         console.error('Error al crear el equipo:', result);
@@ -125,7 +125,7 @@ const EquiposCreate = () => {
   };
 
   const handleBack = () => {
-    router.push('/equipos');
+    router.push('/equipos/CrearEquipo');
   };
 
   if (!session) { signIn(); return null; }

@@ -9,7 +9,7 @@ interface UsuariosListProps extends UsuarioModel {
 }
 
 const UsuariosList: React.FC<UsuariosListProps> = (params) => {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
     const [usuarioIdToDelete, setUsuarioIdToDelete] = useState<number | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -37,7 +37,7 @@ const UsuariosList: React.FC<UsuariosListProps> = (params) => {
             }
     
             const usuario = await usuarioResponse.json();
-            usuario.estado = "INACTIVO";
+            usuario.estado = ReferrerEnum.INACTIVO;
     
             const response = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/Inactivar`, {
                 method: 'PUT',
@@ -50,7 +50,7 @@ const UsuariosList: React.FC<UsuariosListProps> = (params) => {
     
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Error al actualizar el usuario');
+                throw new Error(errorData.message || 'Error al borrar el usuario');
             }
     
             if (!session) { signIn(); return null; }

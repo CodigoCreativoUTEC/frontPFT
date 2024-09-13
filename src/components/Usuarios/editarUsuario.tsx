@@ -13,7 +13,7 @@ const EditUsuario = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   useEffect(() => {
     if (id) {

@@ -38,7 +38,7 @@ const EquiposRead = () => {
         });
         const result = await res.json();
 
-        const filteredResult = result.filter((equipo: EquipoModel) => equipo.estado !== "INACTIVO");
+        const filteredResult = result.filter((equipo: EquipoModel) => equipo.estado !== ReferrerEnum.INACTIVO);
         setEquipos(result);
         setFilteredEquipos(filteredResult);
         populateFilters(result);

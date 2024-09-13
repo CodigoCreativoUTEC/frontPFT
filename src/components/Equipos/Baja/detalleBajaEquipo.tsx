@@ -16,7 +16,7 @@ const BajaEquipoDetail = () => {
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/VerEquipoInactivo?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
-            "authorization": "Bearer " + (session?.user?.accessToken || ''),
+            "authorization": "Bearer " + (session.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -28,7 +28,7 @@ const BajaEquipoDetail = () => {
       };
       fetchBajaEquipo();
     }
-  }, [id, session?.user?.accessToken]);
+  }, [id, session.accessToken]);
   
   if (!session) {signIn();return null;}
   if (!bajaEquipo) return <div>...loading</div>;

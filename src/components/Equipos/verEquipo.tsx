@@ -7,7 +7,7 @@ import Link from "next/link";
 import { signIn, useSession } from 'next-auth/react';
 
 const EquipoDetail = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const { id } = useParams();
   const [equipo, setEquipo] = useState<EquipoModel | null>(null);
@@ -18,7 +18,7 @@ const EquipoDetail = () => {
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/BuscarEquipo?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
-            "authorization": "Bearer " + (session?.user?.accessToken || ''),
+            "authorization": "Bearer " + (session.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -30,7 +30,7 @@ const EquipoDetail = () => {
       };
       fetchEquipo();
     }
-  }, [id, session?.user?.accessToken]);
+  }, [id, session.accessToken]);
   if (!session) { signIn(); return null; }
 
   if (!equipo) return <div>...loading</div>;

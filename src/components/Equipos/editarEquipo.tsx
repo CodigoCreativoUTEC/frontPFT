@@ -23,7 +23,7 @@ const EditEquipo = () => {
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/BuscarEquipo?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
-            "authorization": "Bearer " + (session?.user?.accessToken || ''),
+            "authorization": "Bearer " + (session.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -36,7 +36,7 @@ const EditEquipo = () => {
       };
       fetchEquipo();
     }
-  }, [id, session?.user?.accessToken]);
+  }, [id, session.accessToken]);
   if (!session) { signIn(); return null; }
 
   const validateForm = () => {
@@ -125,16 +125,16 @@ const EditEquipo = () => {
         garantia: equipo.garantia ? new Date(equipo.garantia).toISOString().split('T')[0] : null,
       };
       
-      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/`, {
+      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ModificarEquipo`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
-          "authorization": "Bearer " + (session?.user?.accessToken || ''),
+          "authorization": "Bearer " + (session.accessToken || ''),
         },
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        router.push('/equipos');
+        router.push('/equipos/ModificarEquipo');
       } else {
         console.error("Error al actualizar el equipo");
       }
