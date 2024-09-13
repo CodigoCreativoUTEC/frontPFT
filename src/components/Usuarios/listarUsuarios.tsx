@@ -24,14 +24,12 @@ const UsuariosRead = () => {
             },
         });
         const result = await res.json();
-        console.log(result);
         setUsuarios(result);
         setFilteredUsuarios(result);
         populateFilters(result);
     };
 
     const populateFilters = (usuarios: UsuarioModel[]) => {
-        console.log(result)
         const tiposSet = new Set<string>();
         usuarios.forEach((usuario: UsuarioModel) => {
             if (usuario.idPerfil?.nombrePerfil) {

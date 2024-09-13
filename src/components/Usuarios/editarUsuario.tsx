@@ -21,7 +21,7 @@ const EditUsuario = () => {
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/BuscarUsuarioPorId?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
-            "authorization": "Bearer " + (session?.user?.accessToken || ''),
+            "authorization": "Bearer " + (session.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -103,7 +103,7 @@ const EditUsuario = () => {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
-          "authorization": "Bearer " + (session?.user?.accessToken || ''),
+          "authorization": "Bearer " + (session.accessToken || ''),
         },
         body: JSON.stringify(payload),
       });
