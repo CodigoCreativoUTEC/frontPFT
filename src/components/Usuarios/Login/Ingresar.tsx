@@ -55,7 +55,7 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
   };
   //si hay sesion redirige a la pagina principal
   if (session) {
-    redirect("/usuarios");
+    redirect("/escritorio");
   }
 
   return (
