@@ -33,12 +33,12 @@ const EquiposRead = () => {
         const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ListarTodosLosEquipos", {
             headers: {
                 "Content-Type": "application/json",
-                "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                "authorization": "Bearer " + (session.accessToken || ''),
             },
         });
         const result = await res.json();
 
-        const filteredResult = result.filter((equipo: EquipoModel) => equipo.estado !== ReferrerEnum.INACTIVO);
+        const filteredResult = result.filter((equipo: EquipoModel) => equipo.estado !== "INACTIVO");
         setEquipos(result);
         setFilteredEquipos(filteredResult);
         populateFilters(result);

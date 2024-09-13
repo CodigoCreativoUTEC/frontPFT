@@ -20,16 +20,18 @@ const UsuariosRead = () => {
         const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/ListarTodosLosUsuarios", {
             headers: {
                 "Content-Type": "application/json",
-                "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                "authorization": "Bearer " + (session?.accessToken || ''),
             },
         });
         const result = await res.json();
+        console.log(result);
         setUsuarios(result);
         setFilteredUsuarios(result);
         populateFilters(result);
     };
 
     const populateFilters = (usuarios: UsuarioModel[]) => {
+        console.log(result)
         const tiposSet = new Set<string>();
         usuarios.forEach((usuario: UsuarioModel) => {
             if (usuario.idPerfil?.nombrePerfil) {

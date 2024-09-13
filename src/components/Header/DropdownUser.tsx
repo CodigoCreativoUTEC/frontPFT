@@ -5,7 +5,9 @@ import { signIn, signOut, useSession } from "next-auth/react";
 const DropdownUser = () => {
   const { data: session } = useSession();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const imageUrl = session?.user?.image ?? `https://ui-avatars.com/api/?name=${session?.user?.data?.nombre}+${session?.user?.data?.apellido}`;
+  const imageUrl = session?.user?.image ?? `https://ui-avatars.com/api/?name=${session?.user?.name}`;
+  console.log(session);
+  console.log(session?.user?.image);
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
   
@@ -43,14 +45,14 @@ const DropdownUser = () => {
         className="flex items-center gap-4"
         href="#"
       >
-        {session?.user?.data ? (
+        {session?.user ? (
           
           <>
             <span className="hidden text-right lg:block">
               <span className="block text-sm font-medium text-black dark:text-white">
-                {session.user?.data.nombre} {session.user?.data.apellido}
+                {session.user.name}
               </span>
-              <span className="block text-xs">{session.user?.data.email}</span>
+              <span className="block text-xs">{session.user?.email}</span>
             </span>
             <span className="h-12 w-12 rounded-full">
               <picture>

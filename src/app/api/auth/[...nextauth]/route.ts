@@ -3,7 +3,6 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import crypto from "crypto";
 
-
 class CustomError extends Error {
   constructor(message: string) {
     super(message);
@@ -17,7 +16,6 @@ interface User {
   id: number;
   cedula: string;
   email: string;
-  // contrasenia: string; // Removido para evitar enviar contraseñas
   fechaNacimiento: [number, number, number];
   estado: string;
   nombre: string;
@@ -54,9 +52,7 @@ const handler = NextAuth({
         usuario: { label: "Usuario", type: "text" },
         password: { label: "Password", type: "password" }
       },
-
-      
-      async authorize(credentials){
+      async authorize(credentials) {
         const hashedPassword = credentials ? crypto.createHash('sha256').update(credentials.password).digest('hex') : '';
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/login`, {
           method: 'POST',
@@ -72,24 +68,19 @@ const handler = NextAuth({
           // Transformar los datos según el formato deseado
           const transformedData = {
             id: data.user.id,
-            name: data.user.nombre,
+            name: data.user.nombre + " " + data.user.apellido,
             email: data.user.email,
-            // No hay campo image en data.user, por lo que se elimina
-            data: {
-              ...data.user,
-            },
-            expires: data.expires,
+            perfil: data.user.idPerfil.nombrePerfil,  // Asegúrate de que perfil está en user
             accessToken: data.token
           };
           return transformedData as any;
-        } else if ( res.status === 401) {
+        } else if (res.status === 401) {
           throw new CustomError(data.error);
         } else if (data.user.estado === "INACTIVO") {
           throw new CustomError("Cuenta inactiva, por favor contacte al administrador");
         } else {
           throw new CustomError("Error desconocido, por favor intente nuevamente");
         }
-        
       }
     })
   ],
@@ -113,32 +104,48 @@ const handler = NextAuth({
           throw new CustomError(data.error || "Cuenta inactiva, por favor contacte al administrador");
         } else {
           user.accessToken = data.token;
-          user.data = data.user;
-          return { ...user.data, accessToken: data.token };
+          user.id = data.user.id;
+          user.nombre = data.user.nombre; // Concatena el nombre y apellido
+          user.perfil = data.user.idPerfil.nombrePerfil; // Extrae el perfil
+          return { ...user.nombre, accessToken: data.token, perfil: user.perfil };
         }
       } else {
         return true;
       }
     },
 
+    // Aquí se incluye el email y perfil en el token JWT
     async jwt({ token, user }) {
       if (user) {
         token.accessToken = user.accessToken;
-
-        token.user = user;
+        token.email = user.email;  // Incluir el email en el token
+        token.perfil = user.perfil;  // Incluir el perfil en el token
+        token.name = user.name;
+        token.id = user.id;
       }
       return token;
     },
 
+    // Aquí se envía el perfil junto con la sesión
     async session({ session, token }) {
+      // Asegúrate de que session.user esté definido
+      if (!session.user) {
+        session.user = {}; // Inicializar un objeto vacío si no está definido
+      }
+  
+      // Asignar los valores de email y perfil a session.user
+      session.user.email = token.email || null; // Si token.email no está presente, asigna null
+      session.user.perfil = token.perfil || null; // Asigna el perfil al objeto session
+      session.user.id = token.id;
+      session.user.name = token.name;
       session.accessToken = token.accessToken as string;
-      session.user = token.user as { name?: string | null; email?: string | null; image?: string | null; accessToken?: string};
+  
       return session;
-    }
+    },
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60,// 30 dias de expiracion
+    maxAge: 30 * 24 * 60 * 60, // 30 días de expiración
   },
   secret: process.env.SECRET,
   jwt: {
