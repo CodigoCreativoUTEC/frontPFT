@@ -1,4 +1,4 @@
-import { ReferrerEnum } from '../enums/referrer.enum';
+import { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from "./enums";
 type nombrePerfil = any;
 export interface UsuarioModel {
     id: number | null;
@@ -19,16 +19,21 @@ export interface UsuarioModel {
 export interface EquipoModel {
     id: number | null;
     nombre: string;
-    idTipo: Tipo;
+    // @ts-ignore
+    idTipo: tipoEquipos;
     marca: any | null;
-    idModelo: Modelo;
+    // @ts-ignore
+    idModelo: modelos;
     nroSerie: number | string;
     garantia: number | string;
-    idPais: Pais;
-    idProveedor: Proveedor;
+    // @ts-ignore
+    idPais: paises;
+    // @ts-ignore
+    idProveedor: proveedores;
     fechaAdquisicion: Date | any;
     idInterno: string;
-    idUbicacion: Ubicacion;
+    // @ts-ignore
+    idUbicacion: ubicaciones;
     imagen: string;
     estado: ReferrerEnum;
     equiposUbicaciones: any;
@@ -45,5 +50,31 @@ export interface BajaEquipoModel {
     estado: ReferrerEnum.INACTIVO;
 }
 
+export interface MarcaModel {
+    id: number | null;
+    nombre: string;
+    estado: ReferrerEnum;
+}
+
+export interface ModeloModel {
+    id: number | null;
+    nombre: string;
+    estado: ReferrerEnum;
+}
+
+export interface ProveedorModel {
+    id: number | null;
+    nombre: string;
+    estado: ReferrerEnum;
+}
+
+export interface TipoEquipoModel {
+    id: number | null;
+    nombre: string;
+    estado: ReferrerEnum;
+}
+
+
+export { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones };
 
 export {ReferrerEnum} from '../types/emuns';
