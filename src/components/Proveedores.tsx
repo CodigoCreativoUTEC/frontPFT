@@ -21,11 +21,11 @@ const ProveedoresList: React.FC<ProveedoresListProps> = (params) => {
         if (proveedorIdToDelete === null) return;
 
         try {
-            const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/proveedores/eliminar?id=${proveedorIdToDelete}`, {
+            const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/proveedores/inactivar?id=${proveedorIdToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                    "authorization": "Bearer " + (session.accessToken || ''),
                 },
             });
 

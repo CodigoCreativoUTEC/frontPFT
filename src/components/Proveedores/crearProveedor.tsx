@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import React, { useState } from "react";
+import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import Link from "next/link";
 import Image from "next/image";
@@ -12,45 +11,57 @@ export default function RegistrarProveedor() {
     const router = useRouter();
     const [formData, setFormData] = useState({ nombre: '' });
     const [errors, setErrors] = useState({
-        nombre: undefined
+        nombre: ''
     });
 
+    // Validar que los campos no estén vacíos
     const validate = () => {
         let tempErrors = {
-            nombre: undefined
+            nombre: ''
         };
+
         if (!formData.nombre) {
-            // @ts-ignore
             tempErrors.nombre = "El nombre del proveedor es requerido.";
         }
+
         setErrors(tempErrors);
+
+        // Devuelve true si no hay errores (es decir, todos los valores de tempErrors están vacíos)
         return Object.values(tempErrors).every(error => error === '');
     };
 
-    const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    const handleChange = (e: { target: { name: string; value: string; }; }) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = async (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log("Formulario enviado");
+
+        // Verificar si la validación falla
         if (!validate()) {
+            console.log("Validación fallida", errors);
             return;
         }
+
         try {
             const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/proveedores/crear', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    "authorization": "Bearer " + (session?.accessToken || ''),
+                },
                 body: JSON.stringify(formData),
             });
 
             if (res.ok) {
                 alert('Proveedor registrado exitosamente.');
-                router.push('/ruta-de-éxito'); // Ajusta la ruta de éxito según sea necesario
+                router.push('/ruta-de-exito'); // Ajusta la ruta de éxito según sea necesario
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
-                alert('Error al registrar el proveedor.');
+                alert(errorData.message || 'Error al registrar el proveedor.');
             }
         } catch (error) {
             console.error(error);
@@ -58,6 +69,7 @@ export default function RegistrarProveedor() {
         }
     };
 
+    // Redirigir a la página de inicio de sesión si no hay sesión activa
     if (!session) {
         signIn();
         return null;
@@ -87,17 +99,6 @@ export default function RegistrarProveedor() {
                         <p className="2xl:px-20">
                             Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
                         </p>
-                        <span className="mt-15 inline-block">
-                            <svg
-                                width="350"
-                                height="350"
-                                viewBox="0 0 350 350"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                {/* SVG content */}
-                            </svg>
-                        </span>
                     </div>
                 </div>
                 <div className="w-full xl:w-1/2">
@@ -116,7 +117,7 @@ export default function RegistrarProveedor() {
                                     id="nombre"
                                     value={formData.nombre}
                                     onChange={handleChange}
-                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
+                                    className={`w-full rounded-lg border py-4 pl-6 pr-10 outline-none ${errors.nombre ? 'border-red-500' : 'focus:border-primary'}`}
                                 />
                                 {errors.nombre && <p className="text-rose-500">{errors.nombre}</p>}
                             </div>

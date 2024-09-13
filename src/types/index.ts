@@ -1,4 +1,4 @@
-import { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from "./enums";
+import { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from "./emuns";
 type nombrePerfil = any;
 export interface UsuarioModel {
     id: number | null;
@@ -74,7 +74,4 @@ export interface TipoEquipoModel {
     estado: ReferrerEnum;
 }
 
-
 export { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones };
-
-export {ReferrerEnum} from '../types/emuns';

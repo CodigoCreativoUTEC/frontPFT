@@ -6,34 +6,17 @@ import { ProveedorModel, ReferrerEnum } from '@/types';
 
 const ProveedoresRead = () => {
 
-    // Datos harcodeados
-    const initialProveedores = [
-        { id: 1, nombre: "Proveedor A", estado: ReferrerEnum.ACTIVO },
-        { id: 2, nombre: "Proveedor B", estado: ReferrerEnum.INACTIVO },
-        { id: 3, nombre: "Proveedor C", estado: ReferrerEnum.ACTIVO }
-    ];
-
-    const [proveedores, setProveedores] = useState<ProveedorModel[]>(initialProveedores);
-    const [filteredProveedores, setFilteredProveedores] = useState<ProveedorModel[]>(initialProveedores);
-    const [nombreFilter, setNombreFilter] = useState<string>('');
-    const [estadoFilter, setEstadoFilter] = useState<string>('');
-
-    useEffect(() => {
-        // No real fetch call, we use static data
-        setFilteredProveedores(proveedores);
-    }, []);
-
-    /*const { data: session, status } = useSession();
+    const { data: session, status } = useSession();
     const [proveedores, setProveedores] = useState<ProveedorModel[]>([]);
     const [filteredProveedores, setFilteredProveedores] = useState<ProveedorModel[]>([]);
     const [nombreFilter, setNombreFilter] = useState<string>('');
     const [estadoFilter, setEstadoFilter] = useState<string>('');
 
     const fetcher = async () => {
-        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/proveedores/ListarTodosLosProveedores", {
+        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/proveedores/listarTodos", {
             headers: {
                 "Content-Type": "application/json",
-                "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                "authorization": "Bearer " + (session.accessToken || ''),
             },
         });
         const result: ProveedorModel[] = await res.json();
@@ -43,7 +26,7 @@ const ProveedoresRead = () => {
 
     useEffect(() => {
         fetcher();
-    }, []);*/
+    }, []);
 
     const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNombreFilter(e.target.value);
@@ -69,7 +52,7 @@ const ProveedoresRead = () => {
         setFilteredProveedores(proveedores);
     };
 
-    // if (!session) { signIn(); return null; }
+    if (!session) { signIn(); return null; }
 
     return (
         <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
