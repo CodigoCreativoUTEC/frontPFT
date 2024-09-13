@@ -2,22 +2,20 @@ import React from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import UsuariosRead from "@/components/Usuarios/listarUsuarios";
+import TipoEquiposRead from "@/components/TipoEquipos/listarTipoEquipos";
 
 export const metadata: Metadata = {
-  title: "Listado de usuarios",
-  description: "listado de usuarios ingresados",
+    title: "Listado de tipos de equipo",
+    description: "Listado de tipos de equipo ingresados",
 };
 
-
-const listadoUsuarios: React.FC = function() {
-
-  return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Lista de usuarios" />
-      <UsuariosRead />
-    </DefaultLayout>
-  );
+const listadoTipoEquipos: React.FC = function() {
+    return (
+        <DefaultLayout>
+            <Breadcrumb pageName="Lista de tipos de equipo" />
+            <TipoEquiposRead />
+        </DefaultLayout>
+    );
 };
 
-export default listadoUsuarios;
+export default listadoTipoEquipos;
