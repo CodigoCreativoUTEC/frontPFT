@@ -1,4 +1,4 @@
-"use client"; // Make sure to include this
+"use client";
 
 /*import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -156,7 +156,7 @@ export default EditModelo;*/
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ModeloModel, ReferrerEnum } from '@/types'; // Assuming ModeloModel is similar to MarcaModel
+import { ModeloModel, ReferrerEnum } from '@/types';
 import Image from "next/image";
 import Link from "next/link";
 

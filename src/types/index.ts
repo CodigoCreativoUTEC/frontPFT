@@ -62,6 +62,18 @@ export interface ModeloModel {
     estado: ReferrerEnum;
 }
 
+export interface ProveedorModel {
+    id: number | null;
+    nombre: string;
+    estado: ReferrerEnum;
+}
+
+export interface TipoEquipoModel {
+    id: number | null;
+    nombre: string;
+    estado: ReferrerEnum;
+}
+
 
 export { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones };
 

@@ -2,11 +2,11 @@ import React from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import ModelosRead from "@/components/Modelos/listarModelos"; // Cambiado a Modelos
+import ModelosRead from "@/components/Modelos/listarModelos";
 
 export const metadata: Metadata = {
-    title: "Listado de modelos", // Cambiado a Modelo
-    description: "Listado de modelos ingresados", // Cambiado a Modelo
+    title: "Listado de modelos",
+    description: "Listado de modelos ingresados",
 };
 
 const listadoModelos: React.FC = function() {

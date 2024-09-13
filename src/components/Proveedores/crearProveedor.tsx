@@ -7,7 +7,7 @@ import { signIn, useSession } from 'next-auth/react';
 import Link from "next/link";
 import Image from "next/image";
 
-export default function RegistrarModelo() {
+export default function RegistrarProveedor() {
     const { data: session } = useSession();
     const router = useRouter();
     const [formData, setFormData] = useState({ nombre: '' });
@@ -21,7 +21,7 @@ export default function RegistrarModelo() {
         };
         if (!formData.nombre) {
             // @ts-ignore
-            tempErrors.nombre = "El nombre del modelo es requerido.";
+            tempErrors.nombre = "El nombre del proveedor es requerido.";
         }
         setErrors(tempErrors);
         return Object.values(tempErrors).every(error => error === '');
@@ -38,19 +38,19 @@ export default function RegistrarModelo() {
             return;
         }
         try {
-            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/modelos/crear', {
+            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/proveedores/crear', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
 
             if (res.ok) {
-                alert('Modelo registrado exitosamente.');
-                router.push('/ruta-de-éxito'); // Adjust the success route as needed
+                alert('Proveedor registrado exitosamente.');
+                router.push('/ruta-de-éxito'); // Ajusta la ruta de éxito según sea necesario
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
-                alert('Error al registrar el modelo.');
+                alert('Error al registrar el proveedor.');
             }
         } catch (error) {
             console.error(error);
@@ -103,12 +103,12 @@ export default function RegistrarModelo() {
                 <div className="w-full xl:w-1/2">
                     <div className="px-12.5 py-17.5 sm:px-25 sm:py-30">
                         <h2 className="mb-9 text-2xl font-bold">
-                            Registrar Modelo
+                            Registrar Proveedor
                         </h2>
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
                                 <label htmlFor="nombre" className="block mb-2.5 font-medium">
-                                    Nombre del Modelo
+                                    Nombre del Proveedor
                                 </label>
                                 <input
                                     type="text"
