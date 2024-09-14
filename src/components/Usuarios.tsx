@@ -9,9 +9,10 @@ interface UsuariosListProps extends UsuarioModel {
 }
 
 const UsuariosList: React.FC<UsuariosListProps> = (params) => {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
     const [usuarioIdToDelete, setUsuarioIdToDelete] = useState<number | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const handleDeleteClick = (id: number | null) => {
         setUsuarioIdToDelete(id);
@@ -20,48 +21,50 @@ const UsuariosList: React.FC<UsuariosListProps> = (params) => {
 
     const borrarUsuario = async () => {
         if (usuarioIdToDelete === null) return;
-
+    
         try {
             const usuarioResponse = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/BuscarUsuarioPorId?id=${usuarioIdToDelete}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                    "authorization": "Bearer " + (session.accessToken || ''),
                 },
             });
-
+    
             if (!usuarioResponse.ok) {
                 const errorData = await usuarioResponse.json();
-                throw new Error(errorData.error || 'Error al obtener el usuario');
+                throw new Error(errorData.message || 'Error al obtener el usuario');
             }
-
+    
             const usuario = await usuarioResponse.json();
             usuario.estado = ReferrerEnum.INACTIVO;
-
-            const response = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/modificar`, {
+    
+            const response = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/Inactivar`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                    "authorization": "Bearer " + (session.accessToken || ''),
                 },
                 body: JSON.stringify(usuario),
             });
-
+    
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Error al actualizar el usuario');
+                throw new Error(errorData.message || 'Error al borrar el usuario');
             }
-
+    
             if (!session) { signIn(); return null; }
-
+    
             params.fetcher();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error al borrar usuario:', error);
+            setErrorMessage(error.message);  // Guardar el mensaje de error en el estado
         } finally {
             setShowConfirmModal(false);
             setUsuarioIdToDelete(null);
         }
     };
+    
 
     return (
         <>
@@ -142,6 +145,24 @@ const UsuariosList: React.FC<UsuariosListProps> = (params) => {
                     </div>
                 </div>
             )}
+
+            {errorMessage && (
+                <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center'>
+                    <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-5'>
+                        <h2 className='text-xl mb-4'>Error</h2>
+                        <p>{errorMessage}</p>
+                        <div className='mt-4'>
+                            <button
+                                onClick={() => setErrorMessage(null)}  // Cerrar el modal de error
+                                className='bg-violet-800 text-white p-2 rounded'
+                            >
+                                Aceptar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </>
     );
 }

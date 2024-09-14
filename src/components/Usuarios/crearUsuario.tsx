@@ -16,7 +16,7 @@ const hashPassword = async (password) => {
 };
 
 export default function Registrar() {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -26,7 +26,7 @@ export default function Registrar() {
         nombre: '',
         apellido: '',
         nombreUsuario: '',
-        email: searchParams.get('email') || '',
+        email: searchParams.get('email') ?? '',
         contrasenia: '',
         confirmPassword: '',
         usuariosTelefonos: [],
@@ -45,8 +45,8 @@ export default function Registrar() {
     useEffect(() => {
         setFormData(prevState => ({
             ...prevState,
-            email: searchParams.get('email') || '',
-            nombre: searchParams.get('name') || ''
+            email: searchParams.get('email') ?? '',
+            nombre: searchParams.get('name') ?? ''
         }));
     }, [searchParams]);
 
@@ -73,7 +73,7 @@ export default function Registrar() {
         };
 
         // Validar cédula uruguaya
-        const cedulaRegex = /^\d{8,8}$/;
+        const cedulaRegex = /^\d{8}$/;
         if (!cedulaRegex.test(formData.cedula)) {
             tempErrors.cedula = "Cédula inválida. Debe tener 8 dígitos.";
         }
@@ -379,7 +379,7 @@ export default function Registrar() {
                                         Teléfonos
                                     </label>
                                     {formData.usuariosTelefonos.map((telefono, index) => (
-                                        <div key={index} className="mb-2 flex items-center">
+                                        <div key={telefono.id} className="mb-2 flex items-center">
                                             <input
                                                 type="text"
                                                 value={telefono.numero}

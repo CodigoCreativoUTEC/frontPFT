@@ -35,7 +35,7 @@ export default function Perfil() {
         const response = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/BuscarUsuarioPorId/?id=${userId}`, {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${session.user.accessToken}`,
+            Authorization: `Bearer ${session.accessToken}`,
             "Content-Type": "application/json",
           },
         });

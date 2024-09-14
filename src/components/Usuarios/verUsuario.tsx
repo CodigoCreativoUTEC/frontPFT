@@ -1,13 +1,13 @@
 "use client"; // Asegúrate de incluir esto
 import { useEffect, useState } from 'react';
-import { useRouter, useParams, redirect } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { UsuarioModel } from '@/types';
 import Image from "next/image";
 import Link from "next/link";
 import { signIn, useSession } from 'next-auth/react';
 
 const UsuarioDetail = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   if (!session) {signIn();}
   
   const router = useRouter();
@@ -20,7 +20,7 @@ const UsuarioDetail = () => {
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/BuscarUsuarioPorId?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
-            "authorization": "Bearer " + (session?.user?.accessToken || ''),
+            "authorization": "Bearer " + (session.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -32,7 +32,7 @@ const UsuarioDetail = () => {
       };
       fetchUsuario();
     }
-  }, [id]);
+  }, [id, session.accessToken]);
 
   if (!usuario) return <div>...loading</div>;
 

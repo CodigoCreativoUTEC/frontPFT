@@ -23,7 +23,7 @@ const EditEquipo = () => {
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/BuscarEquipo?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
-            "authorization": "Bearer " + (session?.user?.accessToken || ''),
+            "authorization": "Bearer " + (session.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -36,7 +36,7 @@ const EditEquipo = () => {
       };
       fetchEquipo();
     }
-  }, [id]);
+  }, [id, session.accessToken]);
   if (!session) { signIn(); return null; }
 
   const validateForm = () => {
@@ -125,16 +125,16 @@ const EditEquipo = () => {
         garantia: equipo.garantia ? new Date(equipo.garantia).toISOString().split('T')[0] : null,
       };
       
-      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/`, {
+      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ModificarEquipo`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
-          "authorization": "Bearer " + (session?.user?.accessToken || ''),
+          "authorization": "Bearer " + (session.accessToken || ''),
         },
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        router.push('/equipos');
+        router.push('/equipos/ModificarEquipo');
       } else {
         console.error("Error al actualizar el equipo");
       }
@@ -335,8 +335,8 @@ const EditEquipo = () => {
                   className='w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                 />
                 {equipo.imagen && (
-                  <div className='mt-2'>
-                    <img src={equipo.imagen} alt="Imagen del equipo" className='max-w-full h-auto' />
+                  <div className='mt-2'><picture><img src={equipo.imagen} alt="Imagen del equipo" className='max-w-full h-auto' /></picture>
+                    
                   </div>
                 )}
               </div>

@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.vscode/settings.json
+.scannerwork/report-task.txt
+.scannerwork/.sonar_lock
+

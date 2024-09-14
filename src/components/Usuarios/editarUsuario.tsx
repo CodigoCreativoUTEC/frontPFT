@@ -13,7 +13,7 @@ const EditUsuario = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   useEffect(() => {
     if (id) {
@@ -21,7 +21,7 @@ const EditUsuario = () => {
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/BuscarUsuarioPorId?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
-            "authorization": "Bearer " + (session?.user?.accessToken || ''),
+            "authorization": "Bearer " + (session.accessToken || ''),
           },
         });
         if (res.ok) {
@@ -33,7 +33,7 @@ const EditUsuario = () => {
       };
       fetchUsuario();
     }
-  }, [id]);
+  }, [id, session?.user?.accessToken]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (usuario) {
@@ -103,7 +103,7 @@ const EditUsuario = () => {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
-          "authorization": "Bearer " + (session?.user?.accessToken || ''),
+          "authorization": "Bearer " + (session.accessToken || ''),
         },
         body: JSON.stringify(payload),
       });

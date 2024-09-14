@@ -4,7 +4,6 @@ import Image from "next/image";
 import { signIn, useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { redirect, useSearchParams } from 'next/navigation';
-import { Router, useRouter } from "next/router";
 import LoginLayout from "@/components/Layouts/LoginLayout";
 
 type Props = {
@@ -26,7 +25,6 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
     }
     //cuando la callback sea el mismo login no debe aaprecer error
     if (searchParams.get('callbackUrl') == "http://localhost:3000/usuarios/create") {
-      //setErrorMessage("Debes iniciar sesión para acceder a esta página");
       setErrorMessage(null);
     } else if (searchParams.get('callbackUrl')) {
       setErrorMessage("Debes iniciar sesión para acceder a esta página");
@@ -57,7 +55,7 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
   };
   //si hay sesion redirige a la pagina principal
   if (session) {
-    redirect("/usuarios");
+    redirect("/escritorio");
   }
 
   return (
@@ -125,7 +123,7 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
 
               <form onSubmit={onSubmit}>
                 <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
+                  <label htmlFor="usuario" className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
                   </label>
                   <div className="relative">
@@ -155,7 +153,7 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
                   </div>
                 </div>
                 <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-sm text-black dark:text-white">
+                  <label htmlFor="password" className="mb-2.5 block font-medium text-sm text-black dark:text-white">
                     Contraseña
                   </label>
                   <div className="relative">
@@ -201,7 +199,7 @@ const Ingresar = ({ callbackUrl, error }: Props) => {
               <button
                   onClick={() => signIn("google", { callbackUrl: callbackUrl ?? "/" })}
                   className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
-               <span>
+                  <span>
                     <svg
                         width="20"
                         height="20"
