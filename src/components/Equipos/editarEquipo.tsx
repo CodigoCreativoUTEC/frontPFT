@@ -134,7 +134,7 @@ const EditEquipo = () => {
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        router.push('/equipos/ModificarEquipo');
+        router.push('/equipos');
       } else {
         console.error("Error al actualizar el equipo");
       }

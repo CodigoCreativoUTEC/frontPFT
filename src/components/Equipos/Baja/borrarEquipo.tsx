@@ -39,7 +39,7 @@ const DeleteEquipo = () => {
       };
       fetchEquipo();
     }
-  }, [id, session?.user?.accessToken]);
+  }, [id, session.accessToken]);
 
   const validateForm = () => {
     const newErrors: string[] = [];
@@ -57,7 +57,7 @@ const DeleteEquipo = () => {
       const formData: BajaEquipoModel = {
         idEquipo: equipo,
         fecha: fechaBaja!,
-        idUsuario: session?.user.data,
+        idUsuario: session.user,
         razon: razon,
         comentarios: comentarios,
         estado: ReferrerEnum.INACTIVO, // Use enum value
@@ -71,7 +71,8 @@ const DeleteEquipo = () => {
         },
         body: JSON.stringify(formData),
       });
-
+      console.log(formData);
+      console.log(res);
       if (res.ok) {
         router.push('/equipos');
       } else {
