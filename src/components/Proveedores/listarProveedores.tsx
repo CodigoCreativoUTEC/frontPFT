@@ -2,11 +2,11 @@
 import { useEffect, useState } from 'react';
 import ProveedoresList from '@/components/Proveedores';
 import { signIn, useSession } from 'next-auth/react';
-import { ProveedorModel, ReferrerEnum } from '@/types';
+import { ProveedorModel } from '@/types';
 
 const ProveedoresRead = () => {
 
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [proveedores, setProveedores] = useState<ProveedorModel[]>([]);
     const [filteredProveedores, setFilteredProveedores] = useState<ProveedorModel[]>([]);
     const [nombreFilter, setNombreFilter] = useState<string>('');
@@ -92,6 +92,7 @@ const ProveedoresRead = () => {
                                 <tr className='bg-gray-200 text-center dark:bg-meta-4'>
                                     <th className="px-8 py-3 text-left">ID</th>
                                     <th className='px-8 py-3 text-left'>Nombre</th>
+                                    <th className='px-8 py-3 text-left'>Pais</th>
                                     <th className='px-8 py-3 text-left'>Estado</th>
                                     <th className='px-8 py-3 text-left'>Acciones</th>
                                 </tr>
