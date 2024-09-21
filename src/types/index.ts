@@ -70,7 +70,7 @@ export interface ProveedorModel {
 
 export interface TipoEquipoModel {
     id: number | null;
-    nombre: string;
+    nombreTipo: string;
     estado: ReferrerEnum;
 }
 

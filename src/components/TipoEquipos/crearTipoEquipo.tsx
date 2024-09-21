@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import Link from "next/link";
 import Image from "next/image";
@@ -10,26 +10,25 @@ import Image from "next/image";
 export default function RegistrarTipoEquipo() {
     const { data: session } = useSession();
     const router = useRouter();
-    const [formData, setFormData] = useState({ nombre: '' });
+    const [formData, setFormData] = useState({ nombreTipo: '' });
     const [errors, setErrors] = useState({
-        nombre: undefined
+        nombreTipo: undefined
     });
 
     const validate = () => {
         let tempErrors = {
-            nombre: undefined
+            nombreTipo: undefined
         };
-        if (!formData.nombre) {
-            // @ts-ignore
-            tempErrors.nombre = "El nombre del tipo de equipo es requerido.";
+        if (!formData.nombreTipo) {
+            tempErrors.nombreTipo = "El nombre del tipo de equipo es requerido.";
         }
         setErrors(tempErrors);
-        return Object.values(tempErrors).every(error => error === '');
+        return Object.values(tempErrors).every(error => error === undefined);
     };
 
     const handleChange = (e: { target: { name: any; value: any; }; }) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData({ ...formData, [name]: value, estado: "ACTIVO" });
     };
 
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
@@ -38,15 +37,19 @@ export default function RegistrarTipoEquipo() {
             return;
         }
         try {
+            console.log(formData);
             const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/tipoEquipos/crear', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.accessToken}`
+                },
                 body: JSON.stringify(formData),
             });
 
             if (res.ok) {
                 alert('Tipo de equipo registrado exitosamente.');
-                router.push('/ruta-de-éxito'); // Adjust the success route as needed
+                router.push('/tipo_equipo'); // Ajusta la ruta de éxito
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
@@ -107,18 +110,18 @@ export default function RegistrarTipoEquipo() {
                         </h2>
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
-                                <label htmlFor="nombre" className="block mb-2.5 font-medium">
+                                <label htmlFor="nombreTipo" className="block mb-2.5 font-medium">
                                     Nombre del Tipo de Equipo
                                 </label>
                                 <input
                                     type="text"
-                                    name="nombre"
-                                    id="nombre"
-                                    value={formData.nombre}
+                                    name="nombreTipo"
+                                    id="nombreTipo"
+                                    value={formData.nombreTipo}
                                     onChange={handleChange}
                                     className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
                                 />
-                                {errors.nombre && <p className="text-rose-500">{errors.nombre}</p>}
+                                {errors.nombreTipo && <p className="text-rose-500">{errors.nombreTipo}</p>}
                             </div>
                             <button
                                 type="submit"
