@@ -1,5 +1,3 @@
-// En MarcasRead component
-
 "use client";
 import { useEffect, useState } from 'react';
 import MarcasList from '@/components/Marcas';
@@ -8,34 +6,17 @@ import { MarcaModel, ReferrerEnum } from '@/types';
 
 const MarcasRead = () => {
 
-    // Datos harcodeados
-    const initialMarcas = [
-        { id: 1, nombre: "Marca A", estado: ReferrerEnum.ACTIVO },
-        { id: 2, nombre: "Marca B", estado: ReferrerEnum.INACTIVO },
-        { id: 3, nombre: "Marca C", estado: ReferrerEnum.ACTIVO }
-    ];
-
-    const [marcas, setMarcas] = useState<MarcaModel[]>(initialMarcas);
-    const [filteredMarcas, setFilteredMarcas] = useState<MarcaModel[]>(initialMarcas);
-    const [nombreFilter, setNombreFilter] = useState<string>('');
-    const [estadoFilter, setEstadoFilter] = useState<string>('');
-
-    useEffect(() => {
-        // No real fetch call, we use static data
-        setFilteredMarcas(marcas);
-    }, []);
-
-    /*const { data: session, status } = useSession();
+    const { data: session, status } = useSession();
     const [marcas, setMarcas] = useState<MarcaModel[]>([]);
     const [filteredMarcas, setFilteredMarcas] = useState<MarcaModel[]>([]);
     const [nombreFilter, setNombreFilter] = useState<string>('');
     const [estadoFilter, setEstadoFilter] = useState<string>('');
 
     const fetcher = async () => {
-        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marcas/ListarTodasLasMarcas", {
+        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marca/listarTodas", {
             headers: {
                 "Content-Type": "application/json",
-                "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                "authorization": "Bearer " + (session?.accessToken || ''),
             },
         });
         const result: MarcaModel[] = await res.json();
@@ -45,7 +26,7 @@ const MarcasRead = () => {
 
     useEffect(() => {
         fetcher();
-    }, []);*/
+    }, []);
 
     const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNombreFilter(e.target.value);
@@ -71,7 +52,7 @@ const MarcasRead = () => {
         setFilteredMarcas(marcas);
     };
 
-    // if (!session) { signIn(); return null; }
+    if (!session) { signIn(); return null; }
 
     return (
         <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>

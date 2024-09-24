@@ -38,9 +38,11 @@ export default function RegistrarMarca() {
             return;
         }
         try {
-            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marcas/crear', {
+            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marca/crear', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.accessToken}`
+                 },
                 body: JSON.stringify(formData),
             });
 

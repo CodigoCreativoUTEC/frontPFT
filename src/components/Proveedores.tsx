@@ -50,6 +50,7 @@ const ProveedoresList: React.FC<ProveedoresListProps> = (params) => {
             <tr className="border-b text-black bold dark:border-neutral-500 odd:bg-blue-200 dark:odd:bg-slate-700 dark:even:bg-slate-500 dark:odd:text-bodydark2">
                 <td className='px-8 py-3'>{params.id}</td>
                 <td className='px-8 py-3'>{params.nombre}</td>
+                <td className='px-8 py-3'>{params.pais.nombre}</td>
                 <td className='px-8 py-3'>{params.estado}</td>
                 <td className='px-8 py-3'>
                     <div className="inline-flex">

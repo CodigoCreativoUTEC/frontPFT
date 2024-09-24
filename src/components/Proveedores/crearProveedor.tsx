@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import Link from "next/link";
 import Image from "next/image";
+import CountrySelect from "../CountrySelect";
 
 export default function RegistrarProveedor() {
     const { data: session } = useSession();
@@ -34,6 +35,10 @@ export default function RegistrarProveedor() {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
+
+    const handleCountryChange = (country: { id: number; nombre: string }) => {
+        setFormData(prev => ({ ...prev, pais: country }));
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -121,6 +126,15 @@ export default function RegistrarProveedor() {
                                 />
                                 {errors.nombre && <p className="text-rose-500">{errors.nombre}</p>}
                             </div>
+
+                            <div className='mb-4'>
+                                <label className='block mb-2 text-sm font-medium text-gray-700'>Pais del Proveedor:</label>
+                                <CountrySelect
+                                selectedCountry={formData.pais}
+                                onCountryChange={handleCountryChange}
+                                />
+                            </div>
+
                             <button
                                 type="submit"
                                 className="w-full rounded-lg bg-primary py-4 text-white hover:bg-primary-dark"

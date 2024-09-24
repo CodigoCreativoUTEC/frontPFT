@@ -21,11 +21,11 @@ const MarcasList: React.FC<MarcasListProps> = (params) => {
         if (marcaIdToDelete === null) return;
 
         try {
-            const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marcas/eliminar?id=${marcaIdToDelete}`, {
+            const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marca/inactivar?id=${marcaIdToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                    "authorization": "Bearer " + (session?.accessToken || ''),
                 },
             });
 

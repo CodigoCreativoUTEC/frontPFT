@@ -38,3 +38,4 @@ next-env.d.ts
 .scannerwork/report-task.txt
 .scannerwork/.sonar_lock
 
+.sonarlint/connectedMode.json
