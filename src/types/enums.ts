@@ -65,3 +65,9 @@ export const ubicaciones = [
   { id: 7, nombre: "Cuidados intermedios" },
   { id: 8, nombre: "Cuarentena" },
 ];
+
+export const tipoIntervencion = [
+  { id: 1, nombre: "Prevencion" },
+  { id: 2, nombre: "Falla" },
+  { id: 3, nombre: "Resolucion" },
+];

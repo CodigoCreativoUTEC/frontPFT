@@ -1,4 +1,5 @@
-import { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from "./enums";
+import { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones, tipoIntervencion } from "./enums";
+import DatePicker from "react-datepicker";
 type nombrePerfil = any;
 export interface UsuarioModel {
     id: number | null;
@@ -74,6 +75,28 @@ export interface TipoEquipoModel {
     estado: ReferrerEnum;
 }
 
+export interface PerfilModel {
+    id: number | null;
+    nombre: string;
+    funcionalidades: FuncionalidadModel[];
+    estado: ReferrerEnum;
+}
 
-export { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones };
+export interface FuncionalidadModel {
+    id: number | null;
+    nombre: string;
+    estado: ReferrerEnum;
+}
+
+export interface IntervencionModel {
+    id: number | null;
+    fecha: DatePicker;
+    // @ts-ignore
+    tipoIntervencion: tipoIntervencion;
+    motivo: string;
+    idEquipo: EquipoModel[];
+    observaciones: string
+}
+
+export { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones, tipoIntervencion };
 
