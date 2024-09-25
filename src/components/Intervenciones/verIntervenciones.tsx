@@ -101,6 +101,7 @@ const IntervencionDetail = () => {
 
     useEffect(() => {
         const foundIntervencion = initialIntervenciones.find(i => i.id === Number(id));
+        // @ts-ignore
         setIntervencion(foundIntervencion || null);
     }, [id]);
 
