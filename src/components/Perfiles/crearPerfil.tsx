@@ -7,7 +7,7 @@ import { signIn, useSession } from 'next-auth/react';
 import Link from "next/link";
 import Image from "next/image";
 
-export default function RegistrarMarca() {
+export default function RegistrarPerfil() {
     const { data: session } = useSession();
     const router = useRouter();
     const [formData, setFormData] = useState({ nombre: '' });
@@ -19,7 +19,7 @@ export default function RegistrarMarca() {
         let tempErrors: { nombre: string | undefined } = { nombre: '' };
 
         if (!formData.nombre) {
-            tempErrors.nombre = "El nombre de la marca es requerido.";
+            tempErrors.nombre = "El nombre del perfil es requerido.";
         } else {
             tempErrors.nombre = undefined; // No hay error si se proporciona un nombre
         }
@@ -41,26 +41,24 @@ export default function RegistrarMarca() {
             return;
         }
         try {
-            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marca/crear', {
+            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/perfiles/crear', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.accessToken}`
-                 },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
 
             if (res.ok) {
-                alert('Marca registrada exitosamente.');
-                router.push('/marcas');
+                alert('Perfil registrado exitosamente.');
+                router.push('/funcionalidades/acceso');
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
-                alert('Error al registrar la marca.');
+                alert('Error al registrar el perfil.');
             }
         } catch (error) {
             console.error(error);
             alert('Error al conectar con el servidor.');
-            router.push('/marcas');
+            router.push('/funcionalidades/acceso'); // Redirige incluso en caso de error
         }
     };
 
@@ -94,27 +92,19 @@ export default function RegistrarMarca() {
                             Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
                         </p>
                         <span className="mt-15 inline-block">
-                            <svg
-                                width="350"
-                                height="350"
-                                viewBox="0 0 350 350"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                {/* SVG content */}
-                            </svg>
+                            {/* SVG content omitted for brevity */}
                         </span>
                     </div>
                 </div>
                 <div className="w-full xl:w-1/2">
                     <div className="px-12.5 py-17.5 sm:px-25 sm:py-30">
                         <h2 className="mb-9 text-2xl font-bold">
-                            Registrar Marca
+                            Registrar Perfil
                         </h2>
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
                                 <label htmlFor="nombre" className="block mb-2.5 font-medium">
-                                    Nombre de la Marca
+                                    Nombre del Perfil
                                 </label>
                                 <input
                                     type="text"
@@ -139,3 +129,4 @@ export default function RegistrarMarca() {
         </div>
     );
 }
+

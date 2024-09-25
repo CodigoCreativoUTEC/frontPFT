@@ -1,4 +1,5 @@
-import { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from "./emuns";
+import { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones, tipoIntervencion } from "./enums";
+import DatePicker from "react-datepicker";
 type nombrePerfil = any;
 export interface UsuarioModel {
     id: number | null;
@@ -74,4 +75,32 @@ export interface TipoEquipoModel {
     estado: ReferrerEnum;
 }
 
-export { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones };
+export interface PerfilModel {
+    id: number | null;
+    nombre: string;
+    funcionalidades: FuncionalidadModel[];
+    estado: ReferrerEnum;
+}
+
+export interface FuncionalidadModel {
+    id: number | null;
+    nombre: string;
+    estado: ReferrerEnum;
+}
+
+export interface IntervencionModel {
+    id: number;
+    fechaIntervencion: string; // formato ISO para la fecha y hora
+    tipo: TipoIntervencionEnum;
+    motivo: string;
+    equipoId: string;
+    observaciones?: string; // opcional
+}
+export enum TipoIntervencionEnum {
+    PREVENCION = 'Prevención',
+    FALLA = 'Falla',
+    RESOLUCION = 'Resolución'
+}
+
+export { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones, tipoIntervencion };
+
