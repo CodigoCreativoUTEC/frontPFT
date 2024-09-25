@@ -89,13 +89,12 @@ export interface FuncionalidadModel {
 }
 
 export interface IntervencionModel {
-    id: number | null;
-    fecha: DatePicker;
-    // @ts-ignore
-    tipoIntervencion: tipoIntervencion;
+    id: number;
+    fechaIntervencion: string; // formato ISO para la fecha y hora
+    tipo: 'Prevención' | 'Falla' | 'Resolución';
     motivo: string;
-    idEquipo: EquipoModel[];
-    observaciones: string
+    equipoId: string;
+    observaciones?: string; // opcional
 }
 
 export { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones, tipoIntervencion };

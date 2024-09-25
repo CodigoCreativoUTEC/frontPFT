@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Asegúrate de incluir esto
 
 import React from "react";
 import { useRouter } from 'next/navigation';
@@ -11,23 +11,26 @@ export default function RegistrarPerfil() {
     const { data: session } = useSession();
     const router = useRouter();
     const [formData, setFormData] = useState({ nombre: '' });
-    const [errors, setErrors] = useState({
+    const [errors, setErrors] = useState<{ nombre: string | undefined }>({
         nombre: undefined
     });
 
     const validate = () => {
-        let tempErrors = {
-            nombre: undefined
-        };
+        let tempErrors: { nombre: string | undefined } = { nombre: '' };
+
         if (!formData.nombre) {
-            // @ts-ignore
             tempErrors.nombre = "El nombre del perfil es requerido.";
+        } else {
+            tempErrors.nombre = undefined; // No hay error si se proporciona un nombre
         }
+
         setErrors(tempErrors);
-        return Object.values(tempErrors).every(error => error === '');
+
+        // Asegúrate de que no haya ningún error antes de devolver `true`.
+        return Object.values(tempErrors).every(error => error === undefined);
     };
 
-    const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    const handleChange = (e: { target: { name: string; value: string; }; }) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
@@ -55,6 +58,7 @@ export default function RegistrarPerfil() {
         } catch (error) {
             console.error(error);
             alert('Error al conectar con el servidor.');
+            router.push('/funcionalidades/acceso'); // Redirige incluso en caso de error
         }
     };
 
@@ -125,3 +129,4 @@ export default function RegistrarPerfil() {
         </div>
     );
 }
+

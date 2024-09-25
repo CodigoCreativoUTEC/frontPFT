@@ -1,8 +1,8 @@
-"use client";
+"use client"; // Asegúrate de incluir esto
 
 import React from "react";
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import Link from "next/link";
 import Image from "next/image";
@@ -11,31 +11,39 @@ export default function RegistrarFuncionalidad() {
     const { data: session } = useSession();
     const router = useRouter();
     const [formData, setFormData] = useState({ nombre: '' });
-    const [errors, setErrors] = useState({
+    const [errors, setErrors] = useState<{ nombre: string | undefined }>({
         nombre: undefined
     });
+    const [serverError, setServerError] = useState<string | null>(null);
 
     const validate = () => {
-        let tempErrors = {
-            nombre: undefined
-        };
+        let tempErrors: { nombre: string | undefined } = { nombre: '' };
+
         if (!formData.nombre) {
             tempErrors.nombre = "El nombre de la funcionalidad es requerido.";
+        } else {
+            tempErrors.nombre = undefined; // No hay error si se proporciona un nombre
         }
+
         setErrors(tempErrors);
-        return Object.values(tempErrors).every(error => error === '');
+
+        // Asegúrate de que no haya ningún error antes de devolver `true`.
+        return Object.values(tempErrors).every(error => error === undefined);
     };
 
-    const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    const handleChange = (e: { target: { name: string; value: string; }; }) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
+        setServerError(null); // Limpiamos errores de servidor anteriores
+
         if (!validate()) {
             return;
         }
+
         try {
             const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/funcionalidades/crear', {
                 method: 'POST',
@@ -45,7 +53,7 @@ export default function RegistrarFuncionalidad() {
 
             if (res.ok) {
                 alert('Funcionalidad registrada exitosamente.');
-                router.push('/ruta-de-éxito');
+                router.push('/ruta-de-exito');
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
@@ -54,6 +62,7 @@ export default function RegistrarFuncionalidad() {
         } catch (error) {
             console.error(error);
             alert('Error al conectar con el servidor.');
+            router.push('/funcionalidades');
         }
     };
 
@@ -111,6 +120,14 @@ export default function RegistrarFuncionalidad() {
                                 />
                                 {errors.nombre && <p className="text-rose-500">{errors.nombre}</p>}
                             </div>
+
+                            {/* Mostrar errores de servidor si existen */}
+                            {serverError && (
+                                <div className="mb-4 bg-red-100 border border-red-500 text-red-500 p-2 rounded">
+                                    {serverError}
+                                </div>
+                            )}
+
                             <button
                                 type="submit"
                                 className="w-full rounded-lg bg-primary py-4 text-white hover:bg-primary-dark"

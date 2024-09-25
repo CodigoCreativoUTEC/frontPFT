@@ -1,8 +1,8 @@
-"use client";
+"use client"; // Asegúrate de incluir esto
 
 import React from "react";
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import Link from "next/link";
 import Image from "next/image";
@@ -10,23 +10,48 @@ import Image from "next/image";
 export default function RegistrarIntervencion() {
     const { data: session } = useSession();
     const router = useRouter();
-    const [formData, setFormData] = useState({ nombre: '' });
+
+    // Simulación de los idInterno de los equipos
+    const equipos = [
+        { idInterno: 'EQ001' },
+        { idInterno: 'EQ002' },
+        { idInterno: 'EQ003' },
+        { idInterno: 'EQ004' }
+    ];
+
+    const [formData, setFormData] = useState({
+        fechaIntervencion: '',
+        tipoIntervencion: '',
+        motivo: '',
+        equipoId: '', // Cambiado a string para el select
+        observaciones: ''
+    });
+
     const [errors, setErrors] = useState({
-        nombre: undefined
+        fechaIntervencion: undefined,
+        tipoIntervencion: undefined,
+        motivo: undefined,
+        equipoId: undefined
     });
 
     const validate = () => {
-        let tempErrors = {
-            nombre: undefined
+        let tempErrors: any = {
+            fechaIntervencion: '',
+            tipoIntervencion: '',
+            motivo: '',
+            equipoId: ''
         };
-        if (!formData.nombre) {
-            tempErrors.nombre = "El nombre de la intervención es requerido.";
-        }
+
+        if (!formData.fechaIntervencion) tempErrors.fechaIntervencion = "La fecha/hora de la intervención es requerida.";
+        if (!formData.tipoIntervencion) tempErrors.tipoIntervencion = "El tipo de intervención es requerido.";
+        if (!formData.motivo) tempErrors.motivo = "El motivo de la intervención es requerido.";
+        if (!formData.equipoId) tempErrors.equipoId = "La identificación del equipo es requerida.";
+
         setErrors(tempErrors);
         return Object.values(tempErrors).every(error => error === '');
     };
 
-    const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    const handleChange = (e: { target: { name: string; value: string; }; }) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
@@ -45,7 +70,7 @@ export default function RegistrarIntervencion() {
 
             if (res.ok) {
                 alert('Intervención registrada exitosamente.');
-                router.push('/ruta-de-éxito');
+                router.push('/ruta-de-exito');
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
@@ -97,20 +122,95 @@ export default function RegistrarIntervencion() {
                             Registrar Intervención
                         </h2>
                         <form onSubmit={handleSubmit}>
+                            {/* Fecha/hora de la intervención */}
                             <div className="mb-4">
-                                <label htmlFor="nombre" className="block mb-2.5 font-medium">
-                                    Nombre de la Intervención
+                                <label htmlFor="fechaIntervencion" className="block mb-2.5 font-medium">
+                                    Fecha/hora de la intervención
                                 </label>
                                 <input
-                                    type="text"
-                                    name="nombre"
-                                    id="nombre"
-                                    value={formData.nombre}
+                                    type="datetime-local"
+                                    name="fechaIntervencion"
+                                    id="fechaIntervencion"
+                                    value={formData.fechaIntervencion}
                                     onChange={handleChange}
                                     className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
                                 />
-                                {errors.nombre && <p className="text-rose-500">{errors.nombre}</p>}
+                                {errors.fechaIntervencion && <p className="text-rose-500">{errors.fechaIntervencion}</p>}
                             </div>
+
+                            {/* Tipo de intervención */}
+                            <div className="mb-4">
+                                <label htmlFor="tipoIntervencion" className="block mb-2.5 font-medium">
+                                    Tipo de intervención
+                                </label>
+                                <select
+                                    name="tipoIntervencion"
+                                    id="tipoIntervencion"
+                                    value={formData.tipoIntervencion}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
+                                >
+                                    <option value="">Seleccione el tipo de intervención</option>
+                                    <option value="Prevención">Prevención</option>
+                                    <option value="Falla">Falla</option>
+                                    <option value="Resolución">Resolución</option>
+                                </select>
+                                {errors.tipoIntervencion && <p className="text-rose-500">{errors.tipoIntervencion}</p>}
+                            </div>
+
+                            {/* Motivo de la intervención */}
+                            <div className="mb-4">
+                                <label htmlFor="motivo" className="block mb-2.5 font-medium">
+                                    Motivo
+                                </label>
+                                <input
+                                    type="text"
+                                    name="motivo"
+                                    id="motivo"
+                                    value={formData.motivo}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
+                                />
+                                {errors.motivo && <p className="text-rose-500">{errors.motivo}</p>}
+                            </div>
+
+                            {/* Identificación del equipo (combobox simulado) */}
+                            <div className="mb-4">
+                                <label htmlFor="equipoId" className="block mb-2.5 font-medium">
+                                    Identificación del equipo
+                                </label>
+                                <select
+                                    name="equipoId"
+                                    id="equipoId"
+                                    value={formData.equipoId}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
+                                >
+                                    <option value="">Seleccione un equipo</option>
+                                    {equipos.map(equipo => (
+                                        <option key={equipo.idInterno} value={equipo.idInterno}>
+                                            {equipo.idInterno}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.equipoId && <p className="text-rose-500">{errors.equipoId}</p>}
+                            </div>
+
+                            {/* Observaciones */}
+                            <div className="mb-4">
+                                <label htmlFor="observaciones" className="block mb-2.5 font-medium">
+                                    Observaciones (opcional)
+                                </label>
+                                <textarea
+                                    name="observaciones"
+                                    id="observaciones"
+                                    value={formData.observaciones}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
+                                />
+                            </div>
+
+                            {/* Botón para enviar el formulario */}
                             <button
                                 type="submit"
                                 className="w-full rounded-lg bg-primary py-4 text-white hover:bg-primary-dark"
