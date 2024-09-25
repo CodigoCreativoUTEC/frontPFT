@@ -2,8 +2,7 @@ import React from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-// @ts-ignore
-import PerfilDetail from "@/components/Perfiles/verPerfil";
+import PerfilDetail from "@/components/Perfiles/verPerfiles";
 
 export const metadata: Metadata = {
     title: "Detalles del perfil",

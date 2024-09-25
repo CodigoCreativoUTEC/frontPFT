@@ -2,8 +2,8 @@ import React from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-// @ts-ignore
-import IntervencionDetail from "@/components/Intervenciones/verIntervencion";
+
+import IntervencionDetail from "@/components/Intervenciones/verIntervenciones";
 
 export const metadata: Metadata = {
     title: "Detalles de la intervención",

@@ -2,8 +2,7 @@ import React from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-// @ts-ignore
-import FuncionalidadDetail from "@/components/Funcionalidades/verFuncionalidad";
+import FuncionalidadDetail from "@/components/Funcionalidades/verFuncionalidades";
 
 export const metadata: Metadata = {
     title: "Detalles de la funcionalidad",

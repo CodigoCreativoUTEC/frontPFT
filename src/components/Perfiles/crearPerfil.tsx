@@ -20,6 +20,7 @@ export default function RegistrarPerfil() {
             nombre: undefined
         };
         if (!formData.nombre) {
+            // @ts-ignore
             tempErrors.nombre = "El nombre del perfil es requerido.";
         }
         setErrors(tempErrors);
@@ -45,7 +46,7 @@ export default function RegistrarPerfil() {
 
             if (res.ok) {
                 alert('Perfil registrado exitosamente.');
-                router.push('/ruta-de-éxito');
+                router.push('/funcionalidades/acceso');
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
