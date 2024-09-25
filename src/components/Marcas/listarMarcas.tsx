@@ -19,9 +19,20 @@ const MarcasRead = () => {
                 "authorization": "Bearer " + (session?.accessToken || ''),
             },
         });
+        // si el resultado contine un mensaje de error, se muestra en un recuardro de alerta
+        console.log(res);
+        if (res.status === 401 || res.status === 403) {
+            alert("No tienes permisos para acceder a esta página");
+            return;
+        }else{
         const result: MarcaModel[] = await res.json();
-        setMarcas(result);
-        setFilteredMarcas(result);
+
+                
+                setMarcas(result);
+                setFilteredMarcas(result);
+
+        }
+        
     };
 
     useEffect(() => {
