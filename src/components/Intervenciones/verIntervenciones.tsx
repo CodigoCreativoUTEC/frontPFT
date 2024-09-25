@@ -86,12 +86,12 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from "next/image";
 import Link from "next/link";
-import { IntervencionModel, ReferrerEnum } from '@/types';
+import { IntervencionModel, TipoIntervencionEnum } from '@/types';
 
-const initialIntervenciones = [
-    { id: 1, nombre: "Intervención A", estado: ReferrerEnum.ACTIVO },
-    { id: 2, nombre: "Intervención B", estado: ReferrerEnum.INACTIVO },
-    { id: 3, nombre: "Intervención C", estado: ReferrerEnum.ACTIVO }
+const initialIntervenciones: IntervencionModel[] = [
+    { id: 1, tipo: TipoIntervencionEnum.PREVENCION, fechaIntervencion: "2023-09-01T10:00", motivo: "Mantenimiento preventivo", equipoId: "EQ001", observaciones: "N/A" },
+    { id: 2, tipo: TipoIntervencionEnum.FALLA, fechaIntervencion: "2023-09-10T15:30", motivo: "Reparación por falla", equipoId: "EQ002", observaciones: "Se cambió una pieza" },
+    { id: 3, tipo: TipoIntervencionEnum.RESOLUCION, fechaIntervencion: "2023-10-01T08:45", motivo: "Revisión final", equipoId: "EQ003", observaciones: "Todo en orden" }
 ];
 
 const IntervencionDetail = () => {
@@ -101,7 +101,6 @@ const IntervencionDetail = () => {
 
     useEffect(() => {
         const foundIntervencion = initialIntervenciones.find(i => i.id === Number(id));
-        // @ts-ignore
         setIntervencion(foundIntervencion || null);
     }, [id]);
 
@@ -135,8 +134,11 @@ const IntervencionDetail = () => {
             <div className='w-full items-center text-center xl:w-2/4 rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
                 <div className='w-full p-4 sm:p-12.5 xl:p-7.5'>
                     <p><strong>ID:</strong> {intervencion.id}</p>
-                    <p><strong>Nombre de la Intervención:</strong> {intervencion.nombre}</p>
-                    <p><strong>Estado:</strong> {intervencion.estado}</p>
+                    <p><strong>Fecha de la Intervención:</strong> {new Date(intervencion.fechaIntervencion).toLocaleString()}</p>
+                    <p><strong>Tipo de Intervención:</strong> {intervencion.tipo}</p>
+                    <p><strong>Motivo:</strong> {intervencion.motivo || 'N/A'}</p>
+                    <p><strong>Identificación del Equipo:</strong> {intervencion.equipoId}</p>
+                    <p><strong>Observaciones:</strong> {intervencion.observaciones || 'N/A'}</p>
                 </div>
                 <button
                     onClick={() => router.push('/intervenciones')}
@@ -150,3 +152,4 @@ const IntervencionDetail = () => {
 }
 
 export default IntervencionDetail;
+

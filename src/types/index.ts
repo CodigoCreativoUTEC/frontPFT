@@ -91,10 +91,15 @@ export interface FuncionalidadModel {
 export interface IntervencionModel {
     id: number;
     fechaIntervencion: string; // formato ISO para la fecha y hora
-    tipo: 'Prevención' | 'Falla' | 'Resolución';
+    tipo: TipoIntervencionEnum;
     motivo: string;
     equipoId: string;
     observaciones?: string; // opcional
+}
+export enum TipoIntervencionEnum {
+    PREVENCION = 'Prevención',
+    FALLA = 'Falla',
+    RESOLUCION = 'Resolución'
 }
 
 export { ReferrerEnum, tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones, tipoIntervencion };
