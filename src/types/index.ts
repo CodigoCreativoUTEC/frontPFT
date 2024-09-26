@@ -90,11 +90,11 @@ export interface FuncionalidadModel {
 
 export interface IntervencionModel {
     id: number;
-    fechaIntervencion: string; // formato ISO para la fecha y hora
-    tipo: TipoIntervencionEnum;
+    fechaHora: string; // formato ISO para la fecha y hora
+    idTipo: TipoIntervencionEnum;
     motivo: string;
-    equipoId: string;
-    observaciones?: string; // opcional
+    idEquipo: string;
+    comentarios?: string; // opcional
 }
 export enum TipoIntervencionEnum {
     PREVENCION = 'Prevención',
