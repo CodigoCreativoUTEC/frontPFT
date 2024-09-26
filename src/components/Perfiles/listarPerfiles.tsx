@@ -2,40 +2,21 @@
 import { useEffect, useState } from 'react';
 import PerfilesList from '@/components/Perfiles';
 import { signIn, useSession } from 'next-auth/react';
-import { PerfilModel, ReferrerEnum } from '@/types';
+import { PerfilModel, ReferrerEnum } from '@/types/index';
 
 const PerfilesRead = () => {
 
-    // Datos harcodeados
-    const initialPerfiles = [
-        { id: 1, nombre: "Perfil A", estado: ReferrerEnum.ACTIVO },
-        { id: 2, nombre: "Perfil B", estado: ReferrerEnum.INACTIVO },
-        { id: 3, nombre: "Perfil C", estado: ReferrerEnum.ACTIVO }
-    ];
-
-    // @ts-ignore
-    const [perfiles, setPerfiles] = useState<PerfilModel[]>(initialPerfiles);
-    // @ts-ignore
-    const [filteredPerfiles, setFilteredPerfiles] = useState<PerfilModel[]>(initialPerfiles);
-    const [nombreFilter, setNombreFilter] = useState<string>('');
-    const [estadoFilter, setEstadoFilter] = useState<string>('');
-
-    useEffect(() => {
-        // No real fetch call, we use static data
-        setFilteredPerfiles(perfiles);
-    }, []);
-
-    /*const { data: session, status } = useSession();
+    const { data: session, status } = useSession();
     const [perfiles, setPerfiles] = useState<PerfilModel[]>([]);
     const [filteredPerfiles, setFilteredPerfiles] = useState<PerfilModel[]>([]);
     const [nombreFilter, setNombreFilter] = useState<string>('');
     const [estadoFilter, setEstadoFilter] = useState<string>('');
 
     const fetcher = async () => {
-        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/perfiles/ListarTodosLosPerfiles", {
+        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/perfiles/listar", {
             headers: {
                 "Content-Type": "application/json",
-                "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                "authorization": "Bearer " + (session.accessToken || ''),
             },
         });
         const result: PerfilModel[] = await res.json();
@@ -45,7 +26,7 @@ const PerfilesRead = () => {
 
     useEffect(() => {
         fetcher();
-    }, []);*/
+    }, []);
 
     const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNombreFilter(e.target.value);
@@ -71,7 +52,7 @@ const PerfilesRead = () => {
         setFilteredPerfiles(perfiles);
     };
 
-    // if (!session) { signIn(); return null; }
+    if (!session) { signIn(); return null; }
 
     return (
         <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
@@ -121,8 +102,7 @@ const PerfilesRead = () => {
                                     <PerfilesList
                                         key={perfil.id}
                                         {...perfil}
-                                        //fetcher={fetcher}
-                                        fetcher={() => {}}
+                                        fetcher={fetcher}
                                     />
                                 ))}
                                 </tbody>

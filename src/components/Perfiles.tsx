@@ -21,11 +21,11 @@ const PerfilesList: React.FC<PerfilesListProps> = (params) => {
         if (perfilIdToDelete === null) return;
 
         try {
-            const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/perfiles/eliminar?id=${perfilIdToDelete}`, {
+            const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/perfiles/inactivar?id=${perfilIdToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                    "authorization": "Bearer " + (session?.accessToken || ''),
                 },
             });
 
@@ -36,7 +36,7 @@ const PerfilesList: React.FC<PerfilesListProps> = (params) => {
 
             if (!session) { signIn(); return null; }
 
-            params.fetcher();  // Refresh the list after deletion
+            params.fetcher();  // Actualizar la lista de perfiles después de la eliminación
         } catch (error) {
             console.error('Error al eliminar perfil:', error);
         } finally {
@@ -49,14 +49,14 @@ const PerfilesList: React.FC<PerfilesListProps> = (params) => {
         <>
             <tr className="border-b text-black bold dark:border-neutral-500 odd:bg-blue-200 dark:odd:bg-slate-700 dark:even:bg-slate-500 dark:odd:text-bodydark2">
                 <td className='px-8 py-3'>{params.id}</td>
-                <td className='px-8 py-3'>{params.nombre}</td>
+                <td className='px-8 py-3'>{params.nombrePerfil}</td>
                 <td className='px-8 py-3'>{params.estado}</td>
                 <td className='px-8 py-3'>
                     <div className="inline-flex">
                         <span
                             className='bg-rose-500 p-1 inline-block ml-1 text-white text-xs rounded cursor-pointer'
                             onClick={() => handleDeleteClick(params.id)}>
-                            Eliminar
+                                Eliminar
                         </span>
                         <span className='bg-yellow-500 p-1 inline-block ml-1 text-black text-xs rounded cursor-pointer'>
                             <Link href={`/perfiles/edit/${params.id}`}>
@@ -96,6 +96,6 @@ const PerfilesList: React.FC<PerfilesListProps> = (params) => {
             )}
         </>
     );
-}
+};
 
 export default PerfilesList;
