@@ -116,7 +116,7 @@ const EditMarca = () => {
                 name='nombre'
                 value={marca.nombre}
                 onChange={handleChange}
-                className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+                className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500' disabled
             />
           </div>
           <div className='mb-4'>

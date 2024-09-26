@@ -2,38 +2,21 @@
 import { useEffect, useState } from 'react';
 import ModelosList from '@/components/Modelos';
 import { signIn, useSession } from 'next-auth/react';
-import { ModeloModel, ReferrerEnum } from '@/types';
+import { ModeloModel, ReferrerEnum } from '@/types/index';
 
 const ModelosRead = () => {
 
-    // Datos harcodeados
-    const initialModelos = [
-        { id: 1, nombre: "Modelo A", estado: ReferrerEnum.ACTIVO },
-        { id: 2, nombre: "Modelo B", estado: ReferrerEnum.INACTIVO },
-        { id: 3, nombre: "Modelo C", estado: ReferrerEnum.ACTIVO }
-    ];
-
-    const [modelos, setModelos] = useState<ModeloModel[]>(initialModelos);
-    const [filteredModelos, setFilteredModelos] = useState<ModeloModel[]>(initialModelos);
-    const [nombreFilter, setNombreFilter] = useState<string>('');
-    const [estadoFilter, setEstadoFilter] = useState<string>('');
-
-    useEffect(() => {
-        // No real fetch call, we use static data
-        setFilteredModelos(modelos);
-    }, []);
-
-    /*const { data: session, status } = useSession();
+    const { data: session, status } = useSession();
     const [modelos, setModelos] = useState<ModeloModel[]>([]);
     const [filteredModelos, setFilteredModelos] = useState<ModeloModel[]>([]);
     const [nombreFilter, setNombreFilter] = useState<string>('');
     const [estadoFilter, setEstadoFilter] = useState<string>('');
 
     const fetcher = async () => {
-        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/modelos/ListarTodosLosModelos", {
+        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/modelo/listarTodos", {
             headers: {
                 "Content-Type": "application/json",
-                "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                "authorization": "Bearer " + (session.accessToken || ''),
             },
         });
         const result: ModeloModel[] = await res.json();
@@ -43,7 +26,7 @@ const ModelosRead = () => {
 
     useEffect(() => {
         fetcher();
-    }, []);*/
+    }, []);
 
 
     const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +53,7 @@ const ModelosRead = () => {
         setFilteredModelos(modelos);
     };
 
-    // if (!session) { signIn(); return null; }
+    if (!session) { signIn(); return null; }
 
     return (
         <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
@@ -110,6 +93,7 @@ const ModelosRead = () => {
                                 <tr className='bg-gray-200 text-center dark:bg-meta-4'>
                                     <th className="px-8 py-3 text-left">ID</th>
                                     <th className='px-8 py-3 text-left'>Nombre</th>
+                                    <th className='px-8 py-3 text-left'>Marca</th>
                                     <th className='px-8 py-3 text-left'>Estado</th>
                                     <th className='px-8 py-3 text-left'>Acciones</th>
                                 </tr>
@@ -119,8 +103,8 @@ const ModelosRead = () => {
                                     <ModelosList
                                         key={modelo.id}
                                         {...modelo}
-                                        //fetcher={fetcher}
-                                        fetcher={() => {}}
+                                        fetcher={fetcher}
+                                        
                                     />
                                 ))}
                                 </tbody>

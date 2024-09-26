@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import Link from "next/link";
 import Image from "next/image";
@@ -10,21 +9,49 @@ import Image from "next/image";
 export default function RegistrarModelo() {
     const { data: session } = useSession();
     const router = useRouter();
-    const [formData, setFormData] = useState({ nombre: '' });
-    const [errors, setErrors] = useState({
-        nombre: undefined
-    });
+    const [formData, setFormData] = useState({ nombre: '', idMarca: '', estado: 'ACTIVO' });
+    const [errors, setErrors] = useState({ nombre: undefined, idMarca: undefined });
+    const [marcas, setMarcas] = useState([]);
+
+    // Fetch de marcas desde el endpoint
+    useEffect(() => {
+        const fetchMarcas = async () => {
+            try {
+                const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marca/listarTodas', {
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        "authorization": "Bearer " + (session?.accessToken || ''),  // Incluye el token de sesión
+                    },
+                });
+                if (res.ok) {
+                    const marcasData = await res.json();
+                    setMarcas(marcasData);
+                } else {
+                    console.error("Error al obtener marcas.");
+                }
+            } catch (error) {
+                console.error("Error al conectar con el servidor:", error);
+            }
+        };
+
+        if (session) {
+            fetchMarcas();
+        }
+    }, [session]);
 
     const validate = () => {
         let tempErrors = {
-            nombre: undefined
+            nombre: undefined,
+            idMarca: undefined
         };
         if (!formData.nombre) {
-            // @ts-ignore
             tempErrors.nombre = "El nombre del modelo es requerido.";
         }
+        if (!formData.idMarca) {
+            tempErrors.idMarca = "La marca es requerida.";
+        }
         setErrors(tempErrors);
-        return Object.values(tempErrors).every(error => error === '');
+        return Object.values(tempErrors).every(error => error === undefined);
     };
 
     const handleChange = (e: { target: { name: any; value: any; }; }) => {
@@ -38,15 +65,30 @@ export default function RegistrarModelo() {
             return;
         }
         try {
-            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/modelos/crear', {
+            const selectedMarca = marcas.find(marca => marca.id === parseInt(formData.idMarca));
+
+            const dataToSend = {
+                nombre: formData.nombre,
+                idMarca: {
+                    id: selectedMarca.id,  
+                    nombre: selectedMarca.nombre,  
+                    estado: "ACTIVO" 
+                },
+                estado: "ACTIVO" 
+            };
+
+            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/modelo/crear', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                headers: { 
+                    'Content-Type': 'application/json',
+                    "authorization": "Bearer " + (session?.accessToken || ''),  // Incluye el token de sesión
+                },
+                body: JSON.stringify(dataToSend),  // Enviar el objeto completo con la marca
             });
 
             if (res.ok) {
                 alert('Modelo registrado exitosamente.');
-                router.push('/ruta-de-éxito'); // Adjust the success route as needed
+                router.push('/modelos'); // Ajusta esta ruta según sea necesario
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
@@ -106,6 +148,7 @@ export default function RegistrarModelo() {
                             Registrar Modelo
                         </h2>
                         <form onSubmit={handleSubmit}>
+                            {/* Campo de Nombre del Modelo */}
                             <div className="mb-4">
                                 <label htmlFor="nombre" className="block mb-2.5 font-medium">
                                     Nombre del Modelo
@@ -120,6 +163,29 @@ export default function RegistrarModelo() {
                                 />
                                 {errors.nombre && <p className="text-rose-500">{errors.nombre}</p>}
                             </div>
+
+                            {/* Campo de Selección de Marca */}
+                            <div className="mb-4">
+                                <label htmlFor="idMarca" className="block mb-2.5 font-medium">
+                                    Marca
+                                </label>
+                                <select
+                                    name="idMarca"
+                                    id="idMarca"
+                                    value={formData.idMarca}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
+                                >
+                                    <option value="">Seleccione una Marca</option>
+                                    {marcas.map((marca) => (
+                                        <option key={marca.id} value={marca.id}>
+                                            {marca.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.idMarca && <p className="text-rose-500">{errors.idMarca}</p>}
+                            </div>
+
                             <button
                                 type="submit"
                                 className="w-full rounded-lg bg-primary py-4 text-white hover:bg-primary-dark"

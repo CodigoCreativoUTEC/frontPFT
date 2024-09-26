@@ -111,6 +111,7 @@ export default function RegistrarMarca() {
                         <h2 className="mb-9 text-2xl font-bold">
                             Registrar Marca
                         </h2>
+                        <p>Luego de crear una marca podrá asignarla a un modelo en el apartadode modelos</p>
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
                                 <label htmlFor="nombre" className="block mb-2.5 font-medium">

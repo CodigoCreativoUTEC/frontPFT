@@ -113,8 +113,7 @@ const MarcasRead = () => {
                                     <MarcasList
                                         key={marca.id}
                                         {...marca}
-                                        //fetcher={fetcher}
-                                        fetcher={() => {}}
+                                        fetcher={fetcher}
                                     />
                                 ))}
                                 </tbody>
