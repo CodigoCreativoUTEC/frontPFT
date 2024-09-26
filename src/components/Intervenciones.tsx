@@ -19,24 +19,22 @@ const IntervencionesList: React.FC<IntervencionesListProps> = ({ intervenciones 
                         <table className="min-w-full text-left text-sm">
                             <thead className="border-b font-normal dark:border-neutral-500">
                             <tr className='bg-gray-200 text-center dark:bg-meta-4'>
-                                <th className="px-8 py-3 text-left">ID</th>
                                 <th className='px-8 py-3 text-left'>Tipo de Intervención</th>
                                 <th className='px-8 py-3 text-left'>Fecha de Intervención</th>
                                 <th className='px-8 py-3 text-left'>Motivo</th>
-                                <th className='px-8 py-3 text-left'>Equipo ID</th>
-                                <th className='px-8 py-3 text-left'>Observaciones</th>
+                                <th className='px-8 py-3 text-left'>Equipo ID interno</th>
+                                <th className='px-8 py-3 text-left'>Comentario</th>
                                 <th className='px-8 py-3 text-left'>Acciones</th>
                             </tr>
                             </thead>
                             <tbody className='bg-white items-center text-xs'>
                             {intervenciones.map((intervencion) => (
                                 <tr key={intervencion.id}>
-                                    <td className='px-8 py-3'>{intervencion.id}</td>
-                                    <td className='px-8 py-3'>{intervencion.tipo}</td>
-                                    <td className='px-8 py-3'>{intervencion.fechaIntervencion}</td>
+                                    <td className='px-8 py-3'>{intervencion.idTipo.nombreTipo}</td>
+                                    <td className='px-8 py-3'>{intervencion.fechaHora}</td>
                                     <td className='px-8 py-3'>{intervencion.motivo}</td>
-                                    <td className='px-8 py-3'>{intervencion.equipoId}</td>
-                                    <td className='px-8 py-3'>{intervencion.observaciones || 'N/A'}</td>
+                                    <td className='px-8 py-3'>{intervencion.idEquipo.idInterno}</td>
+                                    <td className='px-8 py-3'>{intervencion.comentarios || 'N/A'}</td>
                                     <td className='px-8 py-3'>
                                         <div className="inline-flex">
                                             {/* Botón para Editar */}

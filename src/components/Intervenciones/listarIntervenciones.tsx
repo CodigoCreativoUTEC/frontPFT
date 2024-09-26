@@ -1,27 +1,59 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import IntervencionesList from '@/components/Intervenciones';
 import { IntervencionModel } from '@/types';
 import * as Papa from 'papaparse'; // Para exportar CSV
 import * as XLSX from 'xlsx'; // Para exportar Excel
 import { saveAs } from 'file-saver'; // Para descargar el archivo
+import { useSession } from 'next-auth/react';
 
 const IntervencionesRead = () => {
-    // Datos hardcodeados de ejemplo
-    const initialIntervenciones: IntervencionModel[] = [
-        { id: 1, tipo: "Prevención", fechaIntervencion: "2023-09-01T10:00", motivo: "Mantenimiento preventivo", equipoId: "EQ001", observaciones: "N/A" },
-        { id: 2, tipo: "Falla", fechaIntervencion: "2023-09-10T15:30", motivo: "Reparación por falla", equipoId: "EQ002", observaciones: "Se cambió una pieza" },
-        { id: 3, tipo: "Resolución", fechaIntervencion: "2023-10-01T08:45", motivo: "Revisión final", equipoId: "EQ003", observaciones: "Todo en orden" }
-    ];
+    const [intervenciones, setIntervenciones] = useState<IntervencionModel[]>([]);
+    const [filteredIntervenciones, setFilteredIntervenciones] = useState<IntervencionModel[]>([]);
+    const [loading, setLoading] = useState<boolean>(true); // Para el estado de carga
+    const [error, setError] = useState<string | null>(null); // Para manejar errores
+    const [fechaDesde, setFechaDesde] = useState<string>(''); 
+    const [fechaHasta, setFechaHasta] = useState<string>(''); 
+    const [tipoFilter, setTipoFilter] = useState<string>(''); 
+    const [equipoIdFilter, setEquipoIdFilter] = useState<string>(''); 
+    const { data: session, status } = useSession();
+    
 
-    const [filteredIntervenciones, setFilteredIntervenciones] = useState<IntervencionModel[]>(initialIntervenciones);
-    const [fechaDesde, setFechaDesde] = useState<string>(''); // Filtro de Fecha Desde
-    const [fechaHasta, setFechaHasta] = useState<string>(''); // Filtro de Fecha Hasta
-    const [tipoFilter, setTipoFilter] = useState<string>(''); // Filtro de Tipo de Intervención
-    const [equipoIdFilter, setEquipoIdFilter] = useState<string>(''); // Filtro de Identificación del Equipo
+    // Función para obtener las intervenciones desde el endpoint
+    const fetchIntervenciones = async () => {
+        setLoading(true); // Indica que la carga está en progreso
+        setError(null); // Resetea el error antes de la llamada
 
+        try {
+            const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/intervencion/listar", {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + (session?.accessToken || ""), // Asegúrate de tener el token de sesión
+                },
+            });
+
+            if (!res.ok) {
+                throw new Error("Error en la solicitud: " + res.statusText);
+            }
+
+            const data: IntervencionModel[] = await res.json();
+            setIntervenciones(data);
+            setFilteredIntervenciones(data); // Inicializa los datos filtrados con todos los datos
+        } catch (err) {
+            setError(err.message); // Captura el error si ocurre
+        } finally {
+            setLoading(false); // Finaliza el estado de carga
+        }
+    };
+
+    // useEffect para llamar a la API cuando se monta el componente
+    useEffect(() => {
+        fetchIntervenciones();
+    }, []);
+
+    // Función para filtrar las intervenciones
     const filterIntervenciones = () => {
-        let filtered = initialIntervenciones.filter(intervencion => {
+        let filtered = intervenciones.filter(intervencion => {
             const intervencionFecha = new Date(intervencion.fechaIntervencion);
             const desdeFecha = fechaDesde ? new Date(fechaDesde) : null;
             const hastaFecha = fechaHasta ? new Date(fechaHasta) : null;
@@ -37,22 +69,23 @@ const IntervencionesRead = () => {
         setFilteredIntervenciones(filtered);
     };
 
+    // Limpiar filtros
     const handleClearFilters = () => {
         setFechaDesde('');
         setFechaHasta('');
         setTipoFilter('');
         setEquipoIdFilter('');
-        setFilteredIntervenciones(initialIntervenciones); // Volver a mostrar todos los datos
+        setFilteredIntervenciones(intervenciones); // Vuelve a mostrar todos los datos
     };
 
-    // Exportar CSV
+    // Exportar a CSV
     const exportToCSV = () => {
         const csv = Papa.unparse(filteredIntervenciones);
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         saveAs(blob, "intervenciones.csv");
     };
 
-    // Exportar Excel
+    // Exportar a Excel
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(filteredIntervenciones);
         const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
@@ -61,85 +94,59 @@ const IntervencionesRead = () => {
         saveAs(blob, "intervenciones.xlsx");
     };
 
+    // Renderiza la lista de intervenciones o muestra un mensaje de carga
     return (
         <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
-            <div className='mb-4 flex flex-wrap gap-4'>
-                {/* Filtro por Fecha Desde */}
-                Fechas Desde y Hasta:
-                <input
-                    type="date"
-                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    placeholder="Fecha Desde"
-                    value={fechaDesde}
-                    onChange={(e) => setFechaDesde(e.target.value)}
-                />
-                {/* Filtro por Fecha Hasta */}
-                <input
-                    type="date"
-                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    placeholder="Fecha Hasta"
-                    value={fechaHasta}
-                    onChange={(e) => setFechaHasta(e.target.value)}
-                />
-                {/* Filtro por Tipo de Intervención */}
-                <select
-                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    value={tipoFilter}
-                    onChange={(e) => setTipoFilter(e.target.value)}
-                >
-                    <option value="">Selecciona Tipo de Intervención</option>
-                    <option value="Prevención">Prevención</option>
-                    <option value="Falla">Falla</option>
-                    <option value="Resolución">Resolución</option>
-                </select>
-                {/* Filtro por Identificación del Equipo */}
-                <input
-                    type="text"
-                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    placeholder="Identificación del Equipo"
-                    value={equipoIdFilter}
-                    onChange={(e) => setEquipoIdFilter(e.target.value)}
-                />
-                {/* Botón de Limpiar Filtros */}
-                <button
-                    onClick={handleClearFilters}
-                    className="bg-violet-800 text-white px-3 py-1 rounded"
-                >
-                    Limpiar Filtros
-                </button>
-                {/* Botón para Aplicar Filtros */}
-                <button
-                    onClick={filterIntervenciones}
-                    className="bg-blue-800 text-white px-3 py-1 rounded"
-                >
-                    Aplicar Filtros
-                </button>
-            </div>
+            {loading ? (
+                <p>Cargando intervenciones...</p>
+            ) : error ? (
+                <p>Error al cargar las intervenciones: {error}</p>
+            ) : (
+                <>
+                    <div className='mb-4 flex flex-wrap gap-4'>
+                        {/* Filtros */}
+                        Fechas Desde y Hasta:
+                        <input
+                            type="date"
+                            value={fechaDesde}
+                            onChange={(e) => setFechaDesde(e.target.value)}
+                        />
+                        <input
+                            type="date"
+                            value={fechaHasta}
+                            onChange={(e) => setFechaHasta(e.target.value)}
+                        />
+                        <select
+                            value={tipoFilter}
+                            onChange={(e) => setTipoFilter(e.target.value)}
+                        >
+                            <option value="">Selecciona Tipo de Intervención</option>
+                            <option value="Prevención">Prevención</option>
+                            <option value="Falla">Falla</option>
+                            <option value="Resolución">Resolución</option>
+                        </select>
+                        <input
+                            type="text"
+                            placeholder="Identificación del Equipo"
+                            value={equipoIdFilter}
+                            onChange={(e) => setEquipoIdFilter(e.target.value)}
+                        />
+                        <button onClick={handleClearFilters}>Limpiar Filtros</button>
+                        <button onClick={filterIntervenciones}>Aplicar Filtros</button>
+                    </div>
 
-            {/* Botones para exportar */}
-            <div className="flex gap-4 mb-4">
-                <button
-                    onClick={exportToCSV}
-                    className="bg-green-600 text-white px-3 py-2 rounded"
-                >
-                    Descargar CSV
-                </button>
-                <button
-                    onClick={exportToExcel}
-                    className="bg-blue-600 text-white px-3 py-2 rounded"
-                >
-                    Descargar Excel
-                </button>
-            </div>
+                    {/* Exportar botones */}
+                    <div className="flex gap-4 mb-4">
+                        <button onClick={exportToCSV}>Descargar CSV</button>
+                        <button onClick={exportToExcel}>Descargar Excel</button>
+                    </div>
 
-            {/* Mostrar la lista de intervenciones filtradas */}
-            <IntervencionesList intervenciones={filteredIntervenciones} /> {/* Aquí usa IntervencionesList */}
+                    {/* Mostrar la lista de intervenciones */}
+                    <IntervencionesList intervenciones={filteredIntervenciones} />
+                </>
+            )}
         </div>
     );
 };
 
 export default IntervencionesRead;
-
-
-
-

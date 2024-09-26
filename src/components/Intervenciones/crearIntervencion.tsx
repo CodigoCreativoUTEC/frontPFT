@@ -1,226 +1,242 @@
-"use client"; // Asegúrate de incluir esto
+"use client";
 
-import React from "react";
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
-import Link from "next/link";
-import Image from "next/image";
+import { IntervencionModel, IntervencionTipo, EquipoModel } from "@/types/index"; // Asegúrate de tener los tipos correctos
 
-export default function RegistrarIntervencion() {
-    const { data: session } = useSession();
-    const router = useRouter();
+const CrearIntervencion = () => {
+  const router = useRouter();
+  const [intervencion, setIntervencion] = useState<Partial<IntervencionModel>>({
+    motivo: '',
+    comentarios: '',
+    fechaHora: [],
+    idTipo: null,
+    idEquipo: null
+  });
+  const [tiposIntervencion, setTiposIntervencion] = useState<IntervencionTipo[]>([]);
+  const [equipos, setEquipos] = useState<EquipoModel[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
+  const { data: session, status } = useSession();
 
-    // Simulación de los idInterno de los equipos
-    const equipos = [
-        { idInterno: 'EQ001' },
-        { idInterno: 'EQ002' },
-        { idInterno: 'EQ003' },
-        { idInterno: 'EQ004' }
-    ];
+  useEffect(() => {
+    if (!session) { signIn(); return; }
 
-    const [formData, setFormData] = useState({
-        fechaIntervencion: '',
-        tipoIntervencion: '',
-        motivo: '',
-        equipoId: '', // Cambiado a string para el select
-        observaciones: ''
+    const fetchData = async () => {
+      try {
+        // Fetch the types of interventions
+        const resTipos = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/tipoIntervenciones/listarTodos", {
+          headers: {
+            "Content-Type": "application/json",
+            "authorization": "Bearer " + (session?.accessToken || ''),
+          },
+        });
+        if (resTipos.ok) {
+          const tiposData = await resTipos.json();
+          setTiposIntervencion(tiposData);
+        } else {
+          console.error("Error al obtener los tipos de intervención");
+        }
+
+        // Fetch the list of equipos (devices)
+        const resEquipos = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ListarTodosLosEquipos", {
+          headers: {
+            "Content-Type": "application/json",
+            "authorization": "Bearer " + (session?.accessToken || ''),
+          },
+        });
+        if (resEquipos.ok) {
+          const equiposData = await resEquipos.json();
+          setEquipos(equiposData);
+        } else {
+          console.error("Error al obtener los equipos");
+        }
+      } catch (error) {
+        console.error("Error en la carga de datos:", error);
+      }
+    };
+
+    fetchData();
+  }, [session]);
+
+  const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    const { name, value } = e.target;
+    setIntervencion({ ...intervencion, [name]: value });
+  };
+
+  const handleDateChange = (e: { target: { value: string; }; }) => {
+    const dateValue = new Date(e.target.value);
+    setIntervencion({
+      ...intervencion,
+      fechaHora: [
+        dateValue.getFullYear(),
+        dateValue.getMonth() + 1, // El mes en Date es 0-indexed
+        dateValue.getDate(),
+        dateValue.getHours(),
+        dateValue.getMinutes()
+      ],
     });
+  };
 
-    const [errors, setErrors] = useState({
-        fechaIntervencion: undefined,
-        tipoIntervencion: undefined,
-        motivo: undefined,
-        equipoId: undefined
+  const handleTipoChange = (e: { target: { value: string; }; }) => {
+    const selectedTipoId = parseInt(e.target.value);
+    const selectedTipo = tiposIntervencion.find(tipo => tipo.id === selectedTipoId);
+    setIntervencion({
+      ...intervencion,
+      idTipo: selectedTipo
     });
+  };
 
-    const validate = () => {
-        let tempErrors: any = {
-            fechaIntervencion: '',
-            tipoIntervencion: '',
-            motivo: '',
-            equipoId: ''
+  const handleEquipoChange = (e: { target: { value: string; }; }) => {
+    const selectedEquipoId = parseInt(e.target.value);
+    const selectedEquipo = equipos.find(equipo => equipo.id === selectedEquipoId);
+    setIntervencion({
+      ...intervencion,
+      idEquipo: selectedEquipo
+    });
+  };
+
+  const validateForm = () => {
+    const newErrors = [];
+    if (!intervencion?.motivo) newErrors.push("El motivo de la intervención es obligatorio");
+    if (!intervencion?.idTipo) newErrors.push("El tipo de intervención es obligatorio");
+    if (!intervencion?.idEquipo) newErrors.push("El equipo es obligatorio");
+    if (!intervencion?.fechaHora || intervencion.fechaHora.length === 0) newErrors.push("La fecha y hora son obligatorias");
+    setErrors(newErrors);
+    return newErrors.length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (validateForm()) {
+      try {
+        // Agregar el idUsuario desde la sesión
+        const dataToSend = {
+          ...intervencion,
+          idUsuario: { id: session.user.id }, // Asignar el usuario desde la sesión
         };
 
-        if (!formData.fechaIntervencion) tempErrors.fechaIntervencion = "La fecha/hora de la intervención es requerida.";
-        if (!formData.tipoIntervencion) tempErrors.tipoIntervencion = "El tipo de intervención es requerido.";
-        if (!formData.motivo) tempErrors.motivo = "El motivo de la intervención es requerido.";
-        if (!formData.equipoId) tempErrors.equipoId = "La identificación del equipo es requerida.";
+        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/intervencion/crear`, {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+            "authorization": "Bearer " + (session?.accessToken || ''),
+          },
+          body: JSON.stringify(dataToSend),
+        });
 
-        setErrors(tempErrors);
-        return Object.values(tempErrors).every(error => error === '');
-    };
-
-    const handleChange = (e: { target: { name: string; value: string; }; }) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
-
-    const handleSubmit = async (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-        if (!validate()) {
-            return;
+        if (res.ok) {
+          router.push('/intervenciones');
+        } else {
+          const result = await res.json();
+          setErrors([result.error]);
         }
-        try {
-            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/intervenciones/crear', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            });
-
-            if (res.ok) {
-                alert('Intervención registrada exitosamente.');
-                router.push('/ruta-de-exito');
-            } else {
-                const errorData = await res.json();
-                console.error(errorData);
-                alert('Error al registrar la intervención.');
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Error al conectar con el servidor.');
-        }
-    };
-
-    if (!session) {
-        signIn();
-        return null;
+      } catch (error) {
+        console.error("Error al enviar los datos:", error);
+        setErrors(["Error al enviar los datos"]);
+      }
     }
+  };
 
-    return (
-        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div className="flex flex-wrap items-center">
-                <div className="hidden w-full xl:block xl:w-1/2">
-                    <div className="px-26 py-17.5 text-center">
-                        <Link className="mb-5.5 inline-block" href="/">
-                            <Image
-                                className="hidden dark:block"
-                                src={"/images/logo/LogoCodigo.jpg"}
-                                alt="Logo"
-                                width={176}
-                                height={32}
-                            />
-                            <Image
-                                className="dark:hidden"
-                                src={"/images/logo/LogoCodigo.jpg"}
-                                alt="Logo"
-                                width={176}
-                                height={32}
-                            />
-                        </Link>
-                        <p className="2xl:px-20">
-                            Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
-                        </p>
-                        <span className="mt-15 inline-block">
-                            {/* SVG content omitted for brevity */}
-                        </span>
-                    </div>
-                </div>
-                <div className="w-full xl:w-1/2">
-                    <div className="px-12.5 py-17.5 sm:px-25 sm:py-30">
-                        <h2 className="mb-9 text-2xl font-bold">
-                            Registrar Intervención
-                        </h2>
-                        <form onSubmit={handleSubmit}>
-                            {/* Fecha/hora de la intervención */}
-                            <div className="mb-4">
-                                <label htmlFor="fechaIntervencion" className="block mb-2.5 font-medium">
-                                    Fecha/hora de la intervención
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    name="fechaIntervencion"
-                                    id="fechaIntervencion"
-                                    value={formData.fechaIntervencion}
-                                    onChange={handleChange}
-                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
-                                />
-                                {errors.fechaIntervencion && <p className="text-rose-500">{errors.fechaIntervencion}</p>}
-                            </div>
+  if (!session) { signIn(); return null; }
 
-                            {/* Tipo de intervención */}
-                            <div className="mb-4">
-                                <label htmlFor="tipoIntervencion" className="block mb-2.5 font-medium">
-                                    Tipo de intervención
-                                </label>
-                                <select
-                                    name="tipoIntervencion"
-                                    id="tipoIntervencion"
-                                    value={formData.tipoIntervencion}
-                                    onChange={handleChange}
-                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
-                                >
-                                    <option value="">Seleccione el tipo de intervención</option>
-                                    <option value="Prevención">Prevención</option>
-                                    <option value="Falla">Falla</option>
-                                    <option value="Resolución">Resolución</option>
-                                </select>
-                                {errors.tipoIntervencion && <p className="text-rose-500">{errors.tipoIntervencion}</p>}
-                            </div>
+  return (
+      <div className='w-full p-4'>
+        <form onSubmit={(e) => e.preventDefault()}>
+          {errors.length > 0 && (
+              <div className='bg-rose-200 p-2 mb-4'>
+                <ul>
+                  {errors.map((error, index) => (
+                      <li key={index} className='text-red-700'>{error}</li>
+                  ))}
+                </ul>
+              </div>
+          )}
 
-                            {/* Motivo de la intervención */}
-                            <div className="mb-4">
-                                <label htmlFor="motivo" className="block mb-2.5 font-medium">
-                                    Motivo
-                                </label>
-                                <input
-                                    type="text"
-                                    name="motivo"
-                                    id="motivo"
-                                    value={formData.motivo}
-                                    onChange={handleChange}
-                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
-                                />
-                                {errors.motivo && <p className="text-rose-500">{errors.motivo}</p>}
-                            </div>
+          {/* Campo de fecha y hora */}
+          <div className='mb-4'>
+            <label className='block mb-2 text-sm font-medium text-gray-700'>Fecha y hora de la intervención:</label>
+            <input
+                type='datetime-local'
+                name='fechaHora'
+                onChange={handleDateChange}
+                className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+            />
+          </div>
 
-                            {/* Identificación del equipo (combobox simulado) */}
-                            <div className="mb-4">
-                                <label htmlFor="equipoId" className="block mb-2.5 font-medium">
-                                    Identificación del equipo
-                                </label>
-                                <select
-                                    name="equipoId"
-                                    id="equipoId"
-                                    value={formData.equipoId}
-                                    onChange={handleChange}
-                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
-                                >
-                                    <option value="">Seleccione un equipo</option>
-                                    {equipos.map(equipo => (
-                                        <option key={equipo.idInterno} value={equipo.idInterno}>
-                                            {equipo.idInterno}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.equipoId && <p className="text-rose-500">{errors.equipoId}</p>}
-                            </div>
+          {/* Campo de tipo de intervención */}
+          <div className='mb-4'>
+            <label className='block mb-2 text-sm font-medium text-gray-700'>Tipo de intervención:</label>
+            <select
+              name='idTipo'
+              onChange={handleTipoChange}
+              className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+            >
+              <option value="">Seleccione un tipo de intervención</option>
+              {tiposIntervencion.map(tipo => (
+                <option key={tipo.id} value={tipo.id}>
+                  {tipo.nombreTipo}
+                </option>
+              ))}
+            </select>
+          </div>
 
-                            {/* Observaciones */}
-                            <div className="mb-4">
-                                <label htmlFor="observaciones" className="block mb-2.5 font-medium">
-                                    Observaciones (opcional)
-                                </label>
-                                <textarea
-                                    name="observaciones"
-                                    id="observaciones"
-                                    value={formData.observaciones}
-                                    onChange={handleChange}
-                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
-                                />
-                            </div>
+          {/* Campo de identificación del equipo */}
+          <div className='mb-4'>
+            <label className='block mb-2 text-sm font-medium text-gray-700'>Equipo:</label>
+            <select
+              name='idEquipo'
+              onChange={handleEquipoChange}
+              className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+            >
+              <option value="">Seleccione un equipo</option>
+              {equipos.map(equipo => (
+                <option key={equipo.id} value={equipo.id}>
+                  {equipo.idInterno} - {equipo.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
 
-                            {/* Botón para enviar el formulario */}
-                            <button
-                                type="submit"
-                                className="w-full rounded-lg bg-primary py-4 text-white hover:bg-primary-dark"
-                            >
-                                Registrar
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
+          {/* Campo de motivo */}
+          <div className='mb-4'>
+            <label className='block mb-2 text-sm font-medium text-gray-700'>Motivo:</label>
+            <input
+                type='text'
+                name='motivo'
+                value={intervencion.motivo}
+                onChange={handleChange}
+                className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+            />
+          </div>
+
+          {/* Campo de observaciones */}
+          <div className='mb-4'>
+            <label className='block mb-2 text-sm font-medium text-gray-700'>Observaciones:</label>
+            <textarea
+                name='comentarios'
+                value={intervencion.comentarios}
+                onChange={handleChange}
+                className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+            />
+          </div>
+
+          <button
+              type='button'
+              onClick={handleSubmit}
+              className='px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700'
+          >
+            Guardar Intervención
+          </button>
+          <button
+              type='button'
+              onClick={() => router.push('/intervenciones')}
+              className='px-4 py-2 ml-2 text-white bg-green-500 rounded hover:bg-green-700'
+          >
+            Cancelar
+          </button>
+        </form>
+      </div>
+  );
+};
+
+export default CrearIntervencion;
