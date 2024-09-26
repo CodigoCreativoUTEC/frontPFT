@@ -25,7 +25,7 @@ const FuncionalidadesList: React.FC<FuncionalidadesListProps> = (params) => {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                    "authorization": "Bearer " + (session?.accessToken || ''),
                 },
             });
 

@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import Image from "next/image";
 import Link from "next/link";
-import {MarcaModel, ReferrerEnum, UsuarioModel} from "@/types";
+import {MarcaModel, ReferrerEnum, UsuarioModel} from "@/types/index";
 
 const EditMarca = () => {
   const router = useRouter();
