@@ -10,59 +10,66 @@ import Image from "next/image";
 export default function RegistrarFuncionalidad() {
     const { data: session } = useSession();
     const router = useRouter();
-    const [formData, setFormData] = useState({ nombre: '' });
-    const [errors, setErrors] = useState<{ nombre: string | undefined }>({
-        nombre: undefined
-    });
+    const [formData, setFormData] = useState({ nombreFuncionalidad: '' });
+    const [errors, setErrors] = useState<{ nombreFuncionalidad?: string }>({});
     const [serverError, setServerError] = useState<string | null>(null);
 
+    // Validación del formulario
     const validate = () => {
-        let tempErrors: { nombre: string | undefined } = { nombre: '' };
+        let tempErrors: { nombreFuncionalidad?: string } = {};
 
-        if (!formData.nombre) {
-            tempErrors.nombre = "El nombre de la funcionalidad es requerido.";
-        } else {
-            tempErrors.nombre = undefined; // No hay error si se proporciona un nombre
+        if (!formData.nombreFuncionalidad) {
+            tempErrors.nombreFuncionalidad = "El nombre de la funcionalidad es requerido.";
         }
 
         setErrors(tempErrors);
 
-        // Asegúrate de que no haya ningún error antes de devolver `true`.
+        // Verificar si hay algún error
         return Object.values(tempErrors).every(error => error === undefined);
     };
 
-    const handleChange = (e: { target: { name: string; value: string; }; }) => {
+    // Manejador de cambios en los inputs
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = async (e: { preventDefault: () => void; }) => {
+    // Manejador del submit del formulario
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setServerError(null); // Limpiamos errores de servidor anteriores
+        setServerError(null); // Limpiar errores de servidor previos
 
         if (!validate()) {
             return;
         }
 
+        // Asegúrate de enviar el estado "ACTIVO" junto con el nombreFuncionalidad
+        const payload = {
+            nombreFuncionalidad: formData.nombreFuncionalidad,
+            estado: "ACTIVO" // Asegura que siempre envíes el estado como "ACTIVO"
+        };
+
         try {
             const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/funcionalidades/crear', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                headers: {
+                    "Content-Type": "application/json",
+                    "authorization": "Bearer " + (session?.accessToken || ''),
+                },
+                body: JSON.stringify(payload), // Enviar los datos del formulario
             });
 
             if (res.ok) {
                 alert('Funcionalidad registrada exitosamente.');
-                router.push('/ruta-de-exito');
+                router.push('acceso/');
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
-                alert('Error al registrar la funcionalidad.');
+                setServerError('Error al registrar la funcionalidad.');
             }
         } catch (error) {
             console.error(error);
-            alert('Error al conectar con el servidor.');
-            router.push('/funcionalidades');
+            setServerError('Error al conectar con el servidor.');
         }
     };
 
@@ -95,9 +102,6 @@ export default function RegistrarFuncionalidad() {
                         <p className="2xl:px-20">
                             Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
                         </p>
-                        <span className="mt-15 inline-block">
-                            {/* SVG content omitted for brevity */}
-                        </span>
                     </div>
                 </div>
                 <div className="w-full xl:w-1/2">
@@ -107,18 +111,20 @@ export default function RegistrarFuncionalidad() {
                         </h2>
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
-                                <label htmlFor="nombre" className="block mb-2.5 font-medium">
+                                <label htmlFor="nombreFuncionalidad" className="block mb-2.5 font-medium">
                                     Nombre de la Funcionalidad
                                 </label>
                                 <input
                                     type="text"
-                                    name="nombre"
-                                    id="nombre"
-                                    value={formData.nombre}
+                                    name="nombreFuncionalidad"
+                                    id="nombreFuncionalidad"
+                                    value={formData.nombreFuncionalidad}
                                     onChange={handleChange}
                                     className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
                                 />
-                                {errors.nombre && <p className="text-rose-500">{errors.nombre}</p>}
+                                {errors.nombreFuncionalidad && (
+                                    <p className="text-rose-500">{errors.nombreFuncionalidad}</p>
+                                )}
                             </div>
 
                             {/* Mostrar errores de servidor si existen */}

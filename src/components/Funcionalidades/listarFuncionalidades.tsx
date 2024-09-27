@@ -2,38 +2,21 @@
 import { useEffect, useState } from 'react';
 import FuncionalidadesList from '@/components/Funcionalidades';
 import { signIn, useSession } from 'next-auth/react';
-import { FuncionalidadModel, ReferrerEnum } from '@/types';
+import { FuncionalidadModel } from '@/types';
 
 const FuncionalidadesRead = () => {
 
-    // Datos harcodeados
-    const initialFuncionalidades = [
-        { id: 1, nombre: "Funcionalidad A", estado: ReferrerEnum.ACTIVO },
-        { id: 2, nombre: "Funcionalidad B", estado: ReferrerEnum.INACTIVO },
-        { id: 3, nombre: "Funcionalidad C", estado: ReferrerEnum.ACTIVO }
-    ];
-
-    const [funcionalidades, setFuncionalidades] = useState<FuncionalidadModel[]>(initialFuncionalidades);
-    const [filteredFuncionalidades, setFilteredFuncionalidades] = useState<FuncionalidadModel[]>(initialFuncionalidades);
-    const [nombreFilter, setNombreFilter] = useState<string>('');
-    const [estadoFilter, setEstadoFilter] = useState<string>('');
-
-    useEffect(() => {
-        // No real fetch call, we use static data
-        setFilteredFuncionalidades(funcionalidades);
-    }, []);
-
-    /*const { data: session, status } = useSession();
+    const { data: session, status } = useSession();
     const [funcionalidades, setFuncionalidades] = useState<FuncionalidadModel[]>([]);
     const [filteredFuncionalidades, setFilteredFuncionalidades] = useState<FuncionalidadModel[]>([]);
     const [nombreFilter, setNombreFilter] = useState<string>('');
     const [estadoFilter, setEstadoFilter] = useState<string>('');
 
     const fetcher = async () => {
-        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/funcionalidades/ListarTodasLasFuncionalidades", {
+        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/funcionalidades/listar", {
             headers: {
                 "Content-Type": "application/json",
-                "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                "authorization": "Bearer " + (session?.accessToken || ''),
             },
         });
         const result: FuncionalidadModel[] = await res.json();
@@ -43,7 +26,7 @@ const FuncionalidadesRead = () => {
 
     useEffect(() => {
         fetcher();
-    }, []);*/
+    }, []);
 
     const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNombreFilter(e.target.value);
@@ -69,7 +52,7 @@ const FuncionalidadesRead = () => {
         setFilteredFuncionalidades(funcionalidades);
     };
 
-    // if (!session) { signIn(); return null; }
+    if (!session) { signIn(); return null; }
 
     return (
         <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
@@ -118,8 +101,8 @@ const FuncionalidadesRead = () => {
                                     <FuncionalidadesList
                                         key={funcionalidad.id}
                                         {...funcionalidad}
-                                        //fetcher={fetcher}
-                                        fetcher={() => {}}
+                                        fetcher={fetcher}
+                                        
                                     />
                                 ))}
                                 </tbody>
