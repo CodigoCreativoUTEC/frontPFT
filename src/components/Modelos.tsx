@@ -21,11 +21,11 @@ const ModelosList: React.FC<ModelosListProps> = (params) => {
         if (modeloIdToDelete === null) return;
 
         try {
-            const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/modelos/eliminar?id=${modeloIdToDelete}`, {
+            const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/modelo/inactivar?id=${modeloIdToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                    "authorization": "Bearer " + (session.accessToken || ''),
                 },
             });
 
@@ -50,6 +50,7 @@ const ModelosList: React.FC<ModelosListProps> = (params) => {
             <tr className="border-b text-black bold dark:border-neutral-500 odd:bg-blue-200 dark:odd:bg-slate-700 dark:even:bg-slate-500 dark:odd:text-bodydark2">
                 <td className='px-8 py-3'>{params.id}</td>
                 <td className='px-8 py-3'>{params.nombre}</td>
+                <td className='px-8 py-3'>{params.idMarca.nombre}</td>
                 <td className='px-8 py-3'>{params.estado}</td>
                 <td className='px-8 py-3'>
                     <div className="inline-flex">

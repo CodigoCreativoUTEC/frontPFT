@@ -5,47 +5,34 @@ import { signIn, useSession } from 'next-auth/react';
 import { TipoEquipoModel, ReferrerEnum } from '@/types';
 
 const TipoEquiposRead = () => {
-
-    // Datos harcodeados
-    const initialTipoEquipos = [
-        { id: 1, nombre: "TipoEquipo A", estado: ReferrerEnum.ACTIVO },
-        { id: 2, nombre: "TipoEquipo B", estado: ReferrerEnum.INACTIVO },
-        { id: 3, nombre: "TipoEquipo C", estado: ReferrerEnum.ACTIVO }
-    ];
-
-    const [tipoEquipos, setTipoEquipos] = useState<TipoEquipoModel[]>(initialTipoEquipos);
-    const [filteredTipoEquipos, setFilteredTipoEquipos] = useState<TipoEquipoModel[]>(initialTipoEquipos);
-    const [nombreFilter, setNombreFilter] = useState<string>('');
-    const [estadoFilter, setEstadoFilter] = useState<string>('');
-
-    useEffect(() => {
-        // No real fetch call, we use static data
-        setFilteredTipoEquipos(tipoEquipos);
-    }, []);
-
-    /*const { data: session, status } = useSession();
+    const { data: session, status } = useSession();
     const [tipoEquipos, setTipoEquipos] = useState<TipoEquipoModel[]>([]);
     const [filteredTipoEquipos, setFilteredTipoEquipos] = useState<TipoEquipoModel[]>([]);
     const [nombreFilter, setNombreFilter] = useState<string>('');
     const [estadoFilter, setEstadoFilter] = useState<string>('');
 
+    // Función fetcher que obtiene todos los equipos
     const fetcher = async () => {
-        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/tipoEquipos/ListarTodosLosTipoEquipos", {
+        if (!session) return; // Asegúrate de que la sesión esté disponible
+
+        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/tipoEquipos/listarTodos", {
             headers: {
                 "Content-Type": "application/json",
-                "authorization": "Bearer " + (session?.user?.accessToken || ''),
+                "authorization": "Bearer " + (session?.accessToken || ''),
             },
         });
         const result: TipoEquipoModel[] = await res.json();
         setTipoEquipos(result);
-        setFilteredTipoEquipos(result);
+        setFilteredTipoEquipos(result); // Inicializa la lista filtrada también
     };
 
     useEffect(() => {
-        fetcher();
-    }, []);*/
+        if (session) {
+            fetcher();
+        }
+    }, [session]); // Ejecuta la llamada solo cuando la sesión está disponible
 
-
+    // Manejadores de filtro
     const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNombreFilter(e.target.value);
         filterTipoEquipos(e.target.value, estadoFilter);
@@ -56,6 +43,7 @@ const TipoEquiposRead = () => {
         filterTipoEquipos(nombreFilter, e.target.value);
     };
 
+    // Filtros para los equipos
     const filterTipoEquipos = (nombre: string, estado: string) => {
         let filtered = tipoEquipos.filter(tipoEquipo =>
             (!nombre || tipoEquipo.nombre.toLowerCase().includes(nombre.toLowerCase())) &&
@@ -67,10 +55,13 @@ const TipoEquiposRead = () => {
     const handleClearFilters = () => {
         setNombreFilter('');
         setEstadoFilter('');
-        setFilteredTipoEquipos(tipoEquipos);
+        setFilteredTipoEquipos(tipoEquipos); // Resetea los filtros
     };
 
-    // if (!session) { signIn(); return null; }
+    if (!session) {
+        signIn(); 
+        return null; 
+    }
 
     return (
         <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
@@ -119,8 +110,7 @@ const TipoEquiposRead = () => {
                                     <TipoEquiposList
                                         key={tipoEquipo.id}
                                         {...tipoEquipo}
-                                        //fetcher={fetcher}
-                                        fetcher={() => {}}
+                                        fetcher={fetcher}
                                     />
                                 ))}
                                 </tbody>

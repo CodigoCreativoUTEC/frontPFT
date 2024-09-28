@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { UsuarioModel, ReferrerEnum } from '@/types';
+import { UsuarioModel, ReferrerEnum } from '@/types/index';
 import { signIn, useSession } from 'next-auth/react';
 
 interface UsuariosListProps extends UsuarioModel {

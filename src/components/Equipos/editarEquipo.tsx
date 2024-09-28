@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { EquipoModel } from '@/types';
-import { tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from '@/types/emuns';
+import { tipoEquipos, marcas, modelos, paises, proveedores, ubicaciones } from '@/types/enums';
 import Image from "next/image";
 import Link from "next/link";
 import { signIn, useSession } from 'next-auth/react';

@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { EquipoModel, ReferrerEnum } from '@/types';
+import { EquipoModel } from '@/types/index';
+import { ReferrerEnum } from '@/types/enums';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { signIn, useSession } from 'next-auth/react';

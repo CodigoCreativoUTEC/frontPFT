@@ -6,8 +6,6 @@ const DropdownUser = () => {
   const { data: session } = useSession();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const imageUrl = session?.user?.image ?? `https://ui-avatars.com/api/?name=${session?.user?.name}`;
-  console.log(session);
-  console.log(session?.user?.image);
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
   

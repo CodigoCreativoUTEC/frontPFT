@@ -66,6 +66,7 @@ const ProveedorDetail = () => {
           <div className='w-full p-4 sm:p-12.5 xl:p-7.5'>
             <p><strong>ID:</strong> {proveedor.id}</p>
             <p><strong>Nombre del Proveedor:</strong> {proveedor.nombre}</p>
+            <p><strong>País:</strong> {proveedor.pais.nombre}</p>
             <p><strong>Estado:</strong> {proveedor.estado}</p>
           </div>
           <button

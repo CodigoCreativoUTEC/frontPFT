@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { BajaEquipoModel, ReferrerEnum } from '@/types';
+import { BajaEquipoModel, ReferrerEnum } from '@/types/index';
 
 interface BajaEquiposListProps extends BajaEquipoModel {
   fetcher: () => void;
