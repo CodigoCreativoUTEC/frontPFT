@@ -91,12 +91,15 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }): Promise<any> {
       if (account?.provider === "google") {
+        console.log("ID Token:", account.id_token);
+        const idToken = account.id_token; // Obtenemos el idToken desde el account
         const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/google-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: profile?.email, name: profile?.name }),
+          body: JSON.stringify({ idToken }), // Enviamos el idToken
         });
         const data = await res.json();
+        
         if (data.userNeedsAdditionalInfo) {
           return `/auth/signup?email=${profile?.email}`;
         }
@@ -105,8 +108,8 @@ const handler = NextAuth({
         } else {
           user.accessToken = data.token;
           user.id = data.user.id;
-          user.nombre = data.user.nombre; // Concatena el nombre y apellido
-          user.perfil = data.user.idPerfil.nombrePerfil; // Extrae el perfil
+          user.nombre = data.user.nombre;
+          user.perfil = data.user.idPerfil.nombrePerfil;
           return { ...user.nombre, accessToken: data.token, perfil: user.perfil };
         }
       } else {
