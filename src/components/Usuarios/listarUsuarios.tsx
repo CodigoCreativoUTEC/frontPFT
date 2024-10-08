@@ -17,7 +17,7 @@ const UsuariosRead = () => {
     const [tiposUsuario, setTiposUsuario] = useState<string[]>([]);
 
     const fetcher = async () => {
-        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/ListarTodosLosUsuarios", {
+        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/listar", {
             headers: {
                 "Content-Type": "application/json",
                 "authorization": "Bearer " + (session?.accessToken ?? ''),

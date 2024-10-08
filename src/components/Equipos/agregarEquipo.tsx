@@ -99,7 +99,7 @@ const EquiposCreate = () => {
         marca: undefined
       };
 
-      const add = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/CrearEquipo", {
+      const add = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/equipos/crear`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

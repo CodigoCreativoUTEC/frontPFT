@@ -19,7 +19,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ selectedCountry, onCountr
 
   useEffect(() => {
     const fetchCountries = async () => {
-      const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/paises/listarTodos',{
+      const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/paises/listar',{
         headers: {
           'Content-Type': 'application/json',
           "Authorization": "Bearer " + (session?.accessToken || ''),

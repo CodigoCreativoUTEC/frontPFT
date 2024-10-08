@@ -20,7 +20,7 @@ const EditEquipo = () => {
   useEffect(() => {
     if (id) {
       const fetchEquipo = async () => {
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/BuscarEquipo?id=${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/equipos/seleccionar?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session.accessToken || ''),
@@ -125,7 +125,7 @@ const EditEquipo = () => {
         garantia: equipo.garantia ? new Date(equipo.garantia).toISOString().split('T')[0] : null,
       };
       
-      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/ModificarEquipo`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/equipos/ModificarEquipo`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",

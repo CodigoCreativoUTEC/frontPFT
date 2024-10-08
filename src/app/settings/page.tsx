@@ -1,9 +1,8 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import Image from "next/image";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import Link from "next/link";
-import Perfil from "@/components/PerfilUser/perfil";
+
+import ReportPage from "@/components/Tables/tabla";
 
 export const metadata: Metadata = {
   title: "MAMED - Editar mis datos",
@@ -16,7 +15,7 @@ const Profile = () => {
     <DefaultLayout>
       <div className="mx-auto max-w-242.5">
         <Breadcrumb pageName="Profile" />
-        <Perfil />
+        <ReportPage />
       </div>
     </DefaultLayout>
   );
