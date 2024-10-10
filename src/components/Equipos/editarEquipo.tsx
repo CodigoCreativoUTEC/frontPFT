@@ -125,7 +125,7 @@ const EditEquipo = () => {
         garantia: equipo.garantia ? new Date(equipo.garantia).toISOString().split('T')[0] : null,
       };
       
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/equipos/ModificarEquipo`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/equipos/modificar`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",

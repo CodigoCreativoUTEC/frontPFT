@@ -13,7 +13,7 @@ const BajaEquipoDetail = () => {
   useEffect(() => {
     if (id) {
       const fetchBajaEquipo = async () => {
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/VerEquipoInactivo?id=${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/equipos/VerEquipoInactivo?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session.accessToken || ''),

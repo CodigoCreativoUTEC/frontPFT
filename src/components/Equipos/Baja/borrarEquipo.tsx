@@ -24,7 +24,7 @@ const DeleteEquipo = () => {
   useEffect(() => {
     if (id) {
       const fetchEquipo = async () => {
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/BuscarEquipo?id=${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/equipos/seleccionar?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session.accessToken || ''),
@@ -63,7 +63,7 @@ const DeleteEquipo = () => {
         estado: ReferrerEnum.INACTIVO, // Use enum value
       };
 
-      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/equipos/Inactivar`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/equipos/inactivar`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
