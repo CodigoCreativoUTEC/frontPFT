@@ -54,7 +54,7 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         const hashedPassword = credentials ? crypto.createHash('sha256').update(credentials.password).digest('hex') : '';
-        const res = await fetch(process.env.API_REST + `/usuarios/login`, {
+        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -93,7 +93,7 @@ const handler = NextAuth({
       if (account?.provider === "google") {
         console.log("ID Token:", account.id_token);
         const idToken = account.id_token; // Obtenemos el idToken desde el account
-        const res = await fetch(process.env.API_REST + `/usuarios/google-login`, {
+        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/google-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idToken }), // Enviamos el idToken
@@ -141,6 +141,7 @@ const handler = NextAuth({
       session.user.perfil = token.perfil || null; // Asigna el perfil al objeto session
       session.user.id = token.id;
       session.user.name = token.name;
+      session.exp = token.exp;
       session.accessToken = token.accessToken as string;
   
       return session;
