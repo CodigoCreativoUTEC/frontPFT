@@ -17,7 +17,7 @@ const EditFuncionalidad = () => {
   useEffect(() => {
     if (id) {
       const fetchFuncionalidad = async () => {
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/funcionalidades/buscarPorId?id=${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/funcionalidades/seleccionar?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session.accessToken || ''),
@@ -51,7 +51,7 @@ const EditFuncionalidad = () => {
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/funcionalidades/modificar`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/funcionalidades/modificar`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",

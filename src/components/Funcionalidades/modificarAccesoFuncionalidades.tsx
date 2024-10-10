@@ -34,7 +34,7 @@ const ModificarAccesoFuncionalidades = () => {
   useEffect(() => {
     const fetchFuncionalidades = async () => {
       try {
-        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/funcionalidades/listar", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/funcionalidades/listar`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session?.accessToken || ''),
@@ -61,7 +61,7 @@ const ModificarAccesoFuncionalidades = () => {
       if (!selectedFuncionalidad) return;
 
       try {
-        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/perfiles/listar", {
+        const res = await fetch( `${process.env.NEXT_PUBLIC_API_URL}/perfiles/listar` , {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session?.accessToken || ''),
@@ -128,7 +128,7 @@ const ModificarAccesoFuncionalidades = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/funcionalidades/modificar", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/funcionalidades/modificar`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",

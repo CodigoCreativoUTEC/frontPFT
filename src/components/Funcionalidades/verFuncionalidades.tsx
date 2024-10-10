@@ -17,7 +17,7 @@ const FuncionalidadDetail = () => {
   useEffect(() => {
     if (id) {
       const fetchFuncionalidad = async () => {
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/funcionalidades/buscarPorId?id=${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/funcionalidades/seleccionar?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session.accessToken || ''),
@@ -68,9 +68,7 @@ const FuncionalidadDetail = () => {
             <p><strong>Estado:</strong> {funcionalidad.estado}</p>
             <p><strong>Perfiles con permiso:</strong></p>
           <ul>
-            {funcionalidad.perfiles.map((perfil) => (
-              <li key={perfil.id}>{perfil.nombrePerfil}</li>
-            ))}
+            reparacion
           </ul>
           </div>
           <button

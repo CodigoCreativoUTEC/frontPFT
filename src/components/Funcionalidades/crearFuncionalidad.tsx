@@ -50,7 +50,7 @@ export default function RegistrarFuncionalidad() {
         };
 
         try {
-            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/funcionalidades/crear', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/funcionalidades/crear`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
