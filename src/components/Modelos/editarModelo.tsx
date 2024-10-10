@@ -21,7 +21,7 @@ const EditModelo = () => {
       if (id) {
         try {
           // Fetch del modelo
-          const resModelo = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/modelo/buscarPorId?id=${id}`, {
+          const resModelo = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/modelo/seleccionar?id=${id}`, {
             headers: {
               "Content-Type": "application/json",
               "authorization": "Bearer " + (session?.accessToken || ''),
@@ -35,7 +35,7 @@ const EditModelo = () => {
           }
 
           // Fetch de marcas
-          const resMarcas = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marca/listarTodas', {
+          const resMarcas = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/marca/listar`, {
             headers: {
               "Content-Type": "application/json",
               "authorization": "Bearer " + (session?.accessToken || ''),
@@ -67,7 +67,7 @@ const EditModelo = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/modelo/modificar`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/modelo/modificar`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
