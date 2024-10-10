@@ -32,7 +32,7 @@ export default function Perfil() {
     const fetchUserData = async () => {
       if (session) {
         const userId = session.user.data.id;
-        const response = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/BuscarUsuarioPorId/?id=${userId}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/seleccionar?id=${userId}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${session.accessToken}`,
@@ -70,7 +70,7 @@ export default function Perfil() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/modificar`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/modificar`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${session.user.accessToken}`,

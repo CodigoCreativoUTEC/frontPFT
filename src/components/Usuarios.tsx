@@ -23,7 +23,7 @@ const UsuariosList: React.FC<UsuariosListProps> = (params) => {
         if (usuarioIdToDelete === null) return;
     
         try {
-            const usuarioResponse = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/BuscarUsuarioPorId?id=${usuarioIdToDelete}`, {
+            const usuarioResponse = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/seleccionar?id=${usuarioIdToDelete}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

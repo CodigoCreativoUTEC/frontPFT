@@ -27,7 +27,7 @@ const CrearPerfil = () => {
   const handleSubmit = async () => {
     if (validateForm()) {
       try {
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/perfiles/crear`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfiles/crear`, {
           method: 'POST',
           headers: {
             "Content-Type": "application/json",

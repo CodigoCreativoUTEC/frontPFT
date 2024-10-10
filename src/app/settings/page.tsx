@@ -13,10 +13,10 @@ export const metadata: Metadata = {
 const Profile = () => {
   return (
     <DefaultLayout>
-      <div className="mx-auto max-w-242.5">
+      
         <Breadcrumb pageName="Profile" />
         <ReportPage />
-      </div>
+      
     </DefaultLayout>
   );
 };

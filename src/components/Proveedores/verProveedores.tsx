@@ -18,7 +18,7 @@ const ProveedorDetail = () => {
   useEffect(() => {
     if (id) {
       const fetchProveedor = async () => {
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/proveedores/buscarPorId?id=${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proveedores/seleccionar?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session.accessToken || ''),

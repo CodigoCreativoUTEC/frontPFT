@@ -51,7 +51,7 @@ export default function RegistrarProveedor() {
         }
 
         try {
-            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/proveedores/crear', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proveedores/crear`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export default function RegistrarProveedor() {
 
             if (res.ok) {
                 alert('Proveedor registrado exitosamente.');
-                router.push('/ruta-de-exito'); // Ajusta la ruta de éxito según sea necesario
+                router.push('/proveedores'); // Ajusta la ruta de éxito según sea necesario
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
