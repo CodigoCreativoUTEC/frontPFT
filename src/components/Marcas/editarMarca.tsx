@@ -17,7 +17,7 @@ const EditMarca = () => {
   useEffect(() => {
     if (id) {
       const fetchMarca = async () => {
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marca/buscarPorId?id=${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/marca/seleccionar?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session?.accessToken || ''),
@@ -51,7 +51,7 @@ const EditMarca = () => {
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marca/modificar`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/marca/modificar`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
@@ -75,30 +75,7 @@ const EditMarca = () => {
 
   return (
       <div className="flex flex-wrap items-start">
-        <div className="hidden w-full xl:block xl:w-1/4">
-          <div className="px-6 py-7.5 text-center">
-            <Link className="mb-5.5 inline-block" href="/">
-              <Image
-                  className="hidden dark:block"
-                  src={"/images/logo/LogoCodigo.jpg"}
-                  alt="Logo"
-                  width={176}
-                  height={32}
-              />
-              <Image
-                  className="dark:hidden"
-                  src={"/images/logo/LogoCodigo.jpg"}
-                  alt="Logo"
-                  width={176}
-                  height={32}
-              />
-            </Link>
-            <p className="2xl:px-20">
-              Bienvenido al sistema de gestión de mantenimiento.
-            </p>
-          </div>
-        </div>
-      <div className='w-full p-4'>
+      <div className='w-full p-10'>
         <form onSubmit={(e) => e.preventDefault()}>
           {errors.length > 0 && (
               <div className='bg-rose-200 p-2 mb-4'>
@@ -110,7 +87,7 @@ const EditMarca = () => {
               </div>
           )}
           <div className='mb-4'>
-            <label className='block mb-2 text-sm font-medium text-gray-700'>Nombre de la Marca:</label>
+            <label className='block mb-2 text-sm font-medium text-neutral-700'>Nombre de la Marca:</label>
             <input
                 type='text'
                 name='nombre'
@@ -141,7 +118,7 @@ const EditMarca = () => {
           <button
               type='button'
               onClick={() => router.push('/marcas')}
-              className='px-4 py-2 ml-2 text-white bg-gray-500 rounded hover:bg-gray-700'
+              className='px-4 py-2 ml-2 text-white bg-neutral-500 rounded hover:bg-neutral-700'
           >
             Cancelar
           </button>

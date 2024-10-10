@@ -41,11 +41,11 @@ export default function RegistrarMarca() {
             return;
         }
         try {
-            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/marca/crear', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/marca/crear`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json',
                     'Authorization': `Bearer ${session?.accessToken}`
-                 },
+                    },
                 body: JSON.stringify(formData),
             });
 
@@ -72,41 +72,8 @@ export default function RegistrarMarca() {
     return (
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex flex-wrap items-center">
-                <div className="hidden w-full xl:block xl:w-1/2">
-                    <div className="px-26 py-17.5 text-center">
-                        <Link className="mb-5.5 inline-block" href="/">
-                            <Image
-                                className="hidden dark:block"
-                                src={"/images/logo/LogoCodigo.jpg"}
-                                alt="Logo"
-                                width={176}
-                                height={32}
-                            />
-                            <Image
-                                className="dark:hidden"
-                                src={"/images/logo/LogoCodigo.jpg"}
-                                alt="Logo"
-                                width={176}
-                                height={32}
-                            />
-                        </Link>
-                        <p className="2xl:px-20">
-                            Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
-                        </p>
-                        <span className="mt-15 inline-block">
-                            <svg
-                                width="350"
-                                height="350"
-                                viewBox="0 0 350 350"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                {/* SVG content */}
-                            </svg>
-                        </span>
-                    </div>
-                </div>
-                <div className="w-full xl:w-1/2">
+                
+                <div className="w-auto">
                     <div className="px-12.5 py-17.5 sm:px-25 sm:py-30">
                         <h2 className="mb-9 text-2xl font-bold">
                             Registrar Marca
