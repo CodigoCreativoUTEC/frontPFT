@@ -78,9 +78,9 @@ const DynamicTable: React.FC<TableProps> = ({
           value={filterValues[column.key] || ''}
           onChange={e => handleFilterChange(column.key, e.target.value)}
         >
-          <option value="">Todos</option>
+          <option value="default">Todos</option>
           {dropdownOptions[column.key]?.map(option => (
-            <option key={option.id} value={option.id}>
+            <option key={option.id} value={option[column.dropdownLabelKey || 'id']}>
               {option[column.dropdownLabelKey || 'nombre']} {/* Usamos dropdownLabelKey si está definido */}
             </option>
           ))}
@@ -303,13 +303,13 @@ const DynamicTable: React.FC<TableProps> = ({
 
       <div className="mb-4 flex space-x-2">
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-green-600 dark:bg-green-900 hover:bg-green-700 dark:hover:bg-green-950 text-white font-bold py-2 px-4 rounded"
           onClick={exportToExcel}
         >
           Exportar a Excel
         </button>
         <button
-          className="bg-neutral-500 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-cyan-500 hover:bg-cyan-700 dark:bg-cyan-900 dark:hover:bg-cyan-950 text-white font-bold py-2 px-4 rounded"
           onClick={() => setFilterValues({})}
         >
           Limpiar Filtros
