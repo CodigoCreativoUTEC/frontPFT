@@ -17,7 +17,7 @@ const TipoEquipoDetail = () => {
   useEffect(() => {
     if (id) {
       const fetchTipoEquipo = async () => {
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/tipoEquipos/buscarPorId?id=${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tipoEquipos/seleccionar?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session?.accessToken || ''),
@@ -68,7 +68,7 @@ const TipoEquipoDetail = () => {
             <p><strong>Estado:</strong> {tipoEquipo.estado}</p>
           </div>
           <button
-              onClick={() => router.push('/tipoEquipos')}
+              onClick={() => router.push('/tipo_equipo')}
               className='mt-4 bg-blue-500 text-white p-2 rounded'
           >
             Volver

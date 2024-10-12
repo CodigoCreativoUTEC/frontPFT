@@ -1,126 +1,65 @@
-"use client";
-import { useEffect, useState } from 'react';
-import TipoEquiposList from '@/components/TipoEquipos';
-import { signIn, useSession } from 'next-auth/react';
-import { TipoEquipoModel, ReferrerEnum } from '@/types';
+'use client';
 
-const TipoEquiposRead = () => {
-    const { data: session, status } = useSession();
-    const [tipoEquipos, setTipoEquipos] = useState<TipoEquipoModel[]>([]);
-    const [filteredTipoEquipos, setFilteredTipoEquipos] = useState<TipoEquipoModel[]>([]);
-    const [nombreFilter, setNombreFilter] = useState<string>('');
-    const [estadoFilter, setEstadoFilter] = useState<string>('');
+import React from 'react';
+import { useSession, signIn } from 'next-auth/react';
+import DynamicTable from '@/components/DynamicTable';
 
-    // Función fetcher que obtiene todos los equipos
-    const fetcher = async () => {
-        if (!session) return; // Asegúrate de que la sesión esté disponible
+const TiposEquiposRead = () => {
+  const { data: session } = useSession();
+  const token = session?.accessToken ?? ''; // Obtener el token de la sesión
 
-        const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/tipoEquipos/listarTodos", {
-            headers: {
-                "Content-Type": "application/json",
-                "authorization": "Bearer " + (session?.accessToken || ''),
-            },
-        });
-        const result: TipoEquipoModel[] = await res.json();
-        setTipoEquipos(result);
-        setFilteredTipoEquipos(result); // Inicializa la lista filtrada también
-    };
+  // Endpoint base para obtener perfiles
+  const baseEndpoint = process.env.NEXT_PUBLIC_API_URL + '/tipoEquipos/listar';
+  const deleteEndpoint = process.env.NEXT_PUBLIC_API_URL + '/tipoEquipos/inactivar';
 
-    useEffect(() => {
-        if (session) {
-            fetcher();
-        }
-    }, [session]); // Ejecuta la llamada solo cuando la sesión está disponible
+  // Columnas de la tabla
+  const columns = [
+    { key: 'nombreTipo', label: 'Nombre', filterable: true },
+    {
+      key: 'estado',
+      label: 'Estado',
+      filterable: true,
+      isDropdown: true,
+      dropdownOptions: [
+        { id: 'ACTIVO', nombre: 'ACTIVO' },
+        { id: 'INACTIVO', nombre: 'INACTIVO' },
+      ], // Opciones fijas para el filtro de estado
+    },
+  ];
 
-    // Manejadores de filtro
-    const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNombreFilter(e.target.value);
-        filterTipoEquipos(e.target.value, estadoFilter);
-    };
+  // Rutas de acciones
+  const actionRoutes = {
+    view: (id: number) => `/tipo_equipo/read/${id}`,
+    edit: (id: number) => `/tipo_equipo/edit/${id}`,
+    delete: (id: number) => `/tipo_equipo/delete/${id}`,
+  };
 
-    const handleEstadoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setEstadoFilter(e.target.value);
-        filterTipoEquipos(nombreFilter, e.target.value);
-    };
+  // Control de visibilidad de acciones
+  const actionsVisibility = {
+    showView: true,
+    showEdit: true,
+    showDelete: true,
+  };
 
-    // Filtros para los equipos
-    const filterTipoEquipos = (nombre: string, estado: string) => {
-        let filtered = tipoEquipos.filter(tipoEquipo =>
-            (!nombre || tipoEquipo.nombre.toLowerCase().includes(nombre.toLowerCase())) &&
-            (!estado || tipoEquipo.estado === estado)
-        );
-        setFilteredTipoEquipos(filtered);
-    };
+  if (!session) {
+    signIn();
+    return null;
+  }
 
-    const handleClearFilters = () => {
-        setNombreFilter('');
-        setEstadoFilter('');
-        setFilteredTipoEquipos(tipoEquipos); // Resetea los filtros
-    };
+  return (
+    <div>
+      <h1>Gestión de Perfiles</h1>
+      <DynamicTable
+        baseEndpoint={baseEndpoint}
+        columns={columns}
+        token={token}
+        actionRoutes={actionRoutes}
+        actionsVisibility={actionsVisibility}
+        useDeleteModal={true} // Mostrar modal de confirmación al borrar
+        deleteEndpoint={deleteEndpoint} // Endpoint para borrar perfiles
+      />
+    </div>
+  );
+};
 
-    if (!session) {
-        signIn(); 
-        return null; 
-    }
-
-    return (
-        <div className='rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1'>
-            <div className='mb-4 flex flex-wrap gap-4'>
-                {/* Nombre Input */}
-                <input
-                    type="text"
-                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    placeholder="Nombre del Tipo de Equipo"
-                    value={nombreFilter}
-                    onChange={handleNombreChange}
-                />
-                {/* Estado Select */}
-                <select
-                    className="rounded border-[1.5px] border-stroke bg-gray py-3 px-6 font-medium text-sm placeholder-body focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    value={estadoFilter}
-                    onChange={handleEstadoChange}
-                >
-                    <option value="">Selecciona un Estado</option>
-                    <option value="ACTIVO">ACTIVO</option>
-                    <option value="INACTIVO">INACTIVO</option>
-                </select>
-                {/* Botón de Limpiar Filtros */}
-                <button
-                    onClick={handleClearFilters}
-                    className="bg-violet-800 text-white px-3 py-1 rounded"
-                >
-                    Limpiar Filtros
-                </button>
-            </div>
-            <div className="flex flex-col overflow-x-auto">
-                <div className="sm:-mx-6 lg:-mx-8">
-                    <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full text-left text-sm">
-                                <thead className="border-b font-normal dark:border-neutral-500">
-                                <tr className='bg-gray-200 text-center dark:bg-meta-4'>
-                                    <th className="px-8 py-3 text-left">ID</th>
-                                    <th className='px-8 py-3 text-left'>Nombre</th>
-                                    <th className='px-8 py-3 text-left'>Estado</th>
-                                    <th className='px-8 py-3 text-left'>Acciones</th>
-                                </tr>
-                                </thead>
-                                <tbody className='bg-white items-center text-xs'>
-                                {filteredTipoEquipos.map((tipoEquipo) => (
-                                    <TipoEquiposList
-                                        key={tipoEquipo.id}
-                                        {...tipoEquipo}
-                                        fetcher={fetcher}
-                                    />
-                                ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-export default TipoEquiposRead;
+export default TiposEquiposRead;

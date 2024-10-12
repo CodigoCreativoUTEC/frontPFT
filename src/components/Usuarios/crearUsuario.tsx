@@ -138,7 +138,7 @@ export default function Registrar() {
 
         try {
             
-            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/crear', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/crear`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(usuarioDto),

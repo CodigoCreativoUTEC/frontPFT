@@ -17,7 +17,7 @@ const EditTipoEquipo = () => {
   useEffect(() => {
     if (id) {
       const fetchTipoEquipo = async () => {
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/tipoEquipos/buscarPorId?id=${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tipoEquipos/seleccionar?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": "Bearer " + (session?.accessToken || ''),
@@ -51,7 +51,7 @@ const EditTipoEquipo = () => {
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/tipoEquipos/modificar`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tipoEquipos/modificar`, {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
@@ -61,7 +61,7 @@ const EditTipoEquipo = () => {
       });
 
       if (res.ok) {
-        router.push('/tipoEquipos');
+        router.push('/tipo_equipo');
       } else {
         const result = await res.json();
         // @ts-ignore
@@ -110,8 +110,9 @@ const EditTipoEquipo = () => {
               </div>
           )}
           <div className='mb-4'>
-            <label className='block mb-2 text-sm font-medium text-gray-700'>Nombre del Tipo de Equipo:</label>
+            <label className='block mb-2 text-sm font-medium text-neutral-700'>Nombre del Tipo de Equipo:</label>
             <input
+            disabled
                 type='text'
                 name='nombreTipo'
                 value={tipoEquipo.nombreTipo}
@@ -140,8 +141,8 @@ const EditTipoEquipo = () => {
           </button>
           <button
               type='button'
-              onClick={() => router.push('/tipoEquipos')}
-              className='px-4 py-2 ml-2 text-white bg-gray-500 rounded hover:bg-gray-700'
+              onClick={() => router.push('/tipo_equipo')}
+              className='px-4 py-2 ml-2 text-white bg-neutral-500 rounded hover:bg-neutral-700'
           >
             Cancelar
           </button>

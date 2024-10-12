@@ -38,7 +38,7 @@ export default function RegistrarTipoEquipo() {
         }
         try {
             console.log(formData);
-            const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/tipoEquipos/crear', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tipoEquipos/crear`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
