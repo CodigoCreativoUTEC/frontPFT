@@ -16,7 +16,7 @@ const FuncionalidadesRead = () => {
     // Columnas de la tabla
     const columns = [
         { key: 'nombreFuncionalidad', label: 'Funcionalidad', filterable: false },
-        { key: 'perfiles', label: 'Perfiles', filterable: false },
+        { key: 'perfiles', data:'perfiles.nombrePerfil', label: 'Perfiles', filterable: false },
         { data: 'estado', label: 'Estado', filterable: false },
     ];
 

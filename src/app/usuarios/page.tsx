@@ -15,7 +15,9 @@ const listadoUsuarios: React.FC = function() {
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Lista de usuarios" />
+      <div className="flex flex-col gap-10">
       <UsuariosRead />
+      </div>
     </DefaultLayout>
   );
 };

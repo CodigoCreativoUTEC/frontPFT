@@ -75,29 +75,6 @@ const EditFuncionalidad = () => {
 
   return (
       <div className="flex flex-wrap items-start">
-        <div className="hidden w-full xl:block xl:w-1/4">
-          <div className="px-6 py-7.5 text-center">
-            <Link className="mb-5.5 inline-block" href="/">
-              <Image
-                  className="hidden dark:block"
-                  src={"/images/logo/LogoCodigo.jpg"}
-                  alt="Logo"
-                  width={176}
-                  height={32}
-              />
-              <Image
-                  className="dark:hidden"
-                  src={"/images/logo/LogoCodigo.jpg"}
-                  alt="Logo"
-                  width={176}
-                  height={32}
-              />
-            </Link>
-            <p className="2xl:px-20">
-              Bienvenido al sistema de gestión de mantenimiento.
-            </p>
-          </div>
-        </div>
       <div className='w-full p-4'>
         <form onSubmit={(e) => e.preventDefault()}>
           {errors.length > 0 && (
@@ -141,7 +118,7 @@ const EditFuncionalidad = () => {
           <button
               type='button'
               onClick={() => router.push('/funcionalidades')}
-              className='px-4 py-2 ml-2 text-white bg-gray-500 rounded hover:bg-gray-700'
+              className='px-4 py-2 ml-2 text-white bg-neutral-500 rounded hover:bg-neutral-700'
           >
             Cancelar
           </button>

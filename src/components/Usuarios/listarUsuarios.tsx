@@ -38,7 +38,7 @@ const UsuariosRead = () => {
     { key: 'nombre', label: 'Nombre', filterable: true },
     { key: 'apellido', label: 'Apellido', filterable: true },
     { key: 'ci', label: 'CI', data: 'cedula', filterable: false },
-    { key: 'telefono', data: 'usuariosTelefonos', label: 'Teléfono', filterable: false },
+    { key: 'telefono', data: 'usuariosTelefonos.numero', label: 'Teléfono', filterable: false },
     { key: 'fechaNacimiento', label: 'Fecha de Nacimiento', filterable: false, isDate: true },
     { key: 'email', label: 'Email', filterable: true },
     { key: 'nombreUsuario', label: 'Nombre de Usuario', filterable: true },
