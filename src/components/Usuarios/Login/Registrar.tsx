@@ -129,7 +129,7 @@ export default function Registrar() {
 
         const usuarioDto = {
             ...formData,
-            contrasenia: hashedPassword,
+            contrasenia: formData.contrasenia,
             idPerfil: { id: formData.idPerfil },
             idInstitucion: { id: 1 },
         };

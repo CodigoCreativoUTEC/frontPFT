@@ -17,7 +17,7 @@ const hashPassword = async (password) => {
 
 export default function Registrar() {
     const { data: session } = useSession();
-    
+
     const router = useRouter();
     const searchParams = useSearchParams();
     const [formData, setFormData] = useState({
@@ -133,11 +133,11 @@ export default function Registrar() {
             ...formData,
             idPerfil: { id: formData.idPerfil },
             idInstitucion: { id: 1 },
-            contrasenia: hashedPassword,
+            contrasenia: formData.contrasenia,
         };
 
         try {
-            
+
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/crear`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -181,30 +181,30 @@ export default function Registrar() {
 
     if (!session) {signIn();return null;}
     return (
-            <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                <div className="flex flex-wrap items-center">
-                    <div className="hidden w-full xl:block xl:w-1/2">
-                        <div className="px-26 py-17.5 text-center">
-                            <Link className="mb-5.5 inline-block" href="/">
-                                <Image
-                                    className="hidden dark:block"
-                                    src={"/images/logo/LogoCodigo.jpg"}
-                                    alt="Logo"
-                                    width={176}
-                                    height={32}
-                                />
-                                <Image
-                                    className="dark:hidden"
-                                    src={"/images/logo/LogoCodigo.jpg"}
-                                    alt="Logo"
-                                    width={176}
-                                    height={32}
-                                />
-                            </Link>
-                            <p className="2xl:px-20">
-                                Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
-                            </p>
-                            <span className="mt-15 inline-block">
+        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+            <div className="flex flex-wrap items-center">
+                <div className="hidden w-full xl:block xl:w-1/2">
+                    <div className="px-26 py-17.5 text-center">
+                        <Link className="mb-5.5 inline-block" href="/">
+                            <Image
+                                className="hidden dark:block"
+                                src={"/images/logo/LogoCodigo.jpg"}
+                                alt="Logo"
+                                width={176}
+                                height={32}
+                            />
+                            <Image
+                                className="dark:hidden"
+                                src={"/images/logo/LogoCodigo.jpg"}
+                                alt="Logo"
+                                width={176}
+                                height={32}
+                            />
+                        </Link>
+                        <p className="2xl:px-20">
+                            Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
+                        </p>
+                        <span className="mt-15 inline-block">
                                 <svg
                                     width="350"
                                     height="350"
@@ -215,197 +215,197 @@ export default function Registrar() {
                                     {/* SVG content */}
                                 </svg>
                             </span>
-                        </div>
                     </div>
-                    <div className="w-full xl:w-1/2">
-                        <div className="px-12.5 py-17.5 sm:px-25 sm:py-30">
-                            <h2 className="mb-9 text-2xl font-bold text-black dark:text-white">
-                                Crear usuario
-                            </h2>
-                            <form onSubmit={handleSubmit}>
-                                <div className="mb-4">
-                                    <label htmlFor="cedula" className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Cédula
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="cedula"
-                                        id="cedula"
-                                        value={formData.cedula}
-                                        onChange={handleChange}
-                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
-                                            errors.cedula ? 'border-rose-500 dark:border-rose-500' : ''
-                                        }`}
-                                    />
-                                    {errors.cedula && <p className="bg-rose-500 text-neutral-300">{errors.cedula}</p>}
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor="fechaNacimiento" className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Fecha de Nacimiento
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="fechaNacimiento"
-                                        id="fechaNacimiento"
-                                        value={formData.fechaNacimiento}
-                                        onChange={handleChange}
-                                        max={maxDate}
-                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
-                                            errors.fechaNacimiento ? 'border-rose-500 dark:border-rose-500' : ''
-                                        }`}
-                                    />
-                                    {errors.fechaNacimiento && <p className="bg-rose-500 text-neutral-300">{errors.fechaNacimiento}</p>}
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor="nombre" className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Nombre
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="nombre"
-                                        id="nombre"
-                                        value={formData.nombre}
-                                        onChange={handleChange}
-                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
-                                            errors.nombre ? 'border-rose-500 dark:border-rose-500' : ''
-                                        }`}
-                                    />
-                                    {errors.nombre && <p className="bg-rose-500 text-neutral-300">{errors.nombre}</p>}
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor="apellido" className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Apellido
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="apellido"
-                                        id="apellido"
-                                        value={formData.apellido}
-                                        onChange={handleChange}
-                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
-                                            errors.apellido ? 'border-rose-500 dark:border-rose-500' : ''
-                                        }`}
-                                    />
-                                    {errors.apellido && <p className="bg-rose-500 text-neutral-300">{errors.apellido}</p>}
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor="nombreUsuario" className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Nombre de Usuario
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="nombreUsuario"
-                                        id="nombreUsuario"
-                                        disabled
-                                        value={formData.nombreUsuario}
-                                        onChange={handleChange}
-                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
-                                            errors.nombreUsuario ? 'border-rose-500 dark:border-rose-500' : ''
-                                        }`}
-                                    />
-                                    {errors.nombreUsuario && <p className="bg-rose-500 text-neutral-300">{errors.nombreUsuario}</p>}
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor="email" className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Email
-                                    </label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        id="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
-                                            errors.email ? 'border-rose-500 dark:border-rose-500' : ''
-                                        }`}
-                                    />
-                                    {errors.email && <p className="bg-rose-500 text-neutral-300">{errors.email}</p>}
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor="contrasenia" className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Contraseña
-                                    </label>
-                                    <input
-                                        type="password"
-                                        name="contrasenia"
-                                        id="contrasenia"
-                                        value={formData.contrasenia}
-                                        onChange={handleChange}
-                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
-                                            errors.contrasenia ? 'border-rose-500 dark:border-rose-500' : ''
-                                        }`}
-                                    />
-                                    {errors.contrasenia && <p className="bg-rose-500 text-neutral-300">{errors.contrasenia}</p>}
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor="confirmPassword" className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Confirmar Contraseña
-                                    </label>
-                                    <input
-                                        type="password"
-                                        name="confirmPassword"
-                                        id="confirmPassword"
-                                        value={formData.confirmPassword}
-                                        onChange={handleChange}
-                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
-                                            errors.confirmPassword ? 'border-rose-500 dark:border-rose-500' : ''
-                                        }`}
-                                    />
-                                    {errors.confirmPassword && <p className="bg-rose-500 text-neutral-300">{errors.confirmPassword}</p>}
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor="idPerfil" className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Perfil
-                                    </label>
-                                    <select
-                                        name="idPerfil"
-                                        id="idPerfil"
-                                        value={formData.idPerfil}
-                                        onChange={handleChange}
-                                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
-                                            errors.idPerfil ? 'border-rose-500 dark:border-rose-500' : ''
-                                        }`}
-                                    >
-                                        {perfilOptions.map((option) => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.idPerfil && <p className="bg-rose-500 text-neutral-300">{errors.idPerfil}</p>}
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor="telefonos" className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Teléfonos
-                                    </label>
-                                    {formData.usuariosTelefonos.map((telefono, index) => (
-                                        <div key={telefono.id} className="mb-2 flex items-center">
-                                            <input
-                                                type="text"
-                                                value={telefono.numero}
-                                                onChange={(e) => handleTelefonoChange(index, e.target.value)}
-                                                className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                            />
-                                        </div>
-                                    ))}
-                                    <button
-                                        type="button"
-                                        onClick={handleAddTelefono}
-                                        className="mt-2 rounded-lg border border-primary bg-primary px-4 py-2 text-white hover:bg-primary-dark"
-                                    >
-                                        Añadir Teléfono
-                                    </button>
-                                </div>
-                                <button
-                                    type="submit"
-                                    className="mt-4 w-full rounded-lg bg-primary py-4 px-6 text-white hover:bg-primary-dark"
+                </div>
+                <div className="w-full xl:w-1/2">
+                    <div className="px-12.5 py-17.5 sm:px-25 sm:py-30">
+                        <h2 className="mb-9 text-2xl font-bold text-black dark:text-white">
+                            Crear usuario
+                        </h2>
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-4">
+                                <label htmlFor="cedula" className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Cédula
+                                </label>
+                                <input
+                                    type="text"
+                                    name="cedula"
+                                    id="cedula"
+                                    value={formData.cedula}
+                                    onChange={handleChange}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.cedula ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
+                                />
+                                {errors.cedula && <p className="bg-rose-500 text-neutral-300">{errors.cedula}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="fechaNacimiento" className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Fecha de Nacimiento
+                                </label>
+                                <input
+                                    type="date"
+                                    name="fechaNacimiento"
+                                    id="fechaNacimiento"
+                                    value={formData.fechaNacimiento}
+                                    onChange={handleChange}
+                                    max={maxDate}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.fechaNacimiento ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
+                                />
+                                {errors.fechaNacimiento && <p className="bg-rose-500 text-neutral-300">{errors.fechaNacimiento}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="nombre" className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Nombre
+                                </label>
+                                <input
+                                    type="text"
+                                    name="nombre"
+                                    id="nombre"
+                                    value={formData.nombre}
+                                    onChange={handleChange}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.nombre ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
+                                />
+                                {errors.nombre && <p className="bg-rose-500 text-neutral-300">{errors.nombre}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="apellido" className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Apellido
+                                </label>
+                                <input
+                                    type="text"
+                                    name="apellido"
+                                    id="apellido"
+                                    value={formData.apellido}
+                                    onChange={handleChange}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.apellido ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
+                                />
+                                {errors.apellido && <p className="bg-rose-500 text-neutral-300">{errors.apellido}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="nombreUsuario" className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Nombre de Usuario
+                                </label>
+                                <input
+                                    type="text"
+                                    name="nombreUsuario"
+                                    id="nombreUsuario"
+                                    disabled
+                                    value={formData.nombreUsuario}
+                                    onChange={handleChange}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.nombreUsuario ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
+                                />
+                                {errors.nombreUsuario && <p className="bg-rose-500 text-neutral-300">{errors.nombreUsuario}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="email" className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    id="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.email ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
+                                />
+                                {errors.email && <p className="bg-rose-500 text-neutral-300">{errors.email}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="contrasenia" className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Contraseña
+                                </label>
+                                <input
+                                    type="password"
+                                    name="contrasenia"
+                                    id="contrasenia"
+                                    value={formData.contrasenia}
+                                    onChange={handleChange}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.contrasenia ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
+                                />
+                                {errors.contrasenia && <p className="bg-rose-500 text-neutral-300">{errors.contrasenia}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="confirmPassword" className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Confirmar Contraseña
+                                </label>
+                                <input
+                                    type="password"
+                                    name="confirmPassword"
+                                    id="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.confirmPassword ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
+                                />
+                                {errors.confirmPassword && <p className="bg-rose-500 text-neutral-300">{errors.confirmPassword}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="idPerfil" className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Perfil
+                                </label>
+                                <select
+                                    name="idPerfil"
+                                    id="idPerfil"
+                                    value={formData.idPerfil}
+                                    onChange={handleChange}
+                                    className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary ${
+                                        errors.idPerfil ? 'border-rose-500 dark:border-rose-500' : ''
+                                    }`}
                                 >
-                                    Registrar
+                                    {perfilOptions.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.idPerfil && <p className="bg-rose-500 text-neutral-300">{errors.idPerfil}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="telefonos" className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Teléfonos
+                                </label>
+                                {formData.usuariosTelefonos.map((telefono, index) => (
+                                    <div key={telefono.id} className="mb-2 flex items-center">
+                                        <input
+                                            type="text"
+                                            value={telefono.numero}
+                                            onChange={(e) => handleTelefonoChange(index, e.target.value)}
+                                            className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        />
+                                    </div>
+                                ))}
+                                <button
+                                    type="button"
+                                    onClick={handleAddTelefono}
+                                    className="mt-2 rounded-lg border border-primary bg-primary px-4 py-2 text-white hover:bg-primary-dark"
+                                >
+                                    Añadir Teléfono
                                 </button>
-                            </form>
-                        </div>
+                            </div>
+                            <button
+                                type="submit"
+                                className="mt-4 w-full rounded-lg bg-primary py-4 px-6 text-white hover:bg-primary-dark"
+                            >
+                                Registrar
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
+        </div>
     );
 }
