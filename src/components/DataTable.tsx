@@ -80,7 +80,7 @@ const DataTable = <T,>({ url, columns, filters = [], actionHandlers }: DataTable
     };
 
     // Función para construir query params
-    const buildQueryParams = () => {
+    const buildQueryParams = useCallback(() => {
         const params = new URLSearchParams();
         Object.keys(filterValues).forEach(key => {
             if (filterValues[key]) {
@@ -88,7 +88,7 @@ const DataTable = <T,>({ url, columns, filters = [], actionHandlers }: DataTable
             }
         });
         return params.toString();
-    };
+    }, [filterValues]);
 
     // Función para obtener datos
     const fetchData = useCallback(async () => {
@@ -103,7 +103,7 @@ const DataTable = <T,>({ url, columns, filters = [], actionHandlers }: DataTable
         try {
             const queryParams = buildQueryParams();
             // Si hay filtros aplicados, usa el endpoint 'buscar', de lo contrario usa 'listarTodos'
-            const fetchUrl = queryParams ? `http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/proveedores/buscar?${queryParams}` : url;
+            const fetchUrl = queryParams ? `${process.env.NEXT_PUBLIC_API_URL}/proveedores/buscar?${queryParams}` : url;
     
             const res = await fetch(fetchUrl, {
                 headers: {
@@ -125,7 +125,7 @@ const DataTable = <T,>({ url, columns, filters = [], actionHandlers }: DataTable
         } finally {
             setLoading(false);
         }
-    }, [url, filterValues, session]);
+    }, [session, buildQueryParams, url]);
     
 
     useEffect(() => {

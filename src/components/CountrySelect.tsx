@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { signIn, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
 interface Country {
   id: number;
@@ -19,10 +19,15 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ selectedCountry, onCountr
 
   useEffect(() => {
     const fetchCountries = async () => {
-      const res = await fetch('http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/paises/listar',{
+      if (!session || !session.accessToken) {
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/paises/listar`, {
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": "Bearer " + (session?.accessToken || ''),
+          "Authorization": "Bearer " + (session.accessToken ?? ''),
         },
       });
       const result = await res.json();
@@ -31,27 +36,27 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ selectedCountry, onCountr
     };
 
     fetchCountries();
-  }, []);
+  }, [session]);
 
   if (loading) return <div>Cargando países...</div>;
 
   return (
-    <select
-      value={selectedCountry ? selectedCountry.id : ''}
-      onChange={(e) => {
-        const selectedId = parseInt(e.target.value, 10);
-        const selected = countries.find(country => country.id === selectedId);
-        if (selected) onCountryChange(selected);
-      }}
-      className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
-    >
-      <option value=''>Seleccione un país</option>
-      {countries.map(country => (
-        <option key={country.id} value={country.id}>
-          {country.nombre}
-        </option>
-      ))}
-    </select>
+      <select
+          value={selectedCountry ? selectedCountry.id : ''}
+          onChange={(e) => {
+            const selectedId = parseInt(e.target.value, 10);
+            const selected = countries.find(country => country.id === selectedId);
+            if (selected) onCountryChange(selected);
+          }}
+          className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+      >
+        <option value=''>Seleccione un país</option>
+        {countries.map(country => (
+            <option key={country.id} value={country.id}>
+              {country.nombre}
+            </option>
+        ))}
+      </select>
   );
 };
 

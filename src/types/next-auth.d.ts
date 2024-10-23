@@ -6,6 +6,8 @@ declare module "next-auth" {
   interface Session {
     user:{
       accessToken?: string;
+      perfil: string;
+      id: number;
     } & DefaultSession['user'];
   token: string;
   accessToken: string;
@@ -87,11 +89,8 @@ declare module "next-auth" {
     id: number;
     nombre: string;
   };
+  perfil: string;
   idPerfil: {
-    permisos: Array<{
-      id: number;
-      tipoPermiso: string;
-    }>;
     id: number;
     nombrePerfil: string;
     estado: string;

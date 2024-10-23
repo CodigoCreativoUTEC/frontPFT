@@ -54,12 +54,12 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         const hashedPassword = credentials ? crypto.createHash('sha256').update(credentials.password).digest('hex') : '';
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/login`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: credentials?.usuario,
-            password: hashedPassword
+            password: credentials?.password
           })
         });
 
@@ -93,7 +93,7 @@ const handler = NextAuth({
       if (account?.provider === "google") {
         console.log("ID Token:", account.id_token);
         const idToken = account.id_token; // Obtenemos el idToken desde el account
-        const res = await fetch(`http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/usuarios/google-login`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/google-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idToken }), // Enviamos el idToken
@@ -110,7 +110,7 @@ const handler = NextAuth({
           user.id = data.user.id;
           user.nombre = data.user.nombre;
           user.perfil = data.user.idPerfil.nombrePerfil;
-          return { ...user.nombre, accessToken: data.token, perfil: user.perfil };
+          return { ...user, accessToken: data.token, perfil: user.perfil };
         }
       } else {
         return true;
@@ -133,15 +133,22 @@ const handler = NextAuth({
     async session({ session, token }) {
       // Asegúrate de que session.user esté definido
       if (!session.user) {
-        session.user = {}; // Inicializar un objeto vacío si no está definido
+        session.user = {
+          perfil: "",
+          id: 0,
+          name: null,
+          email: null,
+          image: null,
+          accessToken: ""
+        }; // Inicializar con las propiedades necesarias
       }
   
       // Asignar los valores de email y perfil a session.user
-      session.user.email = token.email || null; // Si token.email no está presente, asigna null
-      session.user.perfil = token.perfil || null; // Asigna el perfil al objeto session
-      session.user.id = token.id;
-      session.user.name = token.name;
-      session.exp = token.exp;
+      session.user.email = token.email ?? null; // Si token.email no está presente, asigna null
+      session.user.perfil = token.perfil as string || "Usuario"; // Asigna el perfil al objeto session
+      session.user.id = token.id as number;
+      session.user.name = token.name as string;
+      session.expires = typeof token.exp === 'number' ? new Date(token.exp * 1000).toISOString() : ""; // Asigna la fecha de expiración
       session.accessToken = token.accessToken as string;
   
       return session;
