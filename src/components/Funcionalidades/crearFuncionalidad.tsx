@@ -46,6 +46,7 @@ export default function RegistrarFuncionalidad() {
         // Asegúrate de enviar el estado "ACTIVO" junto con el nombreFuncionalidad
         const payload = {
             nombreFuncionalidad: formData.nombreFuncionalidad,
+            ruta: formData.ruta,
             estado: "ACTIVO" // Asegura que siempre envíes el estado como "ACTIVO"
         };
 
@@ -81,30 +82,8 @@ export default function RegistrarFuncionalidad() {
     return (
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex flex-wrap items-center">
-                <div className="hidden w-full xl:block xl:w-1/2">
-                    <div className="px-26 py-17.5 text-center">
-                        <Link className="mb-5.5 inline-block" href="/">
-                            <Image
-                                className="hidden dark:block"
-                                src={"/images/logo/LogoCodigo.jpg"}
-                                alt="Logo"
-                                width={176}
-                                height={32}
-                            />
-                            <Image
-                                className="dark:hidden"
-                                src={"/images/logo/LogoCodigo.jpg"}
-                                alt="Logo"
-                                width={176}
-                                height={32}
-                            />
-                        </Link>
-                        <p className="2xl:px-20">
-                            Bienvenido al ingreso al sistema de gestión de mantenimiento de equipos clínicos hospitalarios.
-                        </p>
-                    </div>
-                </div>
-                <div className="w-full xl:w-1/2">
+
+                <div className="w-full">
                     <div className="px-12.5 py-17.5 sm:px-25 sm:py-30">
                         <h2 className="mb-9 text-2xl font-bold">
                             Registrar Funcionalidad
@@ -127,9 +106,26 @@ export default function RegistrarFuncionalidad() {
                                 )}
                             </div>
 
+                            <div className="mb-4">
+                                <label htmlFor="ruta" className="block mb-2.5 font-medium">
+                                    Ruta de la funcion
+                                </label>
+                                <input
+                                    type="text"
+                                    name="ruta"
+                                    id="ruta"
+                                    value={formData.ruta}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border py-4 pl-6 pr-10 outline-none focus:border-primary"
+                                />
+                                {errors.ruta && (
+                                    <p className="text-rose-500">{errors.ruta}</p>
+                                )}
+                            </div>
+
                             {/* Mostrar errores de servidor si existen */}
                             {serverError && (
-                                <div className="mb-4 bg-red-100 border border-red-500 text-red-500 p-2 rounded">
+                                <div className="mb-4 bg-rose-100 border border-rose-500 text-rose-500 p-2 rounded">
                                     {serverError}
                                 </div>
                             )}

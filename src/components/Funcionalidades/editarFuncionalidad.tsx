@@ -36,15 +36,12 @@ const EditFuncionalidad = () => {
 
   const handleChange = (e: { target: { name: any; value: any; }; }) => {
     const { name, value } = e.target;
-    // @ts-ignore
-    setFuncionalidad({estado: undefined, id: undefined, nombreFuncionalidad: "", ...funcionalidad, [name]: value });
+    setFuncionalidad({estado: undefined, id: undefined, nombreFuncionalidad: "", ruta:"", ...funcionalidad, [name]: value });
   };
 
   const validateForm = () => {
     const newErrors = [];
-    // @ts-ignore
     if (!funcionalidad.nombreFuncionalidad) newErrors.push("El nombre de la funcionalidad es obligatorio");
-    // @ts-ignore
     setErrors(newErrors);
     return newErrors.length === 0;
   };
@@ -81,17 +78,27 @@ const EditFuncionalidad = () => {
               <div className='bg-rose-200 p-2 mb-4'>
                 <ul>
                   {errors.map((error, index) => (
-                      <li key={index} className='text-red-700'>{error}</li>
+                      <li key={index} className='text-rose-700'>{error}</li>
                   ))}
                 </ul>
               </div>
           )}
           <div className='mb-4'>
-            <label className='block mb-2 text-sm font-medium text-gray-700'>Nombre de la Funcionalidad:</label>
+            <label className='block mb-2 text-sm font-medium text-neutral-700'>Nombre de la Funcionalidad:</label>
             <input
                 type='text'
                 name='nombreFuncionalidad'
                 value={funcionalidad.nombreFuncionalidad}
+                onChange={handleChange}
+                className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+            />
+          </div>
+          <div className='mb-4'>
+            <label className='block mb-2 text-sm font-medium text-neutral-700'>Ruta de la Funcionalidad:</label>
+            <input
+                type='text'
+                name='ruta'
+                value={funcionalidad.ruta}
                 onChange={handleChange}
                 className='w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
             />

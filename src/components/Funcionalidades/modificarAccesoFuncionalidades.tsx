@@ -7,6 +7,7 @@ import { signIn, useSession } from "next-auth/react";
 interface Funcionalidad {
   id: number;
   nombreFuncionalidad: string;
+  ruta: string;
   estado: string;
   perfiles: { id: number; nombrePerfil: string; estado: string }[];
 }
@@ -123,6 +124,7 @@ const ModificarAccesoFuncionalidades = () => {
     const updatedFuncionalidad = {
       id: selectedFuncionalidad?.id,
       nombreFuncionalidad: selectedFuncionalidad?.nombreFuncionalidad || '',
+      ruta: selectedFuncionalidad?.ruta || '',
       estado: selectedFuncionalidad?.estado || 'ACTIVO',
       perfiles: updatedPerfiles,
     };
@@ -163,7 +165,7 @@ const ModificarAccesoFuncionalidades = () => {
           </div>
         )}
         <div className='mb-4'>
-          <label className='block mb-2 text-sm font-medium text-gray-700'>Funcionalidad:</label>
+          <label className='block mb-2 text-sm font-medium text-neutral-700'>Funcionalidad:</label>
           <select
             value={selectedFuncionalidad ? selectedFuncionalidad.id : ''}
             onChange={handleFuncionalidadChange}
@@ -178,16 +180,16 @@ const ModificarAccesoFuncionalidades = () => {
           </select>
         </div>
         <div className='mb-4'>
-          <label className='block mb-2 text-sm font-medium text-gray-700'>Perfiles:</label>
+          <label className='block mb-2 text-sm font-medium text-neutral-700'>Perfiles:</label>
           {profiles.map(profile => (
             <div key={profile.id} className='flex items-center'>
-              <input
+              <label><input
                 type='checkbox'
                 checked={profile.checked}
                 onChange={() => handleProfileChange(profile.id)}
-                className='mr-2'
+                className='mr-1'
               />
-              <label>{profile.nombrePerfil}</label>
+              {profile.nombrePerfil}</label>
             </div>
           ))}
         </div>
@@ -201,7 +203,7 @@ const ModificarAccesoFuncionalidades = () => {
         <button
           type='button'
           onClick={() => router.push('/funcionalidades')}
-          className='px-4 py-2 ml-2 text-white bg-gray-500 rounded hover:bg-gray-700'
+          className='px-4 py-2 ml-2 text-white bg-neutral-500 rounded hover:bg-neutral-700'
         >
           Cancelar
         </button>

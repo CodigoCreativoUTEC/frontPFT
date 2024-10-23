@@ -19,37 +19,36 @@ const IntervencionesRead = () => {
     const { data: session, status } = useSession();
     
 
-    // Función para obtener las intervenciones desde el endpoint
-    const fetchIntervenciones = async () => {
-        setLoading(true); // Indica que la carga está en progreso
-        setError(null); // Resetea el error antes de la llamada
-
-        try {
-            const res = await fetch("http://localhost:8080/ServidorApp-1.0-SNAPSHOT/api/intervencion/listar", {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + (session?.accessToken || ""), // Asegúrate de tener el token de sesión
-                },
-            });
-
-            if (!res.ok) {
-                throw new Error("Error en la solicitud: " + res.statusText);
-            }
-
-            const data: IntervencionModel[] = await res.json();
-            setIntervenciones(data);
-            setFilteredIntervenciones(data); // Inicializa los datos filtrados con todos los datos
-        } catch (err) {
-            setError(err.message); // Captura el error si ocurre
-        } finally {
-            setLoading(false); // Finaliza el estado de carga
-        }
-    };
-
     // useEffect para llamar a la API cuando se monta el componente
     useEffect(() => {
+        const fetchIntervenciones = async () => {
+            setLoading(true); // Indica que la carga está en progreso
+            setError(null); // Resetea el error antes de la llamada
+
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/intervencion/listar`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + (session?.accessToken ?? ""), // Asegúrate de tener el token de sesión
+                    },
+                });
+
+                if (!res.ok) {
+                    throw new Error("Error en la solicitud: " + res.statusText);
+                }
+
+                const data: IntervencionModel[] = await res.json();
+                setIntervenciones(data);
+                setFilteredIntervenciones(data); // Inicializa los datos filtrados con todos los datos
+            } catch (err) {
+                setError(err.message); // Captura el error si ocurre
+            } finally {
+                setLoading(false); // Finaliza el estado de carga
+            }
+        };
+
         fetchIntervenciones();
-    }, []);
+    }, [session]);
 
     // Función para filtrar las intervenciones
     const filterIntervenciones = () => {

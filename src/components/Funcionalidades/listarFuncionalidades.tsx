@@ -12,19 +12,19 @@ const FuncionalidadesRead = () => {
 
     // Endpoint base para obtener datos generales
     const baseEndpoint = process.env.NEXT_PUBLIC_API_URL + "/funcionalidades/listar";
+    const deleteEndpoint = process.env.NEXT_PUBLIC_API_URL + "/funcionalidades/inactivar";
 
     // Columnas de la tabla
     const columns = [
         { key: 'nombreFuncionalidad', label: 'Funcionalidad', filterable: false },
         { key: 'perfiles', data:'perfiles.nombrePerfil', label: 'Perfiles', filterable: false },
-        { data: 'estado', label: 'Estado', filterable: false },
+        { key: 'ruta', label: 'Ruta', filterable: false },
     ];
 
     const actionRoutes = {
         view: (id) => `/funcionalidades/read/${id}`,
         edit :(id) => `/funcionalidades/edit/${id}`,
         delete: (id) => `/funcionalidades/delete/${id}`
-
     };
 
     const actionsVisibility = {
@@ -45,7 +45,8 @@ const FuncionalidadesRead = () => {
     showActions={true} 
     actionRoutes={actionRoutes}
     actionsVisibility={actionsVisibility}
-    useDeleteModal={false}
+    useDeleteModal={true}
+    deleteEndpoint={deleteEndpoint}
     />
 </div>
 );

@@ -10,7 +10,7 @@ const ProveedoresRead = () => {
 
   // Endpoint base para obtener proveedores
   const baseEndpoint = process.env.NEXT_PUBLIC_API_URL + '/proveedores/listar';
-  const deleteEndpoint = process.env.NEXT_PUBLIC_API_URL + '/proveedores/';
+  const deleteEndpoint = process.env.NEXT_PUBLIC_API_URL + '/proveedores/inactivar';
   
   // Columnas de la tabla
   const columns = [

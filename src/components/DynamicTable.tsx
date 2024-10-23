@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
@@ -159,7 +159,7 @@ const DynamicTable: React.FC<TableProps> = ({
   
   
 
-  const getEndpoint = () => {
+  const getEndpoint = useCallback(() => {
     const activeFilters = Object.keys(filterValues).filter(key => filterValues[key]);
     if (activeFilters.length > 0) {
       const filterKey = activeFilters[0];
@@ -170,9 +170,9 @@ const DynamicTable: React.FC<TableProps> = ({
     }
     const query = Object.keys(filterValues).map(key => `${key}=${filterValues[key]}`).join('&');
     return `${baseEndpoint}?${query}`;
-  };
+  }, [filterValues, filters, baseEndpoint]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const endpoint = getEndpoint();
       const response = await axios.get(endpoint, {
@@ -185,7 +185,7 @@ const DynamicTable: React.FC<TableProps> = ({
     } catch (error) {
       console.error('Error fetching data:', error);
     }
-  };
+  }, [getEndpoint, token]);
 
   useEffect(() => {
     fetchData();
@@ -208,11 +208,11 @@ const DynamicTable: React.FC<TableProps> = ({
       } else if (column.isDropdown && column.dropdownOptions) {
         setDropdownOptions((prev) => ({
           ...prev,
-          [column.key]: column.dropdownOptions,
+          [column.key]: column.dropdownOptions || [],
         }));
       }
     });
-  }, [filterValues, dateFilters]);
+  }, [filterValues, dateFilters, fetchData, columns, token]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilterValues(prev => ({ ...prev, [key]: value }));
@@ -237,6 +237,9 @@ const DynamicTable: React.FC<TableProps> = ({
     if (useDeleteModal) {
       setItemToDelete(id);
       setShowModal(true);
+    }else{
+      setItemToDelete(id);
+      confirmDelete();
     }
   };
 
@@ -271,6 +274,7 @@ const DynamicTable: React.FC<TableProps> = ({
           response = await axios.delete(`${deleteEndpoint}?id=${itemToDelete}`, {
             headers: {
               Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
           });
         }
