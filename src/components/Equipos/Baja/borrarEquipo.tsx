@@ -22,12 +22,13 @@ const DeleteEquipo = () => {
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!session) {signIn();return null;}
     if (id) {
       const fetchEquipo = async () => {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/equipos/seleccionar?id=${id}`, {
           headers: {
             "Content-Type": "application/json",
-            "authorization": "Bearer " + (session.accessToken || ''),
+            "authorization": session ? `Bearer ${session.accessToken}` : '',
           },
         });
         if (res.ok) {
@@ -89,7 +90,7 @@ const DeleteEquipo = () => {
   };
 
   if (!equipo) return <div>...loading</div>;
-  if (!session) {signIn();return null;}
+
   return (
     <div className='flex flex-wrap items-start'>
     <div className="hidden w-full xl:block xl:w-1/4">

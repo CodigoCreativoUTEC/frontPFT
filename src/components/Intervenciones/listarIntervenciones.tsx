@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import IntervencionesList from '@/components/Intervenciones';
 import { IntervencionModel } from '@/types';
 import * as Papa from 'papaparse'; // Para exportar CSV
-import * as XLSX from 'xlsx'; // Para exportar Excel
+
 import { saveAs } from 'file-saver'; // Para descargar el archivo
 import { useSession } from 'next-auth/react';
 

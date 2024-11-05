@@ -10,8 +10,6 @@
     }
 }
 
-@layer components {
-}
 
 @layer utilities {
     /* Chrome, Safari and Opera */
@@ -161,7 +159,6 @@ span.flatpickr-weekday,
     @apply !border-[#F3F4F6] !bg-[#F3F4F6] dark:!border-meta-4 dark:!bg-meta-4;
 }
 
-.flatpickr-day.selected,
 .flatpickr-day.startRange,
 .flatpickr-day.selected,
 .flatpickr-day.endRange {
@@ -224,15 +221,12 @@ span.flatpickr-weekday,
     @apply border-primary bg-primary dark:border-primary;
 }
 
-.custom-input-date::-webkit-calendar-picker-indicator {
-    background: transparent;
-}
-
 input[type="search"]::-webkit-search-cancel-button {
     @apply appearance-none;
 }
 
 .custom-input-date::-webkit-calendar-picker-indicator {
+    background: transparent;
     background-position: center;
     background-repeat: no-repeat;
     background-size: 20px;
@@ -241,3 +235,45 @@ input[type="search"]::-webkit-search-cancel-button {
 [x-cloak] {
     display: none !important;
 }
+
+
+/* ModalExtenderSesion.module.css */
+.modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modalContent {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .closeButton {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .closeButton:hover,
+  .closeButton:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }

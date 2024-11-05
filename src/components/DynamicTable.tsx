@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-lite';
 import Link from 'next/link';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';

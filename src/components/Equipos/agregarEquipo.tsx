@@ -103,7 +103,7 @@ const EquiposCreate = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "authorization": "Bearer " + (session.accessToken || ''),
+          "authorization": session ? `Bearer ${session.accessToken}` : '',
         },
         body: JSON.stringify(payload),
       });
