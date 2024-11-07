@@ -69,6 +69,7 @@ const EquiposRead = () => {
             showActions={true} 
             actionRoutes={actionRoutes}
             useDeleteModal={false}
+            deleteEndpoint= {process.env.NEXT_PUBLIC_API_URL + "/equipos/eliminar"}
             />
         </div>
     );

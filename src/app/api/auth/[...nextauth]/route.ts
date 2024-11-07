@@ -105,7 +105,7 @@ const handler = NextAuth({
       return true;
     },
 
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       console.log("JWT: Callback ejecutado");
     
       const TOKEN_RENEWAL_MARGIN = 60; // Renovar si falta menos de 1 minuto (en segundos)

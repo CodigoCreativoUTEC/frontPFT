@@ -13,7 +13,9 @@ export default function EscritorioComponent() {
           </div>
           <div className="p-7">
             <p className="text-black dark:text-white">texto</p>
+            <button className="btn btn-primary dark:bg-red bg-green-500">Botón</button>
           </div>
+
         </div>
       </div>
     </div>
