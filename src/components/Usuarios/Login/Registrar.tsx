@@ -134,7 +134,7 @@ export default function Registrar() {
             } else {
                 const errorData = await res.json();
                 console.error(errorData);
-                alert('Error al registrar usuario.');
+                alert('Error al registrar usuario. '+errorData.message);
             }
         } catch (error) {
             console.error(error);

@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { signIn, useSession } from 'next-auth/react';
-import { FuncionalidadModel } from "@/types";
-
-interface FuncionalidadesListProps extends FuncionalidadModel {
-    fetcher: () => void;
-}
 
 const FuncionalidadesList: React.FC<FuncionalidadesListProps> = (params) => {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
     const [funcionalidadIdToDelete, setFuncionalidadIdToDelete] = useState<number | null>(null);
 
@@ -25,7 +20,7 @@ const FuncionalidadesList: React.FC<FuncionalidadesListProps> = (params) => {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    "authorization": "Bearer " + (session?.accessToken || ''),
+                    "authorization": "Bearer " + (session?.accessToken ?? ''),
                 },
             });
 

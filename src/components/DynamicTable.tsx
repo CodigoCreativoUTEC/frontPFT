@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx-lite';
 import Link from 'next/link';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -249,7 +248,7 @@ const DynamicTable: React.FC<TableProps> = ({
       try {
         let response;
         if (deleteEndpoint.includes('/usuarios/inactivar')) {
-          let userSeleccionado = await axios.get(
+          const userSeleccionado = await axios.get(
             `${process.env.NEXT_PUBLIC_API_URL}/usuarios/seleccionar?id=${itemToDelete}`,
             {
               headers: {

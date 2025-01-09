@@ -260,7 +260,7 @@ export default function Perfil() {
                 />
               </div>
 
-              <div className="mb-5.5">
+              <div className="mb-5.5"> <aside className="bg-danger text-neutral-200 pl-2">Dejar en blanco si no desea cambiar contraseña</aside>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="contrasenia">
                   Nueva Contraseña
                 </label>
