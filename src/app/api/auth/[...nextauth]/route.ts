@@ -9,18 +9,41 @@ class CustomError extends Error {
   }
 }
 
+interface User {
+  token: string;
+  accessToken: string;
+  id: number;
+  cedula: string;
+  email: string;
+  fechaNacimiento: [number, number, number];
+  estado: string;
+  nombre: string;
+  apellido: string;
+  nombreUsuario: string;
+  idInstitucion: {
+    id: number;
+    nombre: string;
+  };
+  idPerfil: {
+    permisos: Array<{
+      id: number;
+      tipoPermiso: string;
+    }>;
+    id: number;
+    nombrePerfil: string;
+    estado: string;
+  };
+  usuariosTelefonos: Array<{
+    id: number;
+    numero: string;
+  }>;
+}
+
 const handler = NextAuth({
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -29,8 +52,6 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        console.log("Authorize: Intentando iniciar sesión con credenciales");
-
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -42,25 +63,20 @@ const handler = NextAuth({
 
         const data = await res.json();
         if (res.ok && data && data.user.estado === "ACTIVO") {
-          console.log("Authorize: Usuario activo encontrado, creando token");
-
+          // Transformar los datos según el formato deseado
           const transformedData = {
             id: data.user.id,
-            name: `${data.user.nombre} ${data.user.apellido}`,
+            name: data.user.nombre + " " + data.user.apellido,
             email: data.user.email,
-            perfil: data.user.idPerfil.nombrePerfil,
-            accessToken: data.token,
-            exp: Math.floor(Date.now() / 1000) + (5 * 60) // Expira en 5 minutos desde ahora
+            perfil: data.user.idPerfil.nombrePerfil,  // Asegúrate de que perfil está en user
+            accessToken: data.token
           };
-          return transformedData;
+          return transformedData as any;
         } else if (res.status === 401) {
-          console.log("Authorize: Credenciales incorrectas");
           throw new CustomError(data.error);
         } else if (data.user.estado === "INACTIVO") {
-          console.log("Authorize: Cuenta inactiva");
           throw new CustomError("Cuenta inactiva, por favor contacte al administrador");
         } else {
-          console.log("Authorize: Error desconocido");
           throw new CustomError("Error desconocido, por favor intente nuevamente");
         }
       }
@@ -71,94 +87,50 @@ const handler = NextAuth({
     error: "/auth/signin",
   },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }): Promise<any> {
       if (account?.provider === "google") {
-        console.log("SignIn: Usuario inició sesión con Google, obteniendo token personalizado");
-
-        try {
-          const idToken = account.id_token; // Token de Google
-
-          // Realizar solicitud para obtener un token JWT personalizado para tu backend
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/google-login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken }) // Enviamos el idToken de Google
-          });
-
-          const data = await res.json();
-
-          if (res.ok) {
-            user.accessToken = data.token; // Guardar el JWT en el usuario
-            user.id = data.user.id;
-            user.perfil = data.user.idPerfil.nombrePerfil;
-            console.log("SignIn: Token personalizado obtenido correctamente");
-            return true;
-          } else {
-            console.warn("SignIn: Error al obtener el token personalizado:", data.error);
-            return false;
-          }
-        } catch (error) {
-          console.error("SignIn: Error durante la obtención del token personalizado:", error);
-          return false;
+        console.log("ID Token:", account.id_token);
+        const idToken = account.id_token; // Obtenemos el idToken desde el account
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/google-login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken }), // Enviamos el idToken
+        });
+        const data = await res.json();
+        
+        if (data.userNeedsAdditionalInfo) {
+          return `/auth/signup?email=${profile?.email}`;
         }
+        if (data.error === "Cuenta inactiva, por favor contacte al administrador") {
+          throw new CustomError(data.error || "Cuenta inactiva, por favor contacte al administrador");
+        } else {
+          user.accessToken = data.token;
+          user.id = data.user.id;
+          user.nombre = data.user.nombre;
+          user.perfil = data.user.idPerfil.nombrePerfil;
+          return { ...user, accessToken: data.token, perfil: user.perfil };
+        }
+      } else {
+        return true;
       }
-      return true;
     },
 
+    // Aquí se incluye el email y perfil en el token JWT
     async jwt({ token, user }) {
-      console.log("JWT: Callback ejecutado");
-    
-      const TOKEN_RENEWAL_MARGIN = 60; // Renovar si falta menos de 1 minuto (en segundos)
-      const currentTime = Math.floor(Date.now() / 1000);
-    
-      // Si es la primera vez que se crea el token, agregar la información del usuario
       if (user) {
-        console.log("JWT: Creando nuevo token para el usuario");
         token.accessToken = user.accessToken;
-        token.email = user.email;
-        token.perfil = user.perfil;
+        token.email = user.email;  // Incluir el email en el token
+        token.perfil = user.perfil;  // Incluir el perfil en el token
         token.name = user.name;
         token.id = user.id;
-        token.exp = Math.floor(Date.now() / 1000) + (5 * 60);
       }
-    
-      // Verificar si el token está a punto de expirar
-      if (token.exp && token.exp - currentTime < TOKEN_RENEWAL_MARGIN) {
-        console.log("JWT: Token a punto de expirar, intentando renovarlo");
-    
-        try {
-          // Realizar la solicitud para renovar el token
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/renovar-token`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token.accessToken}`,
-              'Content-Type': 'application/json'
-            }
-          });
-    
-          if (res.ok) {
-            const data = await res.json();
-            token.accessToken = data.token; // Actualizar el accessToken
-            token.exp = Math.floor(Date.now() / 1000) + (5 * 60); // Actualizar la expiración a 5 minutos desde ahora
-            console.log("JWT: Token renovado exitosamente");
-          } else {
-            console.warn("JWT: Error al renovar el token:", await res.json());
-          }
-        } catch (error) {
-          console.error("JWT: Error durante la renovación del token:", error);
-        }
-      }
-    
       return token;
     },
-    
 
+    // Aquí se envía el perfil junto con la sesión
     async session({ session, token }) {
-      console.log("Session: Callback ejecutado");
-
-      // Inicializar session.user si no está presente
+      // Asegúrate de que session.user esté definido
       if (!session.user) {
-        console.log("Session: Inicializando usuario en la sesión");
         session.user = {
           perfil: "",
           id: 0,
@@ -166,30 +138,26 @@ const handler = NextAuth({
           email: null,
           image: null,
           accessToken: ""
-        };
+        }; // Inicializar con las propiedades necesarias
       }
-
-      // Asignar valores al objeto session.user
-      session.user.email = token.email ?? null;
-      session.user.perfil = token.perfil ?? "Usuario";
-      session.user.id = token.id ?? 0;
-      session.user.name = token.name ?? null;
-      session.expires = token.exp ? new Date(token.exp * 1000).toISOString() : "";
-      session.accessToken = token.accessToken;
-
-      console.log("Session: Sesión actualizada con el nuevo token");
-
+  
+      // Asignar los valores de email y perfil a session.user
+      session.user.email = token.email ?? null; // Si token.email no está presente, asigna null
+      session.user.perfil = token.perfil as string || "Usuario"; // Asigna el perfil al objeto session
+      session.user.id = token.id as number;
+      session.user.name = token.name as string;
+      session.expires = typeof token.exp === 'number' ? new Date(token.exp * 1000).toISOString() : ""; // Asigna la fecha de expiración
+      session.accessToken = token.accessToken as string;
+  
       return session;
     },
   },
   session: {
     strategy: "jwt",
-    maxAge: 5 * 60, // Máximo de 5 minutos de sesión antes de necesitar renovarse
-    updateAge: 2 * 60, // Actualizar cada 2 minutos para mantener la sesión viva
   },
   secret: process.env.SECRET,
   jwt: {
-    secret: process.env.SECRET,
+    secret: process.env.SECRET
   }
 });
 

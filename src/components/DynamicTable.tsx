@@ -223,15 +223,6 @@ const DynamicTable: React.FC<TableProps> = ({
     setFilterValues(prev => ({ ...prev, [key]: formattedDate }));
   };
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    saveAs(blob, `data_export_${Date.now()}.xlsx`);
-  };
-
   const handleDelete = (id: number) => {
     if (useDeleteModal) {
       setItemToDelete(id);
@@ -312,7 +303,7 @@ const DynamicTable: React.FC<TableProps> = ({
       <div className="mb-4 flex space-x-2">
         <button
           className="bg-green-600 dark:bg-green-900 hover:bg-green-700 dark:hover:bg-green-950 text-white font-bold py-2 px-4 rounded"
-          onClick={exportToExcel}
+          
         >
           Exportar a Excel
         </button>
