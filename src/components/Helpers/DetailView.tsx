@@ -34,10 +34,10 @@ const DetailView = <T extends {}>({ data, columns, backLink }: DetailViewProps<T
       {columns.map((col, index) => {
         let value: React.ReactNode;
         if (typeof col.accessor === "function") {
-            value = col.accessor(data);
-          } else {
-            value = (data as any)[col.accessor] as React.ReactNode;
-          }          
+          value = col.accessor(data);
+        } else {
+          value = (data as any)[col.accessor] as React.ReactNode;
+        }
 
         // Formatear según el tipo
         if (col.type === "date" && typeof value === "string") {

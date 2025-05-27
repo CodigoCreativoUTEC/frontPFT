@@ -1,17 +1,17 @@
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import VerUsuario from "@/components/Usuarios/Ver";
-import { Metadata } from "@/components/Metadata/Metadata";
+import { Metadata } from "next";
+import Editar from "@/components/Perfiles/Editar";
 
 export const metadata: Metadata = {
-  title: "MAMED | Detalle del Usuario",
+  title: "MAMED | Editar Perfil",
 };
 
 const Ver = () => {
   return (
     <DefaultLayout>
-            <Breadcrumb pageName="Detalle del Usuario" />
-            <VerUsuario />
+            <Breadcrumb pageName="Edicion del Perfil" />
+            <Editar />
     </DefaultLayout>
   );
 }

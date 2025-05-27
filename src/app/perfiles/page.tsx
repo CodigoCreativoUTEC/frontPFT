@@ -1,0 +1,22 @@
+"use-client"
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Listar from "@/components/Perfiles/Listar";
+import { Metadata } from "next";
+import DefaultLayout from "@/components/Layouts/DefaultLayout";
+
+export const metadata: Metadata = {
+    title: "MAMED | Listado de perfiles",
+};
+
+const TablesPage = () => {
+    return (
+        <DefaultLayout>
+            <Breadcrumb pageName="Listado de perfiles" />
+            <div className="flex flex-col gap-10">
+                <Listar />
+            </div>
+        </DefaultLayout>
+    );
+};
+
+export default TablesPage;

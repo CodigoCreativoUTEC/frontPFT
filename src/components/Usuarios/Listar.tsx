@@ -63,6 +63,7 @@ const ListarUsuarios: React.FC = () => {
 
   const columns: Column<Usuario>[] = [
     { header: "Cédula", accessor: "cedula", type: "text", filterable: true },
+    { header: "Nombre de Usuario", accessor: "nombreUsuario", type: "text", filterable: true },
     { header: "Email", accessor: "email", type: "text", filterable: true },
     { header: "Nombre", accessor: "nombre", type: "text", filterable: true },
     { header: "Apellido", accessor: "apellido", type: "text", filterable: true },
@@ -71,8 +72,8 @@ const ListarUsuarios: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Listado de Usuarios</h1>
+    
+      <>
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
       {loading ? (
         <p>Cargando...</p>
@@ -87,7 +88,7 @@ const ListarUsuarios: React.FC = () => {
           basePath="/usuarios"
         />
       )}
-    </div>
+    </>
   );
 };
 

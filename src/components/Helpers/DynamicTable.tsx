@@ -23,40 +23,40 @@ export interface Column<T> {
 }
 
 interface DynamicTableProps<T extends { id: number }> {
-  columns: Column<T>[];
-  data: T[];
+  readonly columns: ReadonlyArray<Column<T>>;
+  readonly data: ReadonlyArray<T>;
   /** Si true, muestra la interfaz de filtros encima de la tabla */
-  withFilters?: boolean;
+  readonly withFilters?: boolean;
   /**
    * Callback opcional que se ejecuta al hacer la búsqueda con los filtros.
    * Por ejemplo, para hacer una llamada a la API con los filtros.
    */
-  onSearch?: (filters: Record<string, string>) => void;
+  readonly onSearch?: (filters: Record<string, string>) => void;
   /**
    * Filtros iniciales (si se desean precargar algunos valores).
    */
-  initialFilters?: Record<string, string>;
+  readonly initialFilters?: Record<string, string>;
   /**
    * Si true, agrega una columna de acciones (Ver, Editar, Eliminar) al final de la tabla.
    */
-  withActions?: boolean;
+  readonly withActions?: boolean;
   /**
    * URL base para la operación de eliminación (usada en la lógica por defecto).
    * Se llamará a `${deleteUrl}` enviando el objeto obtenido.
    */
-  deleteUrl?: string;
+  readonly deleteUrl?: string;
   /**
-   * Base path para generar los enlaces de "Ver" y "Editar".  
+   * Base path para generar los enlaces de "Ver" y "Editar".
    * Por ejemplo, "/usuarios". Si no se define, se utilizará una cadena vacía.
    */
-  basePath?: string;
+  readonly basePath?: string;
   /**
    * Callback opcional para la eliminación.
    * Si se define, se usará en lugar de la lógica por defecto.
    * Debe recibir el id y la fila completa, y retornar una promesa que resuelva
    * un objeto con al menos una propiedad "message".
    */
-  onDelete?: (id: number, row: T) => Promise<{ message: string }>;
+  readonly onDelete?: (id: number, row: T) => Promise<{ message: string }>;
 }
 
 // Se asume que fetcher ya está implementado y disponible para llamadas HTTP.
@@ -114,10 +114,8 @@ function DynamicTable<T extends { id: number }>({
 
   // Función para eliminar un registro (lógica dinámica)
   const handleDelete = async (id: number) => {
-    // Encuentra la fila correspondiente
     const row = internalData.find((item) => item.id === id);
     if (!row) return;
-    
     try {
       let response: { message: string };
 
@@ -142,40 +140,32 @@ function DynamicTable<T extends { id: number }>({
         setShowDeletionErrorModal(true);
       }
     } catch (error: any) {
-      const errorMsg = error?.response?.message || error.message || "Error al inactivar el usuario.";
+      const errorMsg =
+        error?.response?.message || error.message || "Error al inactivar el usuario.";
       setDeletionError(errorMsg);
       setShowDeletionErrorModal(true);
     }
   };
 
   return (
-    <div>
+    <div className="overflow-x-auto">
       {/* Sección de filtros */}
       {withFilters && (
-        <div
-          style={{
-            marginBottom: "20px",
-            border: "1px solid #ccc",
-            padding: "10px",
-            borderRadius: "4px",
-          }}
-        >
-          <h3>Filtros</h3>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}>
+        <div className="mb-4 p-4 border border-gray-200 rounded bg-gray-50">
+          <h3 className="text-lg font-semibold mb-2">Filtros</h3>
+          <div className="flex flex-wrap gap-4">
             {columns.map((col, idx) => {
-              // Se muestra filtro si la columna es filtrable y su accessor es string
               if (col.filterable && typeof col.accessor === "string") {
                 const key = col.accessor;
                 const currentValue = filters[key] || "";
-                // Si el campo es "estado", renderizamos un dropdown con opciones predefinidas
                 if (key === "estado") {
                   return (
-                    <div key={idx}>
-                      <label>{col.header}:</label>
-                      <br />
+                    <div key={idx} className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-700">{col.header}:</label>
                       <select
                         value={currentValue}
                         onChange={(e) => handleFilterChange(key, e.target.value)}
+                        className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                       >
                         <option value="">TODOS</option>
                         <option value="ACTIVO">ACTIVO</option>
@@ -185,29 +175,27 @@ function DynamicTable<T extends { id: number }>({
                     </div>
                   );
                 }
-                // Si es de tipo "date", usamos el input nativo de tipo date
                 if (col.type === "date") {
                   return (
-                    <div key={idx}>
-                      <label>{col.header}:</label>
-                      <br />
+                    <div key={idx} className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-700">{col.header}:</label>
                       <input
                         type="date"
                         value={currentValue}
                         onChange={(e) => handleFilterChange(key, e.target.value)}
+                        className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                       />
                     </div>
                   );
                 }
-                // Para los demás, usar un input de texto
                 return (
-                  <div key={idx}>
-                    <label>{col.header}:</label>
-                    <br />
+                  <div key={idx} className="flex flex-col">
+                    <label className="text-sm font-medium text-gray-700">{col.header}:</label>
                     <input
                       type="text"
                       value={currentValue}
                       onChange={(e) => handleFilterChange(key, e.target.value)}
+                      className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                     />
                   </div>
                 );
@@ -215,34 +203,46 @@ function DynamicTable<T extends { id: number }>({
               return null;
             })}
           </div>
-          <div style={{ marginTop: "10px" }}>
-            <button onClick={handleSearch} style={{ marginRight: "10px" }}>
+          <div className="mt-4 flex gap-4">
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
               Buscar
             </button>
-            <button onClick={handleClearFilters}>Borrar Filtros</button>
+            <button
+              onClick={handleClearFilters}
+              className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+            >
+              Borrar Filtros
+            </button>
           </div>
         </div>
       )}
 
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-100">
           <tr>
             {columns.map((col, idx) => (
               <th
                 key={idx}
-                style={{ border: "1px solid #ccc", padding: "8px", textAlign: "left" }}
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 {col.header}
               </th>
             ))}
             {withActions && (
-              <th style={{ border: "1px solid #ccc", padding: "8px", textAlign: "left" }}>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Acciones
               </th>
             )}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="bg-white divide-y divide-gray-200">
           {internalData.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {columns.map((col, colIndex) => {
@@ -263,7 +263,7 @@ function DynamicTable<T extends { id: number }>({
                         <img
                           src={value as string}
                           alt={col.header}
-                          style={{ maxWidth: "100px" }}
+                          className="max-w-xs rounded"
                         />
                       ) : (
                         ""
@@ -281,38 +281,29 @@ function DynamicTable<T extends { id: number }>({
                   }
                 }
                 return (
-                  <td
-                    key={colIndex}
-                    style={{ border: "1px solid #ccc", padding: "8px" }}
-                  >
+                  <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {cellContent}
                   </td>
                 );
               })}
-
               {withActions && (
-                <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                  <div style={{ display: "flex", gap: "8px" }}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div className="flex items-center space-x-2">
                     <a
                       href={`${basePath}/ver/${row.id}`}
-                      style={{ textDecoration: "underline", color: "blue" }}
+                      className="text-blue-600 hover:underline"
                     >
                       Ver
                     </a>
                     <a
                       href={`${basePath}/editar/${row.id}`}
-                      style={{ textDecoration: "underline", color: "blue" }}
+                      className="text-green-600 hover:underline"
                     >
                       Editar
                     </a>
                     <button
                       onClick={() => handleDelete(row.id)}
-                      style={{
-                        color: "red",
-                        cursor: "pointer",
-                        background: "none",
-                        border: "none",
-                      }}
+                      className="text-red-600 hover:underline"
                     >
                       Eliminar
                     </button>
@@ -324,35 +315,17 @@ function DynamicTable<T extends { id: number }>({
         </tbody>
       </table>
 
-      {/* Modal de error para eliminación */}
       {showDeletionErrorModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#fff",
-              padding: "20px",
-              borderRadius: "4px",
-              maxWidth: "400px",
-              width: "90%",
-              textAlign: "center",
-            }}
-          >
-            <h3>Error al eliminar</h3>
-            <p>{deletionError}</p>
-            <button onClick={() => setShowDeletionErrorModal(false)}>Cerrar</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full text-center">
+            <h3 className="text-xl font-semibold text-red-600 mb-4">Error al eliminar</h3>
+            <p className="text-gray-700 mb-6">{deletionError}</p>
+            <button
+              onClick={() => setShowDeletionErrorModal(false)}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       )}

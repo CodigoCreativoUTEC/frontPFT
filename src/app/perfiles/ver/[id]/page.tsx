@@ -1,6 +1,6 @@
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import VerUsuario from "@/components/Usuarios/Ver";
+import Ver from "@/components/Perfiles/Ver";
 import { Metadata } from "@/components/Metadata/Metadata";
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ const Ver = () => {
   return (
     <DefaultLayout>
             <Breadcrumb pageName="Detalle del Usuario" />
-            <VerUsuario />
+            <Ver />
     </DefaultLayout>
   );
 }
