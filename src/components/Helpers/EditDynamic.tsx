@@ -77,12 +77,12 @@ function EditDynamic<T extends { id: number }>({
   const [loading, setLoading] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  // Para campos dropdown sin opciones estáticas, almacenamos las opciones en un estado
   const [dropdownOptions, setDropdownOptions] = useState<
     Record<string, { [key: string]: any }[]>
   >({});
-  // Estado para almacenar errores de validación por campo
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [formDataToSubmit, setFormDataToSubmit] = useState<T | null>(null);
 
   // Cargar el objeto a editar
   useEffect(() => {
@@ -101,11 +101,11 @@ function EditDynamic<T extends { id: number }>({
     }
   }, [id, fetchUrl]);
 
-  // Para cada campo de tipo dropdown que tenga optionsEndpoint pero no opciones estáticas, obtenerlas
+  // Cargar opciones para los dropdowns
   useEffect(() => {
-    fields.forEach((field) => {
-      if (field.type === "dropdown" && field.optionsEndpoint && !field.options) {
-        (async () => {
+    const loadDropdownOptions = async () => {
+      for (const field of fields) {
+        if (field.type === "dropdown" && field.optionsEndpoint && !field.options) {
           try {
             const data = await fetcher<{ [key: string]: any }[]>(field.optionsEndpoint, { method: "GET" });
             setDropdownOptions((prev) => ({
@@ -115,9 +115,11 @@ function EditDynamic<T extends { id: number }>({
           } catch (err: any) {
             console.error(`Error al cargar opciones para ${field.label}:`, err.message);
           }
-        })();
+        }
       }
-    });
+    };
+
+    loadDropdownOptions();
   }, [fields]);
 
   // Función para validar un campo y actualizar los errores locales
@@ -130,11 +132,19 @@ function EditDynamic<T extends { id: number }>({
 
   const handleChange = (accessor: keyof T, value: any) => {
     if (!objectData) return;
-    // Ejecutar validación para este campo
     const field = fields.find((f) => f.accessor === accessor);
     const errorMessage = field ? validateField(field, value) : undefined;
     setFieldErrors((prev) => ({ ...prev, [accessor as string]: errorMessage || "" }));
-    setObjectData({ ...objectData, [accessor]: value });
+
+    // Si es el campo de perfil, asegurarse de mantener la estructura correcta
+    if (accessor === "idPerfil") {
+      setObjectData({
+        ...objectData,
+        [accessor]: { id: value }
+      });
+    } else {
+      setObjectData({ ...objectData, [accessor]: value });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -153,14 +163,24 @@ function EditDynamic<T extends { id: number }>({
       }
     });
     setFieldErrors(newErrors);
-    if (hasError) return; // No se envía si hay errores
+    if (hasError) return;
 
+    // Mostrar modal de confirmación
+    setFormDataToSubmit(objectData);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    if (!formDataToSubmit) return;
+    
     setSaving(true);
     try {
-      const updated = await fetcher<T>(updateUrl, {
+      const response = await fetcher<T>(updateUrl, {
         method: "PUT",
-        body: objectData,
+        body: formDataToSubmit,
       });
+
+      // Si la respuesta es exitosa (incluso si está vacía), procedemos con la redirección
       const redirectTo = successRedirect || backLink;
       if (redirectTo) {
         router.push(redirectTo);
@@ -168,9 +188,21 @@ function EditDynamic<T extends { id: number }>({
         alert("Objeto actualizado correctamente");
       }
     } catch (err: any) {
-      setError(err.message);
+      // Si el error es por respuesta vacía pero la operación fue exitosa
+      if (err.message.includes("Unexpected end of JSON input")) {
+        const redirectTo = successRedirect || backLink;
+        if (redirectTo) {
+          router.push(redirectTo);
+        } else {
+          alert("Objeto actualizado correctamente");
+        }
+      } else {
+        setError(err.message || "Error al actualizar el objeto");
+      }
+    } finally {
+      setSaving(false);
+      setShowConfirmModal(false);
     }
-    setSaving(false);
   };
 
   if (loading) {
@@ -220,10 +252,14 @@ function EditDynamic<T extends { id: number }>({
         {fields.map((field) => {
           const fieldKey = field.accessor as string;
           let value = objectData[field.accessor];
+          
+          // Manejar valores especiales para diferentes tipos de campos
           if (field.type === "date" && value) {
-            // Para el input date se espera el formato YYYY-MM-DD
             value = new Date(value as string).toISOString().slice(0, 10);
+          } else if (field.type === "dropdown" && field.accessor === "idPerfil" && objectData?.idPerfil) {
+            value = objectData.idPerfil.id;
           }
+
           return (
             <div key={fieldKey} className="flex flex-col">
               <label className="mb-1 text-sm font-medium text-gray-700">
@@ -231,7 +267,7 @@ function EditDynamic<T extends { id: number }>({
               </label>
               {field.type === "dropdown" ? (
                 <select
-                  value={value as string | number | undefined}
+                  value={value as string | number || ""}
                   onChange={(e) => handleChange(field.accessor, e.target.value)}
                   disabled={field.readOnly}
                   className="rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
@@ -287,6 +323,31 @@ function EditDynamic<T extends { id: number }>({
           </button>
         </div>
       </form>
+
+      {/* Modal de confirmación */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
+            <h3 className="text-xl font-semibold mb-4">Confirmar cambios</h3>
+            <p className="text-gray-700 mb-6">¿Está seguro que desea guardar los cambios?</p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmSubmit}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                disabled={saving}
+              >
+                {saving ? "Guardando..." : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

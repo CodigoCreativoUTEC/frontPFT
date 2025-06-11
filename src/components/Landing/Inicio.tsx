@@ -49,5 +49,4 @@ const Landing: React.FC = () => {
 </section>
     );
 }
-
 export default Landing;

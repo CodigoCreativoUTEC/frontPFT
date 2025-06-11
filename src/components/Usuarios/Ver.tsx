@@ -114,6 +114,7 @@ const VerUsuario: React.FC = () => {
                         data={usuario}
                         columns={columns}
                         backLink="/usuarios"
+                        showEditButton={true}
                     />
                 )}
             </div>

@@ -12,14 +12,20 @@
     "@eslint/config-array": "^0.19.1",
     "@eslint/object-schema": "^2.1.5",
     "apexcharts": "^4.3.0",
+    "crypto-browserify": "^3.12.1",
+    "file-saver": "^2.0.5",
     "flatpickr": "^4.6.13",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "jsvectormap": "^1.6.0",
     "jwt-decode": "^4.0.0",
-    "next": "15.1.4",
+    "next": "^15.3.3",
     "next-auth": "^4.24.11",
     "react": "19.0.0",
     "react-apexcharts": "^1.4.1",
-    "react-dom": "19.0.0"
+    "react-dom": "19.0.0",
+    "react-hot-toast": "^2.5.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",

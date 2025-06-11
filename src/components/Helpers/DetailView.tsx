@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export interface Column<T> {
   /** Título que se mostrará como etiqueta del campo */
@@ -26,9 +27,24 @@ interface DetailViewProps<T> {
    * (Opcional) Ruta a la que se redirigirá cuando se haga clic en el botón "Volver al listado".
    */
   backLink?: string;
+  /**
+   * (Opcional) Si es true, muestra el botón de editar
+   */
+  showEditButton?: boolean;
 }
 
-const DetailView = <T extends {}>({ data, columns, backLink }: DetailViewProps<T>) => {
+const DetailView = <T extends {}>({ data, columns, backLink, showEditButton = false }: DetailViewProps<T>) => {
+  const router = useRouter();
+
+  const handleEdit = () => {
+    // Obtener la URL actual
+    const currentPath = window.location.pathname;
+    // Reemplazar /ver/ por /editar/
+    const editPath = currentPath.replace('/ver/', '/editar/');
+    // Navegar a la nueva URL
+    router.push(editPath);
+  };
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
       {columns.map((col, index) => {
@@ -55,16 +71,24 @@ const DetailView = <T extends {}>({ data, columns, backLink }: DetailViewProps<T
           </div>
         );
       })}
-      {backLink && (
-        <div className="mt-6">
+      <div className="mt-6 flex gap-4">
+        {backLink && (
           <Link
             href={backLink}
             className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Volver al listado
           </Link>
-        </div>
-      )}
+        )}
+        {showEditButton && (
+          <button
+            onClick={handleEdit}
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            Editar
+          </button>
+        )}
+      </div>
     </div>
   );
 };

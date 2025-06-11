@@ -147,6 +147,15 @@ function DynamicTable<T extends { id: number }>({
     }
   };
 
+  // Función auxiliar para formatear fechas
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    // Ajustar la fecha para compensar la zona horaria
+    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="overflow-x-auto">
       {/* Sección de filtros */}
@@ -253,10 +262,7 @@ function DynamicTable<T extends { id: number }>({
                   const value = row[col.accessor];
                   switch (col.type) {
                     case "date":
-                      cellContent =
-                        value && typeof value === "string"
-                          ? new Date(value).toLocaleDateString()
-                          : "";
+                      cellContent = value ? formatDate(value as string) : "";
                       break;
                     case "image":
                       cellContent = value ? (
