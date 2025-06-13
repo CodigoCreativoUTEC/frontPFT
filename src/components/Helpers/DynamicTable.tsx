@@ -76,10 +76,10 @@ function DynamicTable<T extends { id: number }>({
   // Estado para almacenar los filtros locales
   const [filters, setFilters] = useState<Record<string, string>>(initialFilters);
   // Estado interno para la data de la tabla (para actualizarla tras una eliminación)
-  const [internalData, setInternalData] = useState<T[]>(data);
+  const [internalData, setInternalData] = useState<T[]>([...data]);
   // Actualizar data interna si la prop data cambia
   useEffect(() => {
-    setInternalData(data);
+    setInternalData([...data]);
   }, [data]);
 
   // Estados para el modal de error de eliminación

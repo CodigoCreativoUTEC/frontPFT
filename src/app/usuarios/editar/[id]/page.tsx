@@ -1,6 +1,6 @@
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { Metadata } from "@/components/Metadata/Metadata";
+import { Metadata } from "next";
 import UserEdit from "@/components/Usuarios/Editar";
 
 export const metadata: Metadata = {

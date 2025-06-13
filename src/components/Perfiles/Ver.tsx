@@ -4,120 +4,139 @@ import { useParams } from "next/navigation";
 import fetcher from "@/components/Helpers/Fetcher";
 import DetailView, { Column } from "@/components/Helpers/DetailView";
 
-interface UsuariosTelefonos {
+interface Funcionalidad {
     id: number;
-    numero: string;
+    nombreFuncionalidad: string;
+    ruta: string;
+    estado: string;
+    perfiles?: { id: number }[];
 }
 
-interface IdInstitucion {
-    id: number;
-    nombre: string;
-}
-
-interface IdPerfil {
+interface Perfil {
     id: number;
     nombrePerfil: string;
     estado: string;
 }
 
-interface Usuario {
-    usuariosTelefonos: UsuariosTelefonos[];
-    id: number;
-    cedula: string;
-    email: string;
-    contrasenia: string;
-    fechaNacimiento: string;
-    estado: string;
-    nombre: string;
-    apellido: string;
-    nombreUsuario: string;
-    idInstitucion: IdInstitucion;
-    idPerfil: IdPerfil;
-}
-
-const VerUsuario: React.FC = () => {
+const VerPerfil: React.FC = () => {
     const { id } = useParams();
-    const [usuario, setUsuario] = useState<Usuario | null>(null);
+    const [perfil, setPerfil] = useState<Perfil | null>(null);
+    const [funcionalidades, setFuncionalidades] = useState<Funcionalidad[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        const fetchUsuario = async () => {
+        const fetchPerfil = async () => {
             setLoading(true);
             try {
-                const data = await fetcher<Usuario>(`/usuarios/seleccionar?id=${id}`, {
+                const data = await fetcher<Perfil>(`/perfiles/seleccionar?id=${id}`, {
                     method: "GET",
                 });
-                setUsuario(data);
+                console.log('Perfil cargado:', data);
+                setPerfil(data);
             } catch (err: any) {
                 setError(err.message);
             }
             setLoading(false);
         };
 
+        const fetchFuncionalidades = async () => {
+            try {
+                const data = await fetcher<Funcionalidad[]>('/funcionalidades/listar', {
+                    method: "GET",
+                });
+                console.log('Funcionalidades cargadas:', data);
+                setFuncionalidades(data);
+            } catch (err: any) {
+                console.error('Error al cargar funcionalidades:', err);
+            }
+        };
+
         if (id) {
-            fetchUsuario();
+            fetchPerfil();
+            fetchFuncionalidades();
         }
     }, [id]);
 
     // Configuración de columnas para mostrar los datos
-    const columns: Column<Usuario>[] = [
+    const columns: Column<Perfil>[] = [
         { header: "ID", accessor: "id", type: "number" },
-        { header: "Cédula", accessor: "cedula", type: "text" },
-        { header: "Email", accessor: "email", type: "email" },
-        { header: "Nombre", accessor: "nombre", type: "text" },
-        { header: "Apellido", accessor: "apellido", type: "text" },
-        {
-            header: "Fecha de Nacimiento",
-            accessor: "fechaNacimiento",
-            type: "date",
-        },
-        { header: "Estado", accessor: "estado", type: "text" },
-        { header: "Nombre de Usuario", accessor: "nombreUsuario", type: "text" },
-        {
-            header: "Institución",
-            accessor: (u) => u.idInstitucion.nombre,
-            type: "text",
+        { header: "Nombre del Perfil", accessor: "nombrePerfil", type: "text" },
+        { 
+            header: "Estado", 
+            accessor: (p) => (
+                <span className={`px-2 py-1 rounded-full text-xs ${
+                    p.estado === "ACTIVO" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                }`}>
+                    {p.estado}
+                </span>
+            )
         },
         {
-            header: "Perfil",
-            accessor: (u) => u.idPerfil.nombrePerfil,
-            type: "text",
-        },
-        {
-            header: "Teléfonos",
-            accessor: (u) => u.usuariosTelefonos.map((tel) => tel.numero).join(", "),
-            type: "phone",
-        },
+            header: "Funcionalidades",
+            accessor: (p) => {
+                const funcionalidadesAsignadas = funcionalidades.filter(f => 
+                    f.perfiles?.some(perfil => perfil.id === p.id)
+                );
+
+                if (funcionalidadesAsignadas.length === 0) {
+                    return (
+                        <div className="p-2 bg-gray-50 border border-gray-200 rounded-md">
+                            <p className="text-gray-500">No hay funcionalidades asignadas</p>
+                        </div>
+                    );
+                }
+
+                return (
+                    <div className="space-y-2">
+                        <div className="text-sm text-gray-600">
+                            Funcionalidades asignadas ({funcionalidadesAsignadas.length}):
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {funcionalidadesAsignadas.map(f => (
+                                <div 
+                                    key={f.id}
+                                    className="p-2 bg-blue-50 border border-blue-200 rounded-md"
+                                >
+                                    <div className="font-medium text-blue-900">{f.nombreFuncionalidad}</div>
+                                    <div className="text-xs text-blue-600">{f.ruta}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            },
+            type: "text"
+        }
     ];
 
     return (
-        
-            <div className="p-6">
-                {loading && (
-                    <div className="p-4 bg-blue-50 border border-blue-200 rounded mb-4">
-                        <p className="text-blue-700">Cargando...</p>
-                    </div>
-                )}
-                {error && (
-                    <div className="p-4 bg-red-50 border border-red-200 rounded mb-4">
-                        <p className="text-red-700">Error: {error}</p>
-                    </div>
-                )}
-                {!loading && !error && !usuario && (
-                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded mb-4">
-                        <p className="text-yellow-700">No se encontró el usuario.</p>
-                    </div>
-                )}
-                {usuario && (
-                    <DetailView<Usuario>
-                        data={usuario}
-                        columns={columns}
-                        backLink="/usuarios"
-                    />
-                )}
-            </div>
+        <>
+            {loading && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded mb-4">
+                    <p className="text-blue-700">Cargando...</p>
+                </div>
+            )}
+            {error && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded mb-4">
+                    <p className="text-red-700">Error: {error}</p>
+                </div>
+            )}
+            {!loading && !error && !perfil && (
+                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded mb-4">
+                    <p className="text-yellow-700">No se encontró el perfil.</p>
+                </div>
+            )}
+            {perfil && (
+                <DetailView<Perfil>
+                    data={perfil}
+                    columns={columns}
+                    backLink="/perfiles"
+                    showEditButton={true}
+                />
+            )}
+        </>
     );
 };
 
-export default VerUsuario;
+export default VerPerfil;

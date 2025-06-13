@@ -19,13 +19,16 @@ interface Funcionalidad {
   id: number;
   nombreFuncionalidad: string;
   ruta: string;
-  perfiles: { id: number }[];
+  perfiles: {
+    id: number;
+    nombrePerfil: string;
+  }[];
 }
 
 interface MenuGroup {
   name: string;
   menuItems: {
-    icon: JSX.Element;
+    icon: React.ReactNode;
     label: string;
     route: string;
     children?: { label: string; route: string }[];
@@ -38,10 +41,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const [menuGroups, setMenuGroups] = useState<MenuGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    const fetchFuncionalidades = async () => {
+    const fetchData = async () => {
       try {
         console.log("Fetching funcionalidades...");
         const funcionalidades = await fetcher<Funcionalidad[]>("/funcionalidades/listar", {
@@ -50,16 +53,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         console.log("Funcionalidades recibidas:", funcionalidades);
 
         // Obtener la sesión usando getSession
-        const session = await getSession();
-        console.log("Sesión:", session);
+        const currentSession = await getSession();
+        console.log("Sesión:", currentSession);
+        setSession(currentSession);
 
-        if (!session || !session.user || !session.user.rol) {
+        if (!currentSession || !currentSession.user || !currentSession.user.rol) {
           setError("No se encontró la sesión del usuario");
           setLoading(false);
           return;
         }
 
-        const userRol = session.user.rol;
+        const userRol = currentSession.user.rol;
         console.log("Rol del usuario:", userRol);
 
         // Filtrar funcionalidades por el rol del usuario
@@ -148,16 +152,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       }
     };
 
-    fetchFuncionalidades();
-  }, []);
-
-  useEffect(() => {
-    const getSession = async () => {
-      const session = await getSession();
-      setSession(session);
-    };
-
-    getSession();
+    fetchData();
   }, []);
 
   return (

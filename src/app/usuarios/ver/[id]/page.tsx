@@ -1,7 +1,7 @@
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import VerUsuario from "@/components/Usuarios/Ver";
-import { Metadata } from "@/components/Metadata/Metadata";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "MAMED | Detalle del Usuario",

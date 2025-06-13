@@ -255,9 +255,9 @@ function EditDynamic<T extends { id: number }>({
           
           // Manejar valores especiales para diferentes tipos de campos
           if (field.type === "date" && value) {
-            value = new Date(value as string).toISOString().slice(0, 10);
-          } else if (field.type === "dropdown" && field.accessor === "idPerfil" && objectData?.idPerfil) {
-            value = objectData.idPerfil.id;
+            value = new Date(String(value)).toISOString().slice(0, 10) as T[keyof T];
+          } else if (field.type === "dropdown" && field.accessor === "idPerfil" && (objectData as any)?.idPerfil) {
+            value = (objectData as any).idPerfil.id;
           }
 
           return (
@@ -267,7 +267,7 @@ function EditDynamic<T extends { id: number }>({
               </label>
               {field.type === "dropdown" ? (
                 <select
-                  value={value as string | number || ""}
+                  value={typeof value === "string" || typeof value === "number" ? value : ""}
                   onChange={(e) => handleChange(field.accessor, e.target.value)}
                   disabled={field.readOnly}
                   className="rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
@@ -294,7 +294,7 @@ function EditDynamic<T extends { id: number }>({
                       ? "email"
                       : "text"
                   }
-                  value={value || ""}
+                  value={typeof value === "string" || typeof value === "number" ? value : ""}
                   onChange={(e) => handleChange(field.accessor, e.target.value)}
                   disabled={field.readOnly}
                   className="rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
