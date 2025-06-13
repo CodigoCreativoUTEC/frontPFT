@@ -50,11 +50,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         const funcionalidades = await fetcher<Funcionalidad[]>("/funcionalidades/listar", {
           method: "GET",
         });
-        console.log("Funcionalidades recibidas:", funcionalidades);
 
         // Obtener la sesión usando getSession
         const currentSession = await getSession();
-        console.log("Sesión:", currentSession);
         setSession(currentSession);
 
         if (!currentSession || !currentSession.user || !currentSession.user.rol) {
@@ -64,13 +62,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         }
 
         const userRol = currentSession.user.rol;
-        console.log("Rol del usuario:", userRol);
 
         // Filtrar funcionalidades por el rol del usuario
         const filteredFuncionalidades = funcionalidades.filter((func) =>
           func.perfiles.some((perfiles) => perfiles.nombrePerfil === userRol)
         );
-        console.log("Funcionalidades filtradas:", filteredFuncionalidades);
 
         // Agrupar funcionalidades por la primera parte de la ruta
         const groups: { [key: string]: MenuGroup } = {};
@@ -142,7 +138,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           }
         });
 
-        console.log("Grupos de menú:", groups);
         setMenuGroups(Object.values(groups));
       } catch (error) {
         console.error("Error fetching funcionalidades:", error);

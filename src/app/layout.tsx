@@ -6,6 +6,7 @@ import "@/css/style.css";
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/common/Loader";
 import { SessionProvider } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({
   children,
@@ -14,12 +15,24 @@ export default function RootLayout({
 }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
-
-  // const pathname = usePathname();
+  const pathname = usePathname();
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
-  }, []);
+    // Log de visita a través de la API route
+    fetch("/api/log-visita", {
+      method: "POST",
+      body: JSON.stringify({
+        url: pathname,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+        referrer: document.referrer,
+        language: navigator.language,
+        ip: (window as any).ip || undefined
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+  }, [pathname]);
 
   return (
     <html lang="es">

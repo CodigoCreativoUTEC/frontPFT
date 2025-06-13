@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import VerEquipo from "@/components/Equipos/Ver";
+import VerEquipo from "@/components/Paginas/Equipos/Ver";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Helpers/Breadcrumb";
 

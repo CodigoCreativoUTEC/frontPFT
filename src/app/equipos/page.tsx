@@ -1,5 +1,5 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import ListarEquipos from "@/components/Equipos/Listar";
+import ListarEquipos from "@/components/Paginas/Equipos/Listar";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
 export const metadata = {

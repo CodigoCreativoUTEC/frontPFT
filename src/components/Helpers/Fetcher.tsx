@@ -1,4 +1,4 @@
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 type FetcherOptions = {
@@ -88,10 +88,27 @@ const fetcher = async <T = any>(
 
       // Si el status es 401, mostramos el mensaje y redirigimos al login después de 3 segundos
       if (response.status === 401) {
-        alert("No autorizado. Redirigiendo al login...");
+        console.error("\x1b[31m%s\x1b[0m", "No autorizado. Redirigiendo al login...");
+        // Mostrar mensaje en pantalla
+        const existing = document.getElementById('auth-message');
+        if (!existing) {
+          const div = document.createElement('div');
+          div.id = 'auth-message';
+          div.innerText = 'No autorizado. Serás redirigido al login...';
+          div.style.position = 'fixed';
+          div.style.top = '20px';
+          div.style.left = '50%';
+          div.style.transform = 'translateX(-50%)';
+          div.style.background = '#f87171';
+          div.style.color = 'white';
+          div.style.padding = '12px 24px';
+          div.style.borderRadius = '8px';
+          div.style.zIndex = '9999';
+          document.body.appendChild(div);
+        }
         setTimeout(() => {
-          window.location.href = "/auth/signin";
-        }, 3000);
+          signOut({ callbackUrl: "/auth/signin" });
+        }, 2000);
       }
 
       throw httpError;

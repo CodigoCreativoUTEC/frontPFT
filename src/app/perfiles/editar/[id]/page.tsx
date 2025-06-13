@@ -1,7 +1,7 @@
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
-import Editar from "@/components/Perfiles/Editar";
+import Editar from "@/components/Paginas/Perfiles/Editar";
 
 export const metadata: Metadata = {
   title: "MAMED | Editar Perfil",

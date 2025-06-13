@@ -1,14 +1,40 @@
 "use client";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // Importa useRouter
+import { useRouter, usePathname } from "next/navigation"; // Importa useRouter y usePathname
+import { useSession } from "next-auth/react";
+import React from "react";
 
 const LoginForm = () => {
     const router = useRouter(); // Instancia de useRouter
+    const { data: session, status } = useSession();
+    const pathname = usePathname();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+
+    // Redirige si ya está autenticado y la sesión es válida, o fuerza logout si está vacía/incompleta
+    React.useEffect(() => {
+        if (
+            status === "authenticated" &&
+            session &&
+            (session.user?.email || session.jwt)
+        ) {
+            router.replace("/usuarios");
+        } else if (
+            status === "authenticated" &&
+            (!session || (!session.user?.email && !session.jwt)) &&
+            pathname !== "/auth/signin" && pathname !== "/auth/login"
+        ) {
+            signOut({ callbackUrl: "/auth/signin" });
+        } else if (
+            status === "unauthenticated" &&
+            pathname !== "/auth/signin" && pathname !== "/auth/login"
+        ) {
+            signOut({ callbackUrl: "/auth/signin" });
+        }
+    }, [status, session, router, pathname]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

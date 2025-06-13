@@ -1,5 +1,5 @@
 import React from "react";
-import VerPerfil from "@/components/Perfiles/Ver";
+import VerPerfil from "@/components/Paginas/Perfiles/Ver";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Helpers/Breadcrumb";
 import { Metadata } from "next";

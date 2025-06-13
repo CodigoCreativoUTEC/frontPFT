@@ -1,6 +1,6 @@
 "use-client"
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import Listar from "@/components/Perfiles/Listar";
+import Listar from "@/components/Paginas/Perfiles/Listar";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
