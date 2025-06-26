@@ -47,7 +47,11 @@ const LoginForm = () => {
         });
 
         if (result?.error) {
-            setError(result.error);
+            if (result.error === "CredentialsSignin") {
+                setError("Email o contraseña incorrectos.");
+            } else {
+                setError(result.error);
+            }
         } else if (result) {
             console.log("Logged in successfully");
             router.push("/usuarios");

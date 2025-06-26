@@ -80,6 +80,7 @@ const handler = NextAuth({
             jwt: data.token,
           } as User;
         } catch (error) {
+          
           console.error("Credentials authentication error:", error);
           return null;
         }
