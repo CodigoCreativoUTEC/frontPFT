@@ -36,6 +36,7 @@ export interface Field<T> {
    * Si es true, el campo se muestra pero no se permite editar.
    */
   readOnly?: boolean;
+  disabled?: boolean;
 }
 
 interface EditDynamicProps<T extends { id: number }> {
@@ -247,7 +248,6 @@ function EditDynamic<T extends { id: number }>({
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6">Editar Objeto</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         {fields.map((field) => {
           const fieldKey = field.accessor as string;
@@ -269,7 +269,7 @@ function EditDynamic<T extends { id: number }>({
                 <select
                   value={typeof value === "string" || typeof value === "number" ? value : ""}
                   onChange={(e) => handleChange(field.accessor, e.target.value)}
-                  disabled={field.readOnly}
+                  disabled={field.readOnly || field.disabled}
                   className="rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                 >
                   <option value="">Seleccione {field.label}</option>
@@ -296,7 +296,7 @@ function EditDynamic<T extends { id: number }>({
                   }
                   value={typeof value === "string" || typeof value === "number" ? value : ""}
                   onChange={(e) => handleChange(field.accessor, e.target.value)}
-                  disabled={field.readOnly}
+                  disabled={field.readOnly || field.disabled}
                   className="rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                 />
               )}

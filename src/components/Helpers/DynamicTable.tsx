@@ -57,6 +57,8 @@ interface DynamicTableProps<T extends { id: number }> {
    * un objeto con al menos una propiedad "message".
    */
   readonly onDelete?: (id: number, row: T) => Promise<{ message: string }>;
+  /** Endpoint para obtener el objeto completo antes de eliminar (opcional) */
+  readonly selectUrl?: string;
 }
 
 // Se asume que fetcher ya está implementado y disponible para llamadas HTTP.
@@ -72,6 +74,7 @@ function DynamicTable<T extends { id: number }>({
   deleteUrl,
   basePath = "",
   onDelete,
+  selectUrl,
 }: DynamicTableProps<T>) {
   // Estado para almacenar los filtros locales
   const [filters, setFilters] = useState<Record<string, string>>(initialFilters);
@@ -85,6 +88,12 @@ function DynamicTable<T extends { id: number }>({
   // Estados para el modal de error de eliminación
   const [deletionError, setDeletionError] = useState<string>("");
   const [showDeletionErrorModal, setShowDeletionErrorModal] = useState(false);
+  // Estado para el modal de confirmación de eliminación
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [rowIdToDelete, setRowIdToDelete] = useState<number | null>(null);
+  // Estado para el modal de éxito
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string>("");
 
   // Maneja cambios en los inputs de filtro
   const handleFilterChange = (key: string, value: string) => {
@@ -117,31 +126,41 @@ function DynamicTable<T extends { id: number }>({
     const row = internalData.find((item) => item.id === id);
     if (!row) return;
     try {
-      let response: { message: string };
+      let response: { message?: string; error?: string };
 
       if (onDelete) {
-        // Si se proporciona onDelete, úsalo
         response = await onDelete(id, row);
       } else if (deleteUrl) {
-        // Lógica por defecto: obtener el objeto usuario y luego enviarlo
-        const user = await fetcher<T>(`/usuarios/seleccionar?id=${id}`, { method: "GET" });
-        response = await fetcher<{ message: string }>(`${deleteUrl}`, {
+        let body = undefined;
+        let url = deleteUrl;
+
+        if (selectUrl) {
+          // Si hay endpoint de selección, obtener el objeto completo
+          body = await fetcher<T>(`${selectUrl}?id=${id}`, { method: "GET" });
+        } else {
+          // Si no, solo usar el id en la URL
+          url = `${deleteUrl}?id=${id}`;
+        }
+
+        response = await fetcher<{ message?: string; error?: string }>(url, {
           method: "PUT",
-          body: user,
+          ...(body ? { body } : {}),
         });
       } else {
         throw new Error("No se definió una lógica de eliminación.");
       }
 
-      if (response.message === "Usuario inactivado correctamente") {
+      if (response.message) {
         setInternalData((prev) => prev.filter((item) => item.id !== id));
+        setSuccessMessage(response.message);
+        setShowSuccessModal(true);
       } else {
-        setDeletionError(response.message || "Error al inactivar el usuario.");
+        setDeletionError(response.error || "Error al eliminar.");
         setShowDeletionErrorModal(true);
       }
     } catch (error: any) {
       const errorMsg =
-        error?.response?.message || error.message || "Error al inactivar el usuario.";
+        error?.response?.error || error?.response?.message || error.message || "Error al eliminar.";
       setDeletionError(errorMsg);
       setShowDeletionErrorModal(true);
     }
@@ -308,7 +327,10 @@ function DynamicTable<T extends { id: number }>({
                       Editar
                     </a>
                     <button
-                      onClick={() => handleDelete(row.id)}
+                      onClick={() => {
+                        setRowIdToDelete(row.id);
+                        setShowConfirmDeleteModal(true);
+                      }}
                       className="text-red-600 hover:underline"
                     >
                       Eliminar
@@ -329,6 +351,48 @@ function DynamicTable<T extends { id: number }>({
             <button
               onClick={() => setShowDeletionErrorModal(false)}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+      {showConfirmDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full text-center">
+            <h3 className="text-xl font-semibold mb-4">Confirmar eliminación</h3>
+            <p className="text-gray-700 mb-6">¿Está seguro que desea eliminar este registro?</p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowConfirmDeleteModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  if (rowIdToDelete !== null) {
+                    setShowConfirmDeleteModal(false);
+                    await handleDelete(rowIdToDelete);
+                    setRowIdToDelete(null);
+                  }
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full text-center">
+            <h3 className="text-xl font-semibold text-green-600 mb-4">Eliminación exitosa</h3>
+            <p className="text-gray-700 mb-6">{successMessage}</p>
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
             >
               Cerrar
             </button>

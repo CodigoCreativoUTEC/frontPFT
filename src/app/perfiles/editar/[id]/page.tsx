@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import Editar from "@/components/Paginas/Perfiles/Editar";
 
 export const metadata: Metadata = {
-  title: "MAMED | Editar Perfil",
+  title: "Editar Perfil",
 };
 
 const Ver = () => {

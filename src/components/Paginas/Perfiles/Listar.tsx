@@ -33,7 +33,6 @@ const Listar: React.FC = () => {
   }, []);
 
   const columns: Column<Perfil>[] = [
-    { header: "ID", accessor: "id", type: "text", filterable: true },
     { header: "Nombre de Perfil", accessor: "nombrePerfil", type: "text", filterable: true },
     { header: "Estado", accessor: "estado", type: "text", filterable: true },
   ];
@@ -53,6 +52,12 @@ const Listar: React.FC = () => {
           withActions={true}
           deleteUrl="/perfiles/inactivar"
           basePath="/perfiles"
+          onDelete={async (id) => {
+            // El id va en la URL, el body puede ir vacío o no enviarse
+            return await fetcher<{ message: string }>(`/perfiles/inactivar?id=${id}`, {
+              method: "PUT",
+            });
+          }}
         />
       )}
     </>
