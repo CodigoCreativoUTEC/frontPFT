@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import CreateDynamic from "@/components/Helpers/CreateDynamic";
 import fetcher from "@/components/Helpers/Fetcher";
+import type { CreateDynamicField } from "@/components/Helpers/CreateDynamic";
 
 const CrearModelo: React.FC = () => {
   const [marcas, setMarcas] = useState<{ label: string; value: number }[]>([]);
@@ -22,18 +23,15 @@ const CrearModelo: React.FC = () => {
   if (loading) return <p>Cargando marcas...</p>;
   if (marcas.length === 0) return <div className="p-4 bg-yellow-100 text-yellow-800 rounded">No hay marcas activas. <a href="/marca/crear" className="underline text-blue-600">Cree una marca primero</a>.</div>;
 
-  const fields = [
+  const fields: CreateDynamicField[] = [
     { accessor: "nombre", label: "Nombre del modelo", type: "text", required: true },
     { accessor: "idMarca", label: "Marca", type: "dropdown", required: true, options: marcas },
   ];
 
   return (
     <CreateDynamic
-      title="Agregar Modelo"
-      endpoint="/modelo/crear"
-      createUrl="/modelo/crear"
       fields={fields}
-      redirectPath="/modelo"
+      createUrl="/modelo/crear"
     />
   );
 };

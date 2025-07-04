@@ -366,7 +366,7 @@ function DynamicTable<T extends { id: number }>({
                     default:
                       if (typeof col.accessor === "string" && col.accessor === "estado") {
                         let colorClass = "";
-                        let label = value;
+                        let label: string = String(value);
                         if (value === "ACTIVO") {
                           colorClass = "bg-green-100 text-green-800";
                           label = "Activo";

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import EditDynamic from "@/components/Helpers/EditDynamic";
 import fetcher from "@/components/Helpers/Fetcher";
 import { useParams } from "next/navigation";
+import type { Field } from "@/components/Helpers/EditDynamic";
 
 const EditarModelo: React.FC = () => {
   const { id } = useParams();
@@ -23,13 +24,13 @@ const EditarModelo: React.FC = () => {
 
   if (loading) return <p>Cargando marcas...</p>;
 
-  const fields = [
-    { accessor: "estado", label: "Estado", type: "dropdown", required: true, options: [
+  const fields: Field<any>[] = [
+    { accessor: "estado", label: "Estado", type: "dropdown", options: [
       { value: "ACTIVO", label: "Activo" },
       { value: "INACTIVO", label: "Inactivo" },
       { value: "SIN_VALIDAR", label: "Sin validar" },
     ]},
-    { accessor: "idMarca", label: "Marca", type: "dropdown", required: true, options: marcas },
+    { accessor: "idMarca", label: "Marca", type: "dropdown", options: marcas },
   ];
 
   return (
@@ -39,7 +40,6 @@ const EditarModelo: React.FC = () => {
       fields={fields}
       backLink="/modelo"
       successRedirect="/modelo"
-      title="Editar Modelo"
     />
   );
 };
