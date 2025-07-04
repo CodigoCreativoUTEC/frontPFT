@@ -1,11 +1,10 @@
-"use-client"
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import ListarUsuarios from "@/components/Paginas/Usuarios/Listar";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
 export const metadata: Metadata = {
-  title: "MAMED | Listado de usuarios",
+  title: "Listado de usuarios",
 };
 
 const TablesPage = () => {

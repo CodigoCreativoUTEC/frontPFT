@@ -60,6 +60,14 @@ const ListarEquipos: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Estados para el modal de baja
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [equipoAEliminar, setEquipoAEliminar] = useState<Equipo | null>(null);
+  const [razon, setRazon] = useState("");
+  const [fechaBaja, setFechaBaja] = useState(new Date().toISOString().split("T")[0]);
+  const [comentarios, setComentarios] = useState("");
+  const [loadingDelete, setLoadingDelete] = useState(false);
+
   const handleSearch = async (filters: Record<string, string>) => {
     setLoading(true);
     try {
@@ -122,6 +130,43 @@ const ListarEquipos: React.FC = () => {
     }
   ];
 
+  // onDelete personalizado para DynamicTable
+  const handleDeleteWithModal = (id: number, row: Equipo) => {
+    setEquipoAEliminar(row);
+    setShowDeleteModal(true);
+    setRazon("");
+    setComentarios("");
+    setFechaBaja(new Date().toISOString().split("T")[0]);
+    return new Promise<{ message: string }>((resolve, reject) => {
+      (window as any).__resolveDelete = resolve;
+      (window as any).__rejectDelete = reject;
+    });
+  };
+
+  const confirmarEliminacion = async () => {
+    setLoadingDelete(true);
+    try {
+      await fetcher("/equipos/inactivar", {
+        method: "PUT",
+        body: {
+          razon,
+          fecha: fechaBaja,
+          comentarios,
+          idEquipo: { id: equipoAEliminar?.id },
+          estado: "ACTIVO"
+        },
+      });
+      setShowDeleteModal(false);
+      setRazon("");
+      setComentarios("");
+      setFechaBaja(new Date().toISOString().split("T")[0]);
+      (window as any).__resolveDelete({ message: "Equipo dado de baja correctamente" });
+    } catch (err: any) {
+      (window as any).__rejectDelete({ message: err.message || "Error al dar de baja" });
+    }
+    setLoadingDelete(false);
+  };
+
   return (
     <>
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
@@ -136,7 +181,74 @@ const ListarEquipos: React.FC = () => {
           withActions={true}
           deleteUrl="/equipos/inactivar"
           basePath="/equipos"
+          onDelete={handleDeleteWithModal}
         />
+      )}
+      {/* Modal de baja de equipo */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white dark:bg-boxdark p-8 rounded-lg shadow-lg max-w-sm w-full">
+            <h3 className="text-lg font-bold mb-4 text-red-600">Dar de baja equipo</h3>
+            <div className="mb-2">
+              <label className="block font-medium mb-1">Nombre de equipo</label>
+              <input
+                type="text"
+                value={equipoAEliminar?.nombre || ""}
+                readOnly
+                className="w-full rounded border border-gray-300 p-2 bg-gray-100"
+              />
+            </div>
+            <div className="mb-2">
+              <label className="block font-medium mb-1">Fecha de baja *</label>
+              <input
+                type="date"
+                className="w-full border rounded p-2"
+                value={fechaBaja}
+                onChange={e => setFechaBaja(e.target.value)}
+                required
+              />
+            </div>
+            <div className="mb-2">
+              <label className="block font-medium mb-1">Razón de la baja *</label>
+              <input
+                type="text"
+                className="w-full border rounded p-2"
+                value={razon}
+                onChange={e => setRazon(e.target.value)}
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block font-medium mb-1">Comentarios</label>
+              <textarea
+                className="w-full border rounded p-2"
+                value={comentarios}
+                onChange={e => setComentarios(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setRazon("");
+                  setComentarios("");
+                  setFechaBaja(new Date().toISOString().split("T")[0]);
+                  (window as any).__rejectDelete({ message: "Eliminación cancelada" });
+                }}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarEliminacion}
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                disabled={loadingDelete || !razon}
+              >
+                {loadingDelete ? "Eliminando..." : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

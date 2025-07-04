@@ -1,5 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, ReactElement } from "react";
+import fetcher from "@/components/Helpers/Fetcher";
+import * as XLSX from "xlsx";
 
 // Define la interfaz para la configuración de cada columna
 export interface Column<T> {
@@ -60,9 +62,6 @@ interface DynamicTableProps<T extends { id: number }> {
   /** Endpoint para obtener el objeto completo antes de eliminar (opcional) */
   readonly selectUrl?: string;
 }
-
-// Se asume que fetcher ya está implementado y disponible para llamadas HTTP.
-import fetcher from "@/components/Helpers/Fetcher";
 
 function DynamicTable<T extends { id: number }>({
   columns,
@@ -175,12 +174,58 @@ function DynamicTable<T extends { id: number }>({
     return date.toLocaleDateString();
   };
 
+  // Función para exportar a Excel
+  const handleExportExcel = () => {
+    // Filtrar solo las columnas visibles (sin acciones)
+    const exportColumns = columns;
+    // Generar los datos a exportar
+    const exportData = internalData.map((row) => {
+      const rowData: Record<string, any> = {};
+      exportColumns.forEach((col) => {
+        let value;
+        if (typeof col.accessor === "function") {
+          const rendered = col.accessor(row);
+          if (
+            typeof rendered === "string" ||
+            typeof rendered === "number" ||
+            typeof rendered === "boolean"
+          ) {
+            value = rendered;
+          } else if (React.isValidElement(rendered)) {
+            const children = (rendered as React.ReactElement<any, any>).props?.children;
+            if (
+              typeof children === "string" ||
+              typeof children === "number" ||
+              typeof children === "boolean"
+            ) {
+              value = children;
+            } else {
+              value = "";
+            }
+          } else {
+            value = "";
+          }
+        } else {
+          value = row[col.accessor];
+        }
+        rowData[col.header] = value;
+      });
+      return rowData;
+    });
+    // Crear hoja y libro
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
+    // Descargar
+    XLSX.writeFile(workbook, "exportacion_tabla.xlsx");
+  };
+
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto bg-white dark:bg-boxdark p-4 rounded shadow">
       {/* Sección de filtros */}
       {withFilters && (
-        <div className="mb-4 p-4 border border-gray-200 rounded bg-gray-50">
-          <h3 className="text-lg font-semibold mb-2">Filtros</h3>
+        <div className="mb-4 p-4 border border-gray-200 rounded bg-gray-50 dark:bg-boxdark-2 dark:border-boxdark-2">
+          <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Filtros</h3>
           <div className="flex flex-wrap gap-4">
             {columns.map((col, idx) => {
               if (col.filterable && typeof col.accessor === "string") {
@@ -189,11 +234,11 @@ function DynamicTable<T extends { id: number }>({
                 if (key === "estado") {
                   return (
                     <div key={idx} className="flex flex-col">
-                      <label className="text-sm font-medium text-gray-700">{col.header}:</label>
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-200">{col.header}:</label>
                       <select
                         value={currentValue}
                         onChange={(e) => handleFilterChange(key, e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                        className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
                       >
                         <option value="">TODOS</option>
                         <option value="ACTIVO">ACTIVO</option>
@@ -206,24 +251,24 @@ function DynamicTable<T extends { id: number }>({
                 if (col.type === "date") {
                   return (
                     <div key={idx} className="flex flex-col">
-                      <label className="text-sm font-medium text-gray-700">{col.header}:</label>
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-200">{col.header}:</label>
                       <input
                         type="date"
                         value={currentValue}
                         onChange={(e) => handleFilterChange(key, e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                        className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
                       />
                     </div>
                   );
                 }
                 return (
                   <div key={idx} className="flex flex-col">
-                    <label className="text-sm font-medium text-gray-700">{col.header}:</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-200">{col.header}:</label>
                     <input
                       type="text"
                       value={currentValue}
                       onChange={(e) => handleFilterChange(key, e.target.value)}
-                      className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                      className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
                     />
                   </div>
                 );
@@ -248,14 +293,24 @@ function DynamicTable<T extends { id: number }>({
         </div>
       )}
 
+      {/* Botón de exportar a Excel */}
+      <div className="flex justify-end mb-2">
+        <button
+          onClick={handleExportExcel}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+        >
+          Exportar a Excel
+        </button>
+      </div>
+
       <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-100">
+        <thead className="bg-gray-100 dark:bg-boxdark-2">
           <tr>
             {columns.map((col, idx) => (
               <th
                 key={idx}
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
                 {col.header}
               </th>
@@ -263,16 +318,23 @@ function DynamicTable<T extends { id: number }>({
             {withActions && (
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
                 Acciones
               </th>
             )}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-gray-200 dark:bg-boxdark dark:divide-boxdark-2">
           {internalData.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+            <tr
+              key={rowIndex}
+              className={
+                rowIndex % 2 === 0
+                  ? "bg-gray-50 dark:bg-boxdark-2"
+                  : "bg-white dark:bg-boxdark"
+              }
+            >
               {columns.map((col, colIndex) => {
                 let cellContent: React.ReactNode;
                 if (typeof col.accessor === "function") {
@@ -306,34 +368,40 @@ function DynamicTable<T extends { id: number }>({
                   }
                 }
                 return (
-                  <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                     {cellContent}
                   </td>
                 );
               })}
               {withActions && (
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                   <div className="flex items-center space-x-2">
                     <a
                       href={`${basePath}/ver/${row.id}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-blue-600 hover:underline flex items-center gap-1"
                     >
-                      Ver
+                      {/* Ojo (ver) */}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                      <span className="sr-only">Ver</span>
                     </a>
                     <a
                       href={`${basePath}/editar/${row.id}`}
-                      className="text-green-600 hover:underline"
+                      className="text-green-600 hover:underline flex items-center gap-1"
                     >
-                      Editar
+                      {/* Lápiz (editar) */}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L9 13zm-6 6h12M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
+                      <span className="sr-only">Editar</span>
                     </a>
                     <button
                       onClick={() => {
                         setRowIdToDelete(row.id);
                         setShowConfirmDeleteModal(true);
                       }}
-                      className="text-red-600 hover:underline"
+                      className="text-red-600 hover:underline flex items-center gap-1"
                     >
-                      Eliminar
+                      {/* Tarro de basura (eliminar) */}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
+                      <span className="sr-only">Eliminar</span>
                     </button>
                   </div>
                 </td>

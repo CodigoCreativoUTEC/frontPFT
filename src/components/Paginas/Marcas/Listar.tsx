@@ -3,26 +3,17 @@ import React, { useEffect, useState } from "react";
 import fetcher from "@/components/Helpers/Fetcher";
 import DynamicTable, { Column } from "@/components/Helpers/DynamicTable";
 
-interface Perfil {
+interface Marca {
   id: number;
-  nombrePerfil: string;
+  nombre: string;
   estado: string;
 }
 
-interface Funcionalidad {
-  id: number;
-  nombreFuncionalidad: string;
-  ruta: string;
-  estado: string;
-  perfiles: Perfil[];
-}
-
-const ListarFuncionalidades: React.FC = () => {
-  const [funcionalidades, setFuncionalidades] = useState<Funcionalidad[]>([]);
+const ListarMarcas: React.FC = () => {
+  const [marcas, setMarcas] = useState<Marca[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Callback para búsqueda (filtros) desde DynamicTable
   const handleSearch = async (filters: Record<string, string>) => {
     setLoading(true);
     try {
@@ -31,8 +22,8 @@ const ListarFuncionalidades: React.FC = () => {
         if (value) params.append(key, value);
       });
       const queryString = params.toString() ? `?${params.toString()}` : "";
-      const data = await fetcher<Funcionalidad[]>(`/funcionalidades/listar${queryString}`, { method: "GET" });
-      setFuncionalidades(data);
+      const data = await fetcher<Marca[]>(`/marca/listar${queryString}`, { method: "GET" });
+      setMarcas(data);
     } catch (err: any) {
       setError(err.message);
     }
@@ -40,40 +31,45 @@ const ListarFuncionalidades: React.FC = () => {
   };
 
   useEffect(() => {
-    // Cargar datos sin filtros al montar el componente
     handleSearch({});
   }, []);
 
-  const columns: Column<Funcionalidad>[] = [
-    { header: "Nombre", accessor: "nombreFuncionalidad", type: "text", filterable: true },
-    { header: "Ruta", accessor: "ruta", type: "text", filterable: true },
-    { header: "Estado", accessor: "estado", type: "text", filterable: true },
-    {
-      header: "Perfiles",
-      accessor: (row) => row.perfiles.map(p => p.nombrePerfil).join(", "),
+  const columns: Column<Marca>[] = [
+    { header: "ID", accessor: "id", type: "text", filterable: true },
+    { header: "Nombre", accessor: "nombre", type: "text", filterable: true },
+    { 
+      header: "Estado", 
+      accessor: (row) => (
+        <span className={`px-2 py-1 rounded-full text-xs ${
+          row.estado === "ACTIVO" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+        }`}>
+          {row.estado}
+        </span>
+      ),
       type: "text",
-      filterable: false
+      filterable: true 
     }
   ];
 
   return (
     <>
+      <h2 className="text-xl font-bold mb-4">Marcas</h2>
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
       {loading ? (
         <p>Cargando...</p>
       ) : (
         <DynamicTable
           columns={columns}
-          data={funcionalidades}
+          data={marcas}
           withFilters={true}
           onSearch={handleSearch}
           withActions={true}
-          deleteUrl="/funcionalidades/eliminar"
-          basePath="/funcionalidades"
+          deleteUrl="/marca/inactivar"
+          basePath="/marca"
         />
       )}
     </>
   );
 };
 
-export default ListarFuncionalidades; 
+export default ListarMarcas; 

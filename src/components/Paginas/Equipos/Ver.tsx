@@ -65,9 +65,9 @@ const VerEquipo: React.FC = () => {
   useEffect(() => {
     const fetchEquipo = async () => {
       try {
-        const data = await fetcher<Equipo[]>(`/equipos/filtrar?id=${params.id}`);
-        if (data && data.length > 0) {
-          setEquipo(data[0]);
+        const data = await fetcher<Equipo>(`/equipos/seleccionar?id=${params.id}`);
+        if (data) {
+          setEquipo(data);
         }
       } catch (err: any) {
         setError(err.message);
@@ -83,14 +83,20 @@ const VerEquipo: React.FC = () => {
     {
       header: "Imagen",
       accessor: (equipo) => (
-        <img
-          src={equipo.imagen}
-          alt={equipo.nombre}
-          className="w-32 h-32 object-contain rounded-lg shadow-lg"
-          onError={(e) => {
-            e.currentTarget.src = "https://via.placeholder.com/150";
-          }}
-        />
+        equipo.imagen ? (
+          <img
+            src={equipo.imagen}
+            alt={equipo.nombre}
+            className="w-32 h-32 object-contain rounded-lg shadow-lg"
+            onError={(e) => {
+              if (e.currentTarget.src !== "https://via.placeholder.com/150") {
+                e.currentTarget.src = "https://via.placeholder.com/150";
+              }
+            }}
+          />
+        ) : (
+          <span className="text-gray-400 italic">Sin imagen</span>
+        )
       ),
       type: "image"
     },

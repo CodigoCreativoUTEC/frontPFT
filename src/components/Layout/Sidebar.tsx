@@ -62,8 +62,9 @@ const DynamicSidebar = () => {
             return;
           }
 
-          const [_, group, action] = func.ruta.split("/");
-          
+          const [_, group] = func.ruta.split("/");
+          if (!group) return;
+
           if (!groups[group]) {
             groups[group] = {
               name: group.charAt(0).toUpperCase() + group.slice(1),
@@ -71,15 +72,12 @@ const DynamicSidebar = () => {
             };
           }
 
-          // Solo agregar si no existe ya una ruta similar
-          const existingItem = groups[group].items.find(
-            (item) => item.path === `/${group}`
-          );
-
-          if (!existingItem) {
+          // Agregar cada funcionalidad como un item único por su ruta
+          const exists = groups[group].items.some(item => item.path === func.ruta);
+          if (!exists) {
             groups[group].items.push({
               name: func.nombreFuncionalidad,
-              path: `/${group}`,
+              path: func.ruta,
             });
           }
         });

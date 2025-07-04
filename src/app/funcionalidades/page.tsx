@@ -1,8 +1,11 @@
-"use client";
-import React from "react";
 import ListarFuncionalidades from "@/components/Paginas/Funcionalidades/Listar";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Funcionalidades",
+};
 
 const FuncionalidadesPage: React.FC = () => {
   return (

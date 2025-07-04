@@ -1,8 +1,13 @@
-"use client";
+
 import React from "react";
 import VerEquipo from "@/components/Paginas/Equipos/Ver";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Helpers/Breadcrumb";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Ver Equipo",
+};
 
 const VerEquipoPage: React.FC = () => {
   return (
