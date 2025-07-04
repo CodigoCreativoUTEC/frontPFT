@@ -3,34 +3,40 @@ import React, { useEffect, useState } from "react";
 import fetcher from "@/components/Helpers/Fetcher";
 import DetailView, { Column } from "@/components/Helpers/DetailView";
 
-interface Marca {
+interface Modelo {
   id: number;
   nombre: string;
   estado: string;
+  idMarca: {
+    id: number;
+    nombre: string;
+    estado: string;
+  } | null;
 }
 
-const VerMarca: React.FC<{ id: number }> = ({ id }) => {
-  const [marca, setMarca] = useState<Marca | null>(null);
+const VerModelo: React.FC<{ id: number }> = ({ id }) => {
+  const [modelo, setModelo] = useState<Modelo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchMarca = async () => {
+    const fetchModelo = async () => {
       try {
-        const data = await fetcher<Marca>(`/marca/seleccionar?id=${id}`);
-        setMarca(data);
+        const data = await fetcher<Modelo>(`/modelo/seleccionar?id=${id}`);
+        setModelo(data);
       } catch (err: any) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchMarca();
+    fetchModelo();
   }, [id]);
 
-  const columns: Column<Marca>[] = [
+  const columns: Column<Modelo>[] = [
     { header: "ID", accessor: "id" },
     { header: "Nombre", accessor: "nombre" },
+    { header: "Marca", accessor: (row) => row.idMarca?.nombre || "-" },
     { header: "Estado", accessor: (row) => {
       let colorClass = "";
       let label = row.estado;
@@ -52,16 +58,16 @@ const VerMarca: React.FC<{ id: number }> = ({ id }) => {
     <div className="p-6">
       {loading && <p className="text-blue-700">Cargando...</p>}
       {error && <p className="text-red-700">Error: {error}</p>}
-      {!loading && !error && !marca && <p className="text-yellow-700">No se encontró la marca.</p>}
-      {marca && (
-        <DetailView<Marca>
-          data={marca}
+      {!loading && !error && !modelo && <p className="text-yellow-700">No se encontró el modelo.</p>}
+      {modelo && (
+        <DetailView<Modelo>
+          data={modelo}
           columns={columns}
-          backLink="/marca"
+          backLink="/modelo"
         />
       )}
     </div>
   );
 };
 
-export default VerMarca; 
+export default VerModelo; 

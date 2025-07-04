@@ -240,10 +240,10 @@ function DynamicTable<T extends { id: number }>({
                         onChange={(e) => handleFilterChange(key, e.target.value)}
                         className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
                       >
-                        <option value="">TODOS</option>
-                        <option value="ACTIVO">ACTIVO</option>
-                        <option value="SIN_VALIDAR">SIN_VALIDAR</option>
-                        <option value="INACTIVO">INACTIVO</option>
+                        <option value="">Todos</option>
+                        <option value="ACTIVO">✅Activos</option>
+                        <option value="SIN_VALIDAR">⛔Sin validar</option>
+                        <option value="INACTIVO">❌Eliminados</option>
                       </select>
                     </div>
                   );
@@ -364,7 +364,25 @@ function DynamicTable<T extends { id: number }>({
                         : (value as React.ReactNode);
                       break;
                     default:
-                      cellContent = value as React.ReactNode;
+                      if (typeof col.accessor === "string" && col.accessor === "estado") {
+                        let colorClass = "";
+                        let label = value;
+                        if (value === "ACTIVO") {
+                          colorClass = "bg-green-100 text-green-800";
+                          label = "Activo";
+                        } else if (value === "INACTIVO") {
+                          colorClass = "bg-red-100 text-red-800";
+                          label = "Inactivo";
+                        } else if (value === "SIN_VALIDAR") {
+                          colorClass = "bg-yellow-100 text-yellow-800";
+                          label = "Sin validar";
+                        }
+                        cellContent = (
+                          <span className={`px-2 py-1 rounded-full text-xs ${colorClass}`}>{label}</span>
+                        );
+                      } else {
+                        cellContent = value as React.ReactNode;
+                      }
                   }
                 }
                 return (

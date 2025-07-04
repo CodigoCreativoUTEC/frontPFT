@@ -84,6 +84,7 @@ function EditDynamic<T extends { id: number }>({
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [formDataToSubmit, setFormDataToSubmit] = useState<T | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Cargar el objeto a editar
   useEffect(() => {
@@ -173,30 +174,30 @@ function EditDynamic<T extends { id: number }>({
 
   const handleConfirmSubmit = async () => {
     if (!formDataToSubmit) return;
-    
     setSaving(true);
     try {
       const response = await fetcher<T>(updateUrl, {
         method: "PUT",
         body: formDataToSubmit,
       });
-
-      // Si la respuesta es exitosa (incluso si está vacía), procedemos con la redirección
-      const redirectTo = successRedirect || backLink;
-      if (redirectTo) {
-        router.push(redirectTo);
-      } else {
-        alert("Objeto actualizado correctamente");
-      }
-    } catch (err: any) {
-      // Si el error es por respuesta vacía pero la operación fue exitosa
-      if (err.message.includes("Unexpected end of JSON input")) {
+      setSuccessMessage("Modificado correctamente");
+      setTimeout(() => {
+        setSuccessMessage(null);
         const redirectTo = successRedirect || backLink;
         if (redirectTo) {
           router.push(redirectTo);
-        } else {
-          alert("Objeto actualizado correctamente");
         }
+      }, 1200);
+    } catch (err: any) {
+      if (err.message.includes("Unexpected end of JSON input")) {
+        setSuccessMessage("Modificado correctamente");
+        setTimeout(() => {
+          setSuccessMessage(null);
+          const redirectTo = successRedirect || backLink;
+          if (redirectTo) {
+            router.push(redirectTo);
+          }
+        }, 1200);
       } else {
         setError(err.message || "Error al actualizar el objeto");
       }
@@ -345,6 +346,14 @@ function EditDynamic<T extends { id: number }>({
                 {saving ? "Guardando..." : "Confirmar"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full text-center">
+            <h3 className="text-xl font-semibold mb-2 text-green-700">{successMessage}</h3>
           </div>
         </div>
       )}

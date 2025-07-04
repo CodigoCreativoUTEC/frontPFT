@@ -1,23 +1,22 @@
 "use client";
 import React from "react";
 import EditDynamic from "@/components/Helpers/EditDynamic";
+import { useParams } from "next/navigation";
 
 const fields = [
-  { name: "nombre", label: "Nombre", type: "text", required: true },
-  { name: "estado", label: "Estado", type: "select", required: true, options: [
-    { value: "ACTIVO", label: "Activo" },
-    { value: "INACTIVO", label: "Inactivo" },
-  ]},
+  { accessor: "nombre", label: "Nombre", type: "text", required: true, disabled: true },
 ];
 
-const EditarMarca: React.FC<{ id: number }> = ({ id }) => {
+const EditarMarca: React.FC = () => {
+  const { id } = useParams();
   return (
     <EditDynamic
       title="Editar Marca"
-      endpoint={`/marca/editar/${id}`}
+      fetchUrl={`/marca/seleccionar`}
+      updateUrl="/marca/modificar"
       fields={fields}
-      id={id}
-      redirectPath="/marca"
+      backLink="/marca"
+      successRedirect="/marca"
     />
   );
 };

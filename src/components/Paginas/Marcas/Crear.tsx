@@ -3,10 +3,10 @@ import React from "react";
 import CreateDynamic from "@/components/Helpers/CreateDynamic";
 
 const fields = [
-  { name: "nombre", label: "Nombre", type: "text", required: true },
-  { name: "estado", label: "Estado", type: "select", required: true, options: [
+  { accessor: "nombre", label: "Nombre", type: "text", required: true },
+  { accessor: "estado", label: "Estado", type: "dropdown", required: true, options: [
     { value: "ACTIVO", label: "Activo" },
-    { value: "INACTIVO", label: "Inactivo" },
+    { value: "INACTIVO", label: "Eliminados" },
   ]},
 ];
 
@@ -17,6 +17,7 @@ const CrearMarca: React.FC = () => {
       endpoint="/marca/crear"
       fields={fields}
       redirectPath="/marca"
+      createUrl="/marca/crear"
     />
   );
 };
