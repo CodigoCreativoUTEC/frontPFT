@@ -52,7 +52,8 @@ const CrearEquipo: React.FC = () => {
         const ubicacionesData = await fetcher<any[]>("/ubicaciones/listar", { method: "GET" });
         setUbicaciones(ubicacionesData.filter(u => u.estado === "ACTIVO"));
       } catch (err: any) {
-        setError("Error al cargar opciones: " + err.message);
+        setError("Error: " + (err?.message || err));
+        console.error(err);
       }
     };
     fetchOptions();
@@ -72,6 +73,7 @@ const CrearEquipo: React.FC = () => {
         setModelos(modelosData.filter(m => m.estado === "ACTIVO" && m.idMarca.id === Number(idMarca)));
       } catch (err: any) {
         setError("Error al cargar modelos: " + err.message);
+        console.error(err);
       }
     };
     fetchModelos();
@@ -108,6 +110,7 @@ const CrearEquipo: React.FC = () => {
     } catch (err: any) {
       setImagen(PLACEHOLDER_IMG);
       setMessage("No se pudo subir la imagen, se usará una imagen por defecto.");
+      console.error(err);
     }
     setLoading(false);
   };
@@ -172,6 +175,7 @@ const CrearEquipo: React.FC = () => {
       setNombre(""); setIdTipo(""); setIdMarca(""); setIdModelo(""); setNroSerie(""); setGarantia(""); setIdPais(""); setIdProveedor(""); setFechaAdquisicion(""); setIdInterno(""); setIdUbicacion(""); setImagen(""); setImagenPreview(null); setImagenFile(null);
     } catch (err: any) {
       setError("Error al crear el equipo: " + err.message);
+      console.error(err);
     }
     setLoading(false);
   };
@@ -182,70 +186,147 @@ const CrearEquipo: React.FC = () => {
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block font-medium mb-1">Nombre *</label>
-            <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} className="w-full rounded border border-gray-300 p-2" required />
+            <label htmlFor="nombre" className="block font-medium mb-1">Nombre *</label>
+            <input
+              id="nombre"
+              type="text"
+              value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            />
           </div>
           <div>
-            <label className="block font-medium mb-1">Tipo de equipo *</label>
-            <select value={idTipo} onChange={e => setIdTipo(e.target.value)} className="w-full rounded border border-gray-300 p-2" required>
+            <label htmlFor="tipo" className="block font-medium mb-1">Tipo de equipo *</label>
+            <select
+              id="tipo"
+              value={idTipo}
+              onChange={e => setIdTipo(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            >
               <option value="">Seleccione</option>
               {tipos.map(t => <option key={t.id} value={t.id}>{t.nombreTipo}</option>)}
             </select>
           </div>
           <div>
-            <label className="block font-medium mb-1">Marca *</label>
-            <select value={idMarca} onChange={e => setIdMarca(e.target.value)} className="w-full rounded border border-gray-300 p-2" required>
+            <label htmlFor="marca" className="block font-medium mb-1">Marca *</label>
+            <select
+              id="marca"
+              value={idMarca}
+              onChange={e => setIdMarca(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            >
               <option value="">Seleccione</option>
               {marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
             </select>
           </div>
           <div>
-            <label className="block font-medium mb-1">Modelo *</label>
-            <select value={idModelo} onChange={e => setIdModelo(e.target.value)} className="w-full rounded border border-gray-300 p-2" required>
+            <label htmlFor="modelo" className="block font-medium mb-1">Modelo *</label>
+            <select
+              id="modelo"
+              value={idModelo}
+              onChange={e => setIdModelo(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            >
               <option value="">Seleccione</option>
               {modelos.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
             </select>
           </div>
           <div>
-            <label className="block font-medium mb-1">Número de serie *</label>
-            <input type="text" value={nroSerie} onChange={e => setNroSerie(e.target.value)} className="w-full rounded border border-gray-300 p-2" required />
+            <label htmlFor="nroSerie" className="block font-medium mb-1">Número de serie *</label>
+            <input
+              id="nroSerie"
+              type="text"
+              value={nroSerie}
+              onChange={e => setNroSerie(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            />
           </div>
           <div>
-            <label className="block font-medium mb-1">Garantía (fecha) *</label>
-            <input type="date" value={garantia} onChange={e => setGarantia(e.target.value)} className="w-full rounded border border-gray-300 p-2" required />
+            <label htmlFor="garantia" className="block font-medium mb-1">Garantía (fecha) *</label>
+            <input
+              id="garantia"
+              type="date"
+              value={garantia}
+              onChange={e => setGarantia(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            />
           </div>
           <div>
-            <label className="block font-medium mb-1">País de origen *</label>
-            <select value={idPais} onChange={e => setIdPais(e.target.value)} className="w-full rounded border border-gray-300 p-2" required>
+            <label htmlFor="pais" className="block font-medium mb-1">País de origen *</label>
+            <select
+              id="pais"
+              value={idPais}
+              onChange={e => setIdPais(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            >
               <option value="">Seleccione</option>
               {paises.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
           </div>
           <div>
-            <label className="block font-medium mb-1">Proveedor *</label>
-            <select value={idProveedor} onChange={e => setIdProveedor(e.target.value)} className="w-full rounded border border-gray-300 p-2" required>
+            <label htmlFor="proveedor" className="block font-medium mb-1">Proveedor *</label>
+            <select
+              id="proveedor"
+              value={idProveedor}
+              onChange={e => setIdProveedor(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            >
               <option value="">Seleccione</option>
               {proveedores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
           </div>
           <div>
-            <label className="block font-medium mb-1">Fecha de adquisición *</label>
-            <input type="date" value={fechaAdquisicion} onChange={e => setFechaAdquisicion(e.target.value)} className="w-full rounded border border-gray-300 p-2" required />
+            <label htmlFor="fechaAdquisicion" className="block font-medium mb-1">Fecha de adquisición *</label>
+            <input
+              id="fechaAdquisicion"
+              type="date"
+              value={fechaAdquisicion}
+              onChange={e => setFechaAdquisicion(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            />
           </div>
           <div>
-            <label className="block font-medium mb-1">Identificación interna *</label>
-            <input type="text" value={idInterno} onChange={e => setIdInterno(e.target.value)} className="w-full rounded border border-gray-300 p-2" required />
+            <label htmlFor="idInterno" className="block font-medium mb-1">Identificación interna *</label>
+            <input
+              id="idInterno"
+              type="text"
+              value={idInterno}
+              onChange={e => setIdInterno(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            />
           </div>
           <div>
-            <label className="block font-medium mb-1">Ubicación *</label>
-            <select value={idUbicacion} onChange={e => setIdUbicacion(e.target.value)} className="w-full rounded border border-gray-300 p-2" required>
+            <label htmlFor="ubicacion" className="block font-medium mb-1">Ubicación *</label>
+            <select
+              id="ubicacion"
+              value={idUbicacion}
+              onChange={e => setIdUbicacion(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2"
+              required
+            >
               <option value="">Seleccione</option>
               {ubicaciones.map(u => <option key={u.id} value={u.id}>{u.nombre} ({u.sector}, Piso {u.piso})</option>)}
             </select>
           </div>
           <div className="md:col-span-2">
-            <label className="block font-medium mb-1">Imagen del equipo *</label>
-            <input type="file" accept="image/*" onChange={handleImagenChange} className="mb-2" />
+            <label htmlFor="imagen" className="block font-medium mb-1">Imagen del equipo *</label>
+            <input
+              id="imagen"
+              type="file"
+              accept="image/*"
+              onChange={handleImagenChange}
+              className="mb-2"
+            />
             <button type="button" onClick={handleSubirImagen} className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 mb-2" disabled={!imagenFile || loading}>
               {loading ? "Subiendo..." : "Subir imagen"}
             </button>
