@@ -11,7 +11,7 @@
   "dependencies": {
     "@eslint/config-array": "^0.19.1",
     "@eslint/object-schema": "^2.1.5",
-    "apexcharts": "^4.3.0",
+    "apexcharts": "^3.54.1",
     "crypto-browserify": "^3.12.1",
     "file-saver": "^2.0.5",
     "flatpickr": "^4.6.13",
