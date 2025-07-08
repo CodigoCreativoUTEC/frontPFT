@@ -1,31 +1,23 @@
-"use client";
+import { ReactNode } from "react";
 import "jsvectormap/dist/jsvectormap.css";
 import "flatpickr/dist/flatpickr.min.css";
 import "@/css/satoshi.css";
 import "@/css/style.css";
-import React, { useEffect, useState } from "react";
-import Loader from "@/components/common/Loader";
+import AppShell from "@/components/common/AppShell";
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState<boolean>(true);
+export const metadata = {
+  title: {
+    default: "MA-MED",
+    template: "%s | MA-MED",
+  },
+  description: "Sistema de gestión de mantenimiento hospitalario",
+};
 
-  // const pathname = usePathname();
-
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
-
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body suppressHydrationWarning={true}>
-        <div className="dark:bg-boxdark-2 dark:text-bodydark">
-          {loading ? <Loader /> : children}
-        </div>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

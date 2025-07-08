@@ -1,10 +1,19 @@
+"use client";
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { useSession, signOut } from "next-auth/react";
 import ClickOutside from "@/components/ClickOutside";
+import Image from "next/image";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { data: session } = useSession();
+
+  // Función para generar el avatar URL usando UI Avatars
+  const getAvatarUrl = (email: string) => {
+    const encodedEmail = encodeURIComponent(email);
+    return `https://ui-avatars.com/api/?name=${encodedEmail}&background=random&color=fff&size=128&bold=true`;
+  };
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -15,21 +24,18 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Thomas Anree
+            {session?.user?.nombre} {session?.user?.apellido}
           </span>
-          <span className="block text-xs">UX Designer</span>
+          <span className="block text-xs">{session?.user?.email}</span>
         </span>
 
-        <span className="h-12 w-12 rounded-full">
+        <span className="h-12 w-12 rounded-full overflow-hidden">
           <Image
-            width={112}
-            height={112}
-            src={"/images/user/user-01.png"}
-            style={{
-              width: "auto",
-              height: "auto",
-            }}
+            width={48}
+            height={48}
+            src={session?.user?.email ? getAvatarUrl(session.user.email) : '/images/user/user-01.png'}
             alt="User"
+            className="w-full h-full object-cover"
           />
         </span>
 
@@ -78,7 +84,7 @@ const DropdownUser = () => {
                     fill=""
                   />
                 </svg>
-                My Profile
+                Mi Perfil
               </Link>
             </li>
             <li>
@@ -99,7 +105,7 @@ const DropdownUser = () => {
                     fill=""
                   />
                 </svg>
-                My Contacts
+                Mis Contactos
               </Link>
             </li>
             <li>
@@ -124,11 +130,14 @@ const DropdownUser = () => {
                     fill=""
                   />
                 </svg>
-                Account Settings
+                Configuración
               </Link>
             </li>
           </ul>
-          <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+          <button
+            className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+            onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+          >
             <svg
               className="fill-current"
               width="22"
@@ -146,7 +155,7 @@ const DropdownUser = () => {
                 fill=""
               />
             </svg>
-            Log Out
+            Cerrar Sesión
           </button>
         </div>
       )}
