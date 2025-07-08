@@ -31,8 +31,8 @@ export default function NotFound() {
             Pero parece que este enlace no corresponde a ningún equipo o funcionalidad registrada.
           </p>
           <p className="mb-8 text-base text-gray-500 dark:text-gray-400 italic">
-            "El cuidado de la tecnología médica es tan importante como el cuidado de los pacientes. <br />
-            ¡Sigamos trabajando juntos por un hospital más seguro y eficiente!"
+            &quot;El cuidado de la tecnología médica es tan importante como el cuidado de los pacientes. <br />
+            ¡Sigamos trabajando juntos por un hospital más seguro y eficiente!&quot;
           </p>
           <Link
             href="/"

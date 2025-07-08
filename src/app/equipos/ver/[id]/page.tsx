@@ -1,4 +1,3 @@
-
 import React from "react";
 import VerEquipo from "@/components/Paginas/Equipos/Ver";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";

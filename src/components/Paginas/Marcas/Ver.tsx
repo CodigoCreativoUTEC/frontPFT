@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import fetcher from "@/components/Helpers/Fetcher";
 import DetailView, { Column } from "@/components/Helpers/DetailView";
 
@@ -9,7 +10,10 @@ interface Marca {
   estado: string;
 }
 
-const VerMarca: React.FC<{ id: number }> = ({ id }) => {
+const VerMarca: React.FC = () => {
+  const params = useParams();
+  const id = Number(params.id);
+
   const [marca, setMarca] = useState<Marca | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,27 +29,30 @@ const VerMarca: React.FC<{ id: number }> = ({ id }) => {
         setLoading(false);
       }
     };
-    fetchMarca();
+    if (id) fetchMarca();
   }, [id]);
 
   const columns: Column<Marca>[] = [
     { header: "ID", accessor: "id" },
     { header: "Nombre", accessor: "nombre" },
-    { header: "Estado", accessor: (row) => {
-      let colorClass = "";
-      let label = row.estado;
-      if (row.estado === "ACTIVO") {
-        colorClass = "bg-green-100 text-green-800";
-        label = "Activo";
-      } else if (row.estado === "INACTIVO") {
-        colorClass = "bg-red-100 text-red-800";
-        label = "Inactivo";
-      } else if (row.estado === "SIN_VALIDAR") {
-        colorClass = "bg-yellow-100 text-yellow-800";
-        label = "Sin validar";
-      }
-      return <span className={`px-2 py-1 rounded-full text-xs ${colorClass}`}>{label}</span>;
-    }},
+    {
+      header: "Estado",
+      accessor: (row) => {
+        let colorClass = "";
+        let label = row.estado;
+        if (row.estado === "ACTIVO") {
+          colorClass = "bg-green-100 text-green-800";
+          label = "Activo";
+        } else if (row.estado === "INACTIVO") {
+          colorClass = "bg-red-100 text-red-800";
+          label = "Inactivo";
+        } else if (row.estado === "SIN_VALIDAR") {
+          colorClass = "bg-yellow-100 text-yellow-800";
+          label = "Sin validar";
+        }
+        return <span className={`px-2 py-1 rounded-full text-xs ${colorClass}`}>{label}</span>;
+      },
+    },
   ];
 
   return (

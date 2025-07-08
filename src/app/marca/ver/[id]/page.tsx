@@ -1,22 +1,20 @@
-
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import React from "react";
 import VerMarca from "@/components/Paginas/Marcas/Ver";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { Metadata } from "next";
 
-export const metadata = {
-  title: "MAMED | Detalle de marca",
+export const metadata: Metadata = {
+  title: "Detalle de marca",
 };
 
-const VerMarcaPage = ({ params }: { params: { id: string } }) => {
-  const id = Number(params.id);
-  return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Detalle de marca" />
-      <div className="flex flex-col gap-10">
-        <VerMarca id={id} />
-      </div>
-    </DefaultLayout>
-  );
-};
+const VerMarcaPage = () => (
+  <DefaultLayout>
+    <Breadcrumb pageName="Detalle de marca" />
+    <div className="flex flex-col gap-10">
+      <VerMarca />
+    </div>
+  </DefaultLayout>
+);
 
 export default VerMarcaPage; 

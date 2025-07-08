@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import fetcher from "@/components/Helpers/Fetcher";
 import DetailView, { Column } from "@/components/Helpers/DetailView";
 
@@ -14,7 +15,10 @@ interface Modelo {
   } | null;
 }
 
-const VerModelo: React.FC<{ id: number }> = ({ id }) => {
+const VerModelo: React.FC = () => {
+  const params = useParams();
+  const id = Number(params.id);
+
   const [modelo, setModelo] = useState<Modelo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +34,7 @@ const VerModelo: React.FC<{ id: number }> = ({ id }) => {
         setLoading(false);
       }
     };
-    fetchModelo();
+    if (id) fetchModelo();
   }, [id]);
 
   const columns: Column<Modelo>[] = [
