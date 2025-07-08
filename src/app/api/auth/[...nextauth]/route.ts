@@ -1,166 +1,204 @@
-import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import NextAuth, { DefaultSession, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import crypto from "crypto";
+import GoogleProvider from "next-auth/providers/google";
+import { jwtDecode } from "jwt-decode";
 
-class CustomError extends Error {
-  constructor(message: string) {
-    super(message);
-    Object.setPrototypeOf(this, CustomError.prototype);
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      email: string;
+      nombre: string;
+      apellido: string;
+      rol: string;
+      needsAdditionalInfo?: boolean;
+    } & DefaultSession["user"];
+    jwt: string;
+  }
+
+  interface JWT {
+    id: string;
+    email: string;
+    nombre: string;
+    apellido: string;
+    rol: string;
+    jwt: string;
+    needsAdditionalInfo?: boolean;
+    exp?: number;
+  }
+
+  interface User {
+    id: string;
+    email: string;
+    nombre: string;
+    apellido: string;
+    rol: string;
+    jwt: string;
+    needsAdditionalInfo?: boolean;
   }
 }
 
-interface User {
-  token: string;
-  accessToken: string;
-  id: number;
-  cedula: string;
+interface JwtPayload {
+  exp: number;
   email: string;
-  fechaNacimiento: [number, number, number];
-  estado: string;
-  nombre: string;
-  apellido: string;
-  nombreUsuario: string;
-  idInstitucion: {
-    id: number;
-    nombre: string;
-  };
-  idPerfil: {
-    permisos: Array<{
-      id: number;
-      tipoPermiso: string;
-    }>;
-    id: number;
-    nombrePerfil: string;
-    estado: string;
-  };
-  usuariosTelefonos: Array<{
-    id: number;
-    numero: string;
-  }>;
+  perfil: string;
+  [key: string]: any;
 }
 
 const handler = NextAuth({
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        usuario: { label: "Usuario", type: "text" },
-        password: { label: "Password", type: "password" }
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        const hashedPassword = credentials ? crypto.createHash('sha256').update(credentials.password).digest('hex') : '';
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: credentials?.usuario,
-            password: credentials?.password
-          })
-        });
+      authorize: async (credentials) => {
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: credentials?.email,
+              password: credentials?.password,
+            }),
+          });
 
-        const data = await res.json();
-        if (res.ok && data && data.user.estado === "ACTIVO") {
-          // Transformar los datos según el formato deseado
-          const transformedData = {
-            id: data.user.id,
-            name: data.user.nombre + " " + data.user.apellido,
+          const data = await response.json();
+
+          if (!response.ok) throw new Error(data.error || "Authentication failed");
+          if (!data.token || typeof data.token !== "string") {
+            throw new Error("Invalid token format from server");
+          }
+
+          return {
+            id: data.user.id.toString(),
             email: data.user.email,
-            perfil: data.user.idPerfil.nombrePerfil,  // Asegúrate de que perfil está en user
-            accessToken: data.token
-          };
-          return transformedData as any;
-        } else if (res.status === 401) {
-          throw new CustomError(data.error);
-        } else if (data.user.estado === "INACTIVO") {
-          throw new CustomError("Cuenta inactiva, por favor contacte al administrador");
-        } else {
-          throw new CustomError("Error desconocido, por favor intente nuevamente");
+            nombre: data.user.nombre,
+            apellido: data.user.apellido,
+            rol: data.user.idPerfil?.nombrePerfil || "Usuario",
+            jwt: data.token,
+          } as User;
+        } catch (error) {
+          
+          console.error("Credentials authentication error:", error);
+          return null;
         }
-      }
-    })
+      },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
+      profile: async (_, account): Promise<User> => {
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/google-login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken: account.id_token }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Google authentication failed");
+          }
+
+          const data = await response.json();
+
+          return {
+            id: data.user.id.toString(),
+            email: data.user.email,
+            nombre: data.user.nombre || "",
+            apellido: data.user.apellido || "",
+            rol: data.user.idPerfil?.nombrePerfil || "Usuario",
+            jwt: data.token,
+            needsAdditionalInfo: data.userNeedsAdditionalInfo || false,
+          } as User;
+        } catch (error) {
+          console.error("Google authentication error:", error);
+          throw new Error("Google authentication failed");
+        }
+      },
+    }),
   ],
-  pages: {
-    signIn: "/auth/signin",
-    error: "/auth/signin",
-  },
   callbacks: {
-    async signIn({ user, account, profile }): Promise<any> {
-      if (account?.provider === "google") {
-        console.log("ID Token:", account.id_token);
-        const idToken = account.id_token; // Obtenemos el idToken desde el account
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/google-login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken }), // Enviamos el idToken
-        });
-        const data = await res.json();
-        
-        if (data.userNeedsAdditionalInfo) {
-          return `/auth/signup?email=${profile?.email}`;
-        }
-        if (data.error === "Cuenta inactiva, por favor contacte al administrador") {
-          throw new CustomError(data.error || "Cuenta inactiva, por favor contacte al administrador");
-        } else {
-          user.accessToken = data.token;
-          user.id = data.user.id;
-          user.nombre = data.user.nombre;
-          user.perfil = data.user.idPerfil.nombrePerfil;
-          return { ...user, accessToken: data.token, perfil: user.perfil };
-        }
-      } else {
-        return true;
-      }
-    },
+    async jwt({ token, user, account }) {
+      const newToken = { ...token };
 
-    // Aquí se incluye el email y perfil en el token JWT
-    async jwt({ token, user }) {
       if (user) {
-        token.accessToken = user.accessToken;
-        token.email = user.email;  // Incluir el email en el token
-        token.perfil = user.perfil;  // Incluir el perfil en el token
-        token.name = user.name;
-        token.id = user.id;
+        newToken.id = user.id;
+        newToken.email = user.email;
+        newToken.nombre = user.nombre;
+        newToken.apellido = user.apellido;
+        newToken.rol = user.rol;
+        newToken.jwt = user.jwt;
+        newToken.needsAdditionalInfo = user.needsAdditionalInfo;
       }
-      return token;
-    },
 
-    // Aquí se envía el perfil junto con la sesión
-    async session({ session, token }) {
-      // Asegúrate de que session.user esté definido
-      if (!session.user) {
-        session.user = {
-          perfil: "",
-          id: 0,
-          name: null,
-          email: null,
-          image: null,
-          accessToken: ""
-        }; // Inicializar con las propiedades necesarias
+      if (newToken.jwt && typeof newToken.jwt === "string") {
+        try {
+          const decoded = jwtDecode<JwtPayload>(newToken.jwt);
+          const now = Math.floor(Date.now() / 1000);
+          const bufferTime = 300;
+
+          if ((decoded.exp - now) < bufferTime) {
+            const renewalResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/renovar-token`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${newToken.jwt}`,
+              },
+            });
+
+            if (renewalResponse.ok) {
+              const { token: newTokenJwt } = await renewalResponse.json();
+              if (typeof newTokenJwt === "string") {
+                newToken.jwt = newTokenJwt;
+                const newDecoded = jwtDecode<JwtPayload>(newTokenJwt);
+                newToken.exp = newDecoded.exp;
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Token renewal error:", error);
+        }
       }
-  
-      // Asignar los valores de email y perfil a session.user
-      session.user.email = token.email ?? null; // Si token.email no está presente, asigna null
-      session.user.perfil = token.perfil as string || "Usuario"; // Asigna el perfil al objeto session
-      session.user.id = token.id as number;
-      session.user.name = token.name as string;
-      session.expires = typeof token.exp === 'number' ? new Date(token.exp * 1000).toISOString() : ""; // Asigna la fecha de expiración
-      session.accessToken = token.accessToken as string;
-  
-      return session;
+
+      return newToken;
     },
+    async session({ session, token }) {
+        session.user = {
+          ...session.user,
+          id: typeof token.id === "string" ? token.id : "",
+          email: typeof token.email === "string" ? token.email : "",
+          nombre: typeof token.nombre === "string" ? token.nombre : "",
+          apellido: typeof token.apellido === "string" ? token.apellido : "",
+          rol: typeof token.rol === "string" ? token.rol : "",
+          needsAdditionalInfo:
+            typeof token.needsAdditionalInfo === "boolean"
+              ? token.needsAdditionalInfo
+              : false,
+        };
+      
+        session.jwt = typeof token.jwt === "string" ? token.jwt : "";
+        return session;
+      }
+      ,
+  },
+  pages: {
+    signIn: "/auth/login",
+    newUser: "/auth/register",
   },
   session: {
     strategy: "jwt",
+    maxAge: 8 * 60 * 60,
   },
-  secret: process.env.SECRET,
-  jwt: {
-    secret: process.env.SECRET
-  }
 });
 
 export { handler as GET, handler as POST };

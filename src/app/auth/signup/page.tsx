@@ -1,17 +1,14 @@
 import React from "react";
+import RegisterForm from "@/components/Helpers/RegisterForm";
 import { Metadata } from "next";
-import Registrar from "@/components/Usuarios/Login/Registrar";
 
 export const metadata: Metadata = {
-  title: "Registro en el sistema",
-  description: "Página de registro al sistema",
+  title: "Registro de usuario | MA-MED",
+  description: "Crea tu cuenta en MA-MED",
 };
 
-const Registrarse: React.FC = function() {
-
-  return (
-      <Registrar />
-  );
+const SignUp: React.FC = () => {
+  return <RegisterForm />;
 };
 
-export default Registrarse;
+export default SignUp;

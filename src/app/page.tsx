@@ -1,14 +1,16 @@
-import Login from "@/components/Usuarios/Login/Ingresar";
 import { Metadata } from "next";
+import Landing from "@/components/Landing/Inicio";
 
 export const metadata: Metadata = {
   title:
-    "MA-MED - Iniciar Sesión",
-  description: "Sistema de gestión de mantenimiento de equipos clínicos hospitalarios.",
+    "MA-MED"
 };
 
 export default function Home() {
   return (
-        <Login />
+      //<DefaultLayout>
+        //<ECommerce />
+        <Landing />
+      //</DefaultLayout>
   );
 }

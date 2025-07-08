@@ -1,21 +1,21 @@
-import React from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { Metadata } from "next";
+import ListarEquipos from "@/components/Paginas/Equipos/Listar";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import EquiposRead from "@/components/Equipos/listarEquipos";
 
-export const metadata: Metadata = {
-    title: "Listado de equipos",
-    description: "Página con equipos registrados en el sistema",
+export const metadata = {
+  title: "Listado de equipos",
 };
 
-const listarEquipos: React.FC = function() {
+const EquiposPage = () => {
   return (
     <DefaultLayout>
-        <Breadcrumb pageName="Listado de equipos" />
-        <EquiposRead />
+      <Breadcrumb pageName="Listado de equipos" />
+
+      <div className="flex flex-col gap-10">
+        <ListarEquipos />
+      </div>
     </DefaultLayout>
   );
 };
 
-export default listarEquipos;
+export default EquiposPage; 

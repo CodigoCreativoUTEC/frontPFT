@@ -1,22 +1,21 @@
-import React from "react";
+import ListarFuncionalidades from "@/components/Paginas/Funcionalidades/Listar";
+import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import FuncionalidadesRead from "@/components/Funcionalidades/listarFuncionalidades";
 
 export const metadata: Metadata = {
-    title: "Listado de funcionalidades",
-    description: "Listado de funcionalidades ingresadas",
+  title: "Funcionalidades",
 };
 
-const listadoFuncionalidades: React.FC = function() {
-
-    return (
-        <DefaultLayout>
-            <Breadcrumb pageName="Lista de funcionalidades" />
-            <FuncionalidadesRead />
-        </DefaultLayout>
-    );
+const FuncionalidadesPage: React.FC = () => {
+  return (
+    <DefaultLayout>
+      <Breadcrumb pageName="Funcionalidades" />
+      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <ListarFuncionalidades />
+      </div>
+    </DefaultLayout>
+  );
 };
 
-export default listadoFuncionalidades;
+export default FuncionalidadesPage; 

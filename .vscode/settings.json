@@ -1,10 +1,6 @@
 {
-    "typescript.format.enable": false,
-    "typescript.format.indentSwitchCase": false,
-    "typescript.locale": "es",
     "sonarlint.connectedMode.project": {
-        "connectionId": "sonarFront",
-        "projectKey": "FrontEnd"
-    },
-    "git.ignoreLimitWarning": true
+        "connectionId": "gns3 conection",
+        "projectKey": "CodigoCreativoUTEC_frontPFT_697fedbf-858e-4f8a-b731-ff8ce821beaa"
+    }
 }

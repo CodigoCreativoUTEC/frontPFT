@@ -1,0 +1,10 @@
+Instrucciones genericas para chat
+Estamos usando nextjs 15
+usamos un API y usamos Fetcher para hacerle las consultas
+Para visualizar en formato de tabla tenemos el components/Helpers/DynamicTable.tsx
+Para visualizar individual usamos el components/Helpers/DetailView
+Para Editar components/Helpers/EditDynamic
+Para agregar components/Helpers/CreateDynamic
+las apginas de navegacion estan en src/components/Paginas
+la navegacion esta en src/app/
+A no ser que se pida lo contrario siempre usa las funciones ya echas en cada dynamic si agregas algo neuvo actualiza la documentacion de esa funcion nueva
