@@ -59,6 +59,7 @@ const ListarModelos: React.FC = () => {
           withActions={true}
           deleteUrl="/modelo/inactivar"
           basePath="/modelo"
+          initialFilters={{ estado: "ACTIVO" }}
         />
       )}
     </>

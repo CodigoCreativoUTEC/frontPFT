@@ -58,6 +58,7 @@ const ListarMarcas: React.FC = () => {
           withActions={true}
           deleteUrl="/marca/inactivar"
           basePath="/marca"
+          initialFilters={{ estado: "ACTIVO" }}
         />
       )}
     </>

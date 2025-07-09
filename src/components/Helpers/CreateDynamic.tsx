@@ -49,6 +49,7 @@ export type CreateDynamicField = {
   optionValueKey?: string;
   validate?: (value: any) => string | undefined;
   placeholder?: string;
+  sendFullObject?: boolean; // Si true, envía el objeto completo en lugar del ID
 };
 
 type Props = {
@@ -70,6 +71,8 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
     return initial;
   });
   const [dropdownOptions, setDropdownOptions] = useState<Record<string, { label: string; value: any }[]>>({});
+  const [dropdownObjects, setDropdownObjects] = useState<Record<string, any[]>>({});
+  const [dropdownLoading, setDropdownLoading] = useState<Record<string, boolean>>({});
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -80,8 +83,9 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
   useEffect(() => {
     fields.forEach(async (f) => {
       if (f.type === "dropdown" && f.optionsEndpoint && f.optionLabelKey && f.optionValueKey) {
+        setDropdownLoading(prev => ({ ...prev, [f.accessor]: true }));
         try {
-          const data = await fetcher<any[]>(f.optionsEndpoint, { method: "GET", requiresAuth: false });
+          const data = await fetcher<any[]>(f.optionsEndpoint, { method: "GET", requiresAuth: true });
           setDropdownOptions(prev => ({
             ...prev,
             [f.accessor]: data.map(opt => ({
@@ -89,8 +93,17 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
               value: opt[f.optionValueKey!],
             })),
           }));
-        } catch {
+          // También almacenar los objetos completos
+          setDropdownObjects(prev => ({
+            ...prev,
+            [f.accessor]: data,
+          }));
+        } catch (error) {
+          console.error(`Error cargando opciones para ${f.label}:`, error);
           setDropdownOptions(prev => ({ ...prev, [f.accessor]: [] }));
+          setDropdownObjects(prev => ({ ...prev, [f.accessor]: [] }));
+        } finally {
+          setDropdownLoading(prev => ({ ...prev, [f.accessor]: false }));
         }
       }
     });
@@ -141,9 +154,24 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
     setMessage(null);
     setError(null);
     try {
+      // Preparar los datos para enviar
+      const dataToSend = { ...form } as any;
+      
+      // Para campos que requieren enviar el objeto completo
+      fields.forEach(f => {
+        if (f.type === "dropdown" && f.sendFullObject && form[f.accessor]) {
+          const selectedId = form[f.accessor];
+          const objects = dropdownObjects[f.accessor] || [];
+          const selectedObject = objects.find(obj => obj[f.optionValueKey || "id"] == selectedId);
+          if (selectedObject) {
+            dataToSend[f.accessor] = selectedObject;
+          }
+        }
+      });
+
       const res = await fetcher(createUrl, {
         method: "POST",
-        body: form,
+        body: dataToSend,
       });
       setMessage(successMessage || "Creado exitosamente");
       setForm(fields.reduce((acc, f) => {
@@ -186,14 +214,17 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
             )}
             {f.type === "dropdown" && (
               <select
-                value={form[f.accessor]}
+                value={String(form[f.accessor] || "")}
                 onChange={e => handleChange(f.accessor, e.target.value)}
                 className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 required={f.required}
+                disabled={dropdownLoading[f.accessor]}
               >
-                <option value="">Seleccione una opción</option>
+                <option value="">
+                  {dropdownLoading[f.accessor] ? "Cargando opciones..." : "Seleccione una opción"}
+                </option>
                 {(f.options || dropdownOptions[f.accessor] || []).map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={String(opt.value)}>{opt.label}</option>
                 ))}
               </select>
             )}

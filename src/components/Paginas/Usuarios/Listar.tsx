@@ -1,6 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import fetcher from "@/components/Helpers/Fetcher";
+import React, { useState } from "react";
 import DynamicTable, { Column } from "@/components/Helpers/DynamicTable";
 
 interface UsuariosTelefonos {
@@ -37,29 +36,6 @@ interface Usuario {
 const ListarUsuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  // Callback para búsqueda (filtros) desde DynamicTable
-  const handleSearch = async (filters: Record<string, string>) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
-      });
-      const queryString = params.toString() ? `?${params.toString()}` : "";
-      const data = await fetcher<Usuario[]>(`/usuarios/filtrar${queryString}`, { method: "GET" });
-      setUsuarios(data);
-    } catch (err: any) {
-      setError(err.message);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    // Cargar datos sin filtros al montar el componente
-    handleSearch({});
-  }, []);
 
   const columns: Column<Usuario>[] = [
     { header: "Cédula", accessor: "cedula", type: "text", filterable: true },
@@ -72,22 +48,21 @@ const ListarUsuarios: React.FC = () => {
   ];
 
   return (
-    
-      <>
+    <>
+      <h2 className="text-xl font-bold mb-4">Usuarios</h2>
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
-      {loading ? (
-        <p>Cargando...</p>
-      ) : (
-        <DynamicTable
-          columns={columns}
-          data={usuarios}
-          withFilters={true}
-          onSearch={handleSearch}
-          withActions={true}
-          deleteUrl="/usuarios/inactivar"
-          basePath="/usuarios"
-        />
-      )}
+      <DynamicTable
+        columns={columns}
+        data={usuarios}
+        withFilters={true}
+        withActions={true}
+        filterUrl="/usuarios/filtrar"
+        onDataUpdate={setUsuarios}
+        deleteUrl="/usuarios/inactivar"
+        basePath="/usuarios"
+        initialFilters={{ estado: "ACTIVO" }}
+        confirmDeleteMessage="¿Está seguro que desea dar de baja a este usuario?"
+      />
     </>
   );
 };

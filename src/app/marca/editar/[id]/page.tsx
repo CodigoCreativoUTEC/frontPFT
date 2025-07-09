@@ -3,7 +3,7 @@ import EditarMarca from "@/components/Paginas/Marcas/Editar";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
 export const metadata = {
-  title: "MAMED | Editar marca",
+  title: "Editar marca",
 };
 
 const EditarMarcaPage = () => {

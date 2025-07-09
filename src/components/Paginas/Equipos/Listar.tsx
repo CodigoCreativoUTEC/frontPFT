@@ -112,7 +112,9 @@ const ListarEquipos: React.FC = () => {
     },
     { 
       header: "Ubicación", 
-      accessor: (row) => `${row.idUbicacion?.nombre} - ${row.idUbicacion?.sector}` || "-",
+      accessor: (row) => row.idUbicacion?.nombre && row.idUbicacion?.sector 
+        ? `${row.idUbicacion.nombre} - ${row.idUbicacion.sector}` 
+        : "-",
       type: "text",
       filterable: true 
     },
@@ -190,8 +192,9 @@ const ListarEquipos: React.FC = () => {
           <div className="bg-white dark:bg-boxdark p-8 rounded-lg shadow-lg max-w-sm w-full">
             <h3 className="text-lg font-bold mb-4 text-red-600">Dar de baja equipo</h3>
             <div className="mb-2">
-              <label className="block font-medium mb-1">Nombre de equipo</label>
+              <label htmlFor="nombreEquipo" className="block font-medium mb-1">Nombre de equipo</label>
               <input
+                id="nombreEquipo"
                 type="text"
                 value={equipoAEliminar?.nombre || ""}
                 readOnly
@@ -199,8 +202,9 @@ const ListarEquipos: React.FC = () => {
               />
             </div>
             <div className="mb-2">
-              <label className="block font-medium mb-1">Fecha de baja *</label>
+              <label htmlFor="fechaBaja" className="block font-medium mb-1">Fecha de baja *</label>
               <input
+                id="fechaBaja"
                 type="date"
                 className="w-full border rounded p-2"
                 value={fechaBaja}
@@ -209,8 +213,9 @@ const ListarEquipos: React.FC = () => {
               />
             </div>
             <div className="mb-2">
-              <label className="block font-medium mb-1">Razón de la baja *</label>
+              <label htmlFor="razonBaja" className="block font-medium mb-1">Razón de la baja *</label>
               <input
+                id="razonBaja"
                 type="text"
                 className="w-full border rounded p-2"
                 value={razon}
@@ -219,8 +224,9 @@ const ListarEquipos: React.FC = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block font-medium mb-1">Comentarios</label>
+              <label htmlFor="comentarios" className="block font-medium mb-1">Comentarios</label>
               <textarea
+                id="comentarios"
                 className="w-full border rounded p-2"
                 value={comentarios}
                 onChange={e => setComentarios(e.target.value)}

@@ -35,7 +35,7 @@ const EditarModelo: React.FC = () => {
 
   return (
     <EditDynamic
-      fetchUrl={`/modelo/seleccionar?id=${id}`}
+      fetchUrl={`/modelo/seleccionar`}
       updateUrl="/modelo/modificar"
       fields={fields}
       backLink="/modelo"

@@ -1,20 +1,20 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import ListarModelos from "@/components/Paginas/Modelos/Listar";
+import ListarPaises from "@/components/Paginas/Paises/Listar";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
 export const metadata = {
-  title: "Listado de modelos",
+  title: "Listado de países",
 };
 
-const ModeloPage = () => {
+const PaisesPage = () => {
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Listado de modelos" />
+      <Breadcrumb pageName="Listado de países" />
       <div className="flex flex-col gap-10">
-        <ListarModelos />
+        <ListarPaises />
       </div>
     </DefaultLayout>
   );
 };
 
-export default ModeloPage; 
+export default PaisesPage; 

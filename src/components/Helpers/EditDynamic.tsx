@@ -37,6 +37,10 @@ export interface Field<T> {
    */
   readOnly?: boolean;
   disabled?: boolean;
+  /**
+   * Si es true, envía el objeto completo en lugar del ID para dropdowns.
+   */
+  sendFullObject?: boolean;
 }
 
 interface EditDynamicProps<T extends { id: number }> {
@@ -81,6 +85,9 @@ function EditDynamic<T extends { id: number }>({
   const [dropdownOptions, setDropdownOptions] = useState<
     Record<string, { [key: string]: any }[]>
   >({});
+  const [dropdownObjects, setDropdownObjects] = useState<
+    Record<string, { [key: string]: any }[]>
+  >({});
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [formDataToSubmit, setFormDataToSubmit] = useState<T | null>(null);
@@ -111,6 +118,11 @@ function EditDynamic<T extends { id: number }>({
           try {
             const data = await fetcher<{ [key: string]: any }[]>(field.optionsEndpoint, { method: "GET" });
             setDropdownOptions((prev) => ({
+              ...prev,
+              [field.accessor as string]: data,
+            }));
+            // También almacenar los objetos completos
+            setDropdownObjects((prev) => ({
               ...prev,
               [field.accessor as string]: data,
             }));
@@ -176,9 +188,24 @@ function EditDynamic<T extends { id: number }>({
     if (!formDataToSubmit) return;
     setSaving(true);
     try {
+      // Preparar los datos para enviar
+      const dataToSend = { ...formDataToSubmit } as any;
+      
+      // Para campos que requieren enviar el objeto completo
+      fields.forEach(f => {
+        if (f.type === "dropdown" && f.sendFullObject && dataToSend[f.accessor]) {
+          const selectedId = dataToSend[f.accessor];
+          const objects = dropdownObjects[f.accessor as string] || [];
+          const selectedObject = objects.find(obj => obj[f.optionValueKey || "id"] == selectedId);
+          if (selectedObject) {
+            dataToSend[f.accessor] = selectedObject;
+          }
+        }
+      });
+
       const response = await fetcher<T>(updateUrl, {
         method: "PUT",
-        body: formDataToSubmit,
+        body: dataToSend,
       });
       setSuccessMessage("Modificado correctamente");
       setTimeout(() => {
@@ -259,6 +286,8 @@ function EditDynamic<T extends { id: number }>({
             value = new Date(String(value)).toISOString().slice(0, 10) as T[keyof T];
           } else if (field.type === "dropdown" && field.accessor === "idPerfil" && (objectData as any)?.idPerfil) {
             value = (objectData as any).idPerfil.id;
+          } else if (field.type === "dropdown" && field.accessor === "pais" && (objectData as any)?.pais) {
+            value = (objectData as any).pais.id;
           }
 
           return (
@@ -268,7 +297,7 @@ function EditDynamic<T extends { id: number }>({
               </label>
               {field.type === "dropdown" ? (
                 <select
-                  value={typeof value === "string" || typeof value === "number" ? value : ""}
+                  value={typeof value === "string" || typeof value === "number" ? String(value) : ""}
                   onChange={(e) => handleChange(field.accessor, e.target.value)}
                   disabled={field.readOnly || field.disabled}
                   className="rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
@@ -278,7 +307,7 @@ function EditDynamic<T extends { id: number }>({
                     const optionValueKey = field.optionValueKey || "id";
                     const optionLabelKey = field.optionLabelKey || "label";
                     return (
-                      <option key={option[optionValueKey]} value={option[optionValueKey]}>
+                      <option key={option[optionValueKey]} value={String(option[optionValueKey])}>
                         {option[optionLabelKey]}
                       </option>
                     );
