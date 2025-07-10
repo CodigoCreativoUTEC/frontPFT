@@ -4,6 +4,192 @@ import fetcher from "@/components/Helpers/Fetcher";
 import * as XLSX from "xlsx";
 
 /**
+ * ===== DOCUMENTACIÓN COMPLETA DE DYNAMICTABLE =====
+ * 
+ * DynamicTable es un componente de tabla avanzado con funcionalidades de:
+ * - Filtrado local y remoto
+ * - Exportación a Excel
+ * - Acciones automáticas (Ver, Editar, Eliminar)
+ * - Formateo automático por tipo de dato
+ * - Modales de confirmación
+ * 
+ * ===== EJEMPLOS DE USO =====
+ * 
+ * 1. TABLA BÁSICA:
+ * ```tsx
+ * const columns: Column<Usuario>[] = [
+ *   { header: "ID", accessor: "id" },
+ *   { header: "Nombre", accessor: "nombre" },
+ *   { header: "Email", accessor: "email" },
+ *   { header: "Estado", accessor: "estado" }
+ * ];
+ * 
+ * <DynamicTable
+ *   columns={columns}
+ *   data={usuarios}
+ *   withActions={true}
+ *   basePath="/usuarios"
+ * />
+ * ```
+ * 
+ * 2. TABLA CON FILTROS:
+ * ```tsx
+ * const columns: Column<Pais>[] = [
+ *   { header: "ID", accessor: "id" },
+ *   { header: "Nombre", accessor: "nombre", filterable: true },
+ *   { header: "Estado", accessor: "estado", filterable: true }
+ * ];
+ * 
+ * <DynamicTable
+ *   columns={columns}
+ *   data={paises}
+ *   withFilters={true}
+ *   filterUrl="/paises/filtrar"
+ *   initialFilters={{ estado: "ACTIVO" }}
+ *   onDataUpdate={setPaises}
+ *   withActions={true}
+ *   basePath="/paises"
+ * />
+ * ```
+ * 
+ * 3. TABLA CON ELIMINACIÓN:
+ * ```tsx
+ * <DynamicTable
+ *   columns={columns}
+ *   data={proveedores}
+ *   withActions={true}
+ *   basePath="/proveedores"
+ *   deleteUrl="/proveedores/inactivar"
+ *   confirmDeleteMessage="¿Está seguro que desea dar de baja a este proveedor?"
+ * />
+ * ```
+ * 
+ * 4. TABLA CON CAMPOS PERSONALIZADOS:
+ * ```tsx
+ * const columns: Column<Equipo>[] = [
+ *   { header: "ID", accessor: "id" },
+ *   { header: "Nombre", accessor: "nombre" },
+ *   { 
+ *     header: "País", 
+ *     accessor: (row) => row.pais?.nombre || "-" 
+ *   },
+ *   { 
+ *     header: "Fecha Creación", 
+ *     accessor: "fechaCreacion", 
+ *     type: "date" 
+ *   },
+ *   { header: "Estado", accessor: "estado" }
+ * ];
+ * ```
+ * 
+ * 5. TABLA CON ELIMINACIÓN PERSONALIZADA:
+ * ```tsx
+ * const handleDelete = async (id: number, row: Equipo) => {
+ *   // Lógica personalizada de eliminación
+ *   const response = await fetch(`/api/equipos/${id}`, {
+ *     method: 'DELETE'
+ *   });
+ *   return { message: "Equipo eliminado exitosamente" };
+ * };
+ * 
+ * <DynamicTable
+ *   columns={columns}
+ *   data={equipos}
+ *   withActions={true}
+ *   basePath="/equipos"
+ *   onDelete={handleDelete}
+ * />
+ * ```
+ * 
+ * ===== TIPOS DE CAMPOS =====
+ * 
+ * - "text": Texto simple
+ * - "date": Fecha (se formatea automáticamente)
+ * - "image": Imagen (se renderiza como <img>)
+ * - "number": Número
+ * - "phone": Teléfono (maneja arrays de teléfonos)
+ * 
+ * ===== CONFIGURACIÓN DE FILTROS =====
+ * 
+ * Los filtros se configuran con la propiedad `filterable: true`:
+ * - Campos de texto: Input de texto
+ * - Campos de fecha: Input de tipo date
+ * - Campo "estado": Select con opciones predefinidas
+ * 
+ * ===== CONFIGURACIÓN DE ELIMINACIÓN =====
+ * 
+ * Opciones para eliminar registros:
+ * 1. deleteUrl: Endpoint automático
+ * 2. onDelete: Callback personalizado
+ * 3. selectUrl: Obtener objeto antes de eliminar
+ * 4. sendOnlyId: Enviar solo ID en lugar del objeto completo
+ * 
+ * ===== PROPIEDADES PRINCIPALES =====
+ * 
+ * @param columns - Configuración de columnas
+ * @param data - Datos a mostrar
+ * @param withFilters - Mostrar interfaz de filtros
+ * @param filterUrl - Endpoint para filtrado automático
+ * @param initialFilters - Filtros iniciales precargados
+ * @param withActions - Mostrar columna de acciones
+ * @param deleteUrl - Endpoint para eliminación
+ * @param basePath - Ruta base para enlaces
+ * @param onDelete - Callback personalizado para eliminación
+ * @param onDataUpdate - Callback para actualizar datos
+ * @param confirmDeleteMessage - Mensaje de confirmación
+ * 
+ * ===== CARACTERÍSTICAS AVANZADAS =====
+ * 
+ * ✅ Filtrado automático con endpoints
+ * ✅ Exportación a Excel
+ * ✅ Formateo automático de fechas
+ * ✅ Estados visuales (Activo/Inactivo/Sin validar)
+ * ✅ Modales de confirmación y error
+ * ✅ Soporte para dark mode
+ * ✅ Responsive design
+ * ✅ Accesibilidad (sr-only labels)
+ * 
+ * ===== EJEMPLO COMPLETO =====
+ * 
+ * ```tsx
+ * import DynamicTable, { Column } from "@/components/Helpers/DynamicTable";
+ * 
+ * interface Proveedor {
+ *   id: number;
+ *   nombre: string;
+ *   pais: { id: number; nombre: string };
+ *   estado: string;
+ * }
+ * 
+ * const ProveedoresPage = () => {
+ *   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
+ * 
+ *   const columns: Column<Proveedor>[] = [
+ *     { header: "ID", accessor: "id" },
+ *     { header: "Nombre", accessor: "nombre", filterable: true },
+ *     { header: "País", accessor: (row) => row.pais?.nombre || "-" },
+ *     { header: "Estado", accessor: "estado", filterable: true }
+ *   ];
+ * 
+ *   return (
+ *     <DynamicTable
+ *       columns={columns}
+ *       data={proveedores}
+ *       withFilters={true}
+ *       filterUrl="/proveedores/filtrar"
+ *       initialFilters={{ estado: "ACTIVO" }}
+ *       onDataUpdate={setProveedores}
+ *       withActions={true}
+ *       deleteUrl="/proveedores/inactivar"
+ *       basePath="/proveedores"
+ *       confirmDeleteMessage="¿Está seguro que desea dar de baja a este proveedor?"
+ *     />
+ *   );
+ * };
+ * ```
+ */
+
+/**
  * Configuración de una columna en la tabla dinámica
  */
 export interface Column<T> {
@@ -160,10 +346,11 @@ function DynamicTable<T extends { id: number }>({
   /** Sincroniza datos internos cuando cambia la prop data */
   useEffect(() => {
     setInternalData([...data]);
-  }, [data]);
+  }, [JSON.stringify(data)]);
 
   /** Carga inicial de datos si se proporciona filterUrl */
   useEffect(() => {
+    console.log("[DynamicTable] useEffect - filterUrl:", filterUrl, "hasLoadedInitial:", hasLoadedInitial, "initialFilters:", initialFilters);
     if (filterUrl && !hasLoadedInitial) {
       setHasLoadedInitial(true);
       const loadInitialData = async () => {
@@ -178,7 +365,7 @@ function DynamicTable<T extends { id: number }>({
             const queryString = params.toString() ? `?${params.toString()}` : "";
             url = `${filterUrl}${queryString}`;
           }
-          
+          console.log("[DynamicTable] Fetching initial data from:", url);
           const initialData = await fetcher<T[]>(url, { method: "GET" });
           if (onDataUpdate) {
             onDataUpdate(initialData);
@@ -189,7 +376,8 @@ function DynamicTable<T extends { id: number }>({
       };
       loadInitialData();
     }
-  }, [filterUrl, hasLoadedInitial, initialFilters, onDataUpdate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterUrl, hasLoadedInitial, JSON.stringify(initialFilters)]);
 
   // ===== MANEJADORES DE FILTROS =====
   
@@ -256,15 +444,6 @@ function DynamicTable<T extends { id: number }>({
   // ===== MANEJADORES DE ELIMINACIÓN =====
   
   /**
-   * Prepara la eliminación de un registro
-   * @param id - ID del registro a eliminar
-   */
-  const handleDeleteClick = (id: number) => {
-    setRowIdToDelete(id);
-    setShowConfirmDeleteModal(true);
-  };
-
-  /**
    * Elimina un registro usando la lógica configurada
    * @param id - ID del registro a eliminar
    */
@@ -285,7 +464,7 @@ function DynamicTable<T extends { id: number }>({
 
         if (sendOnlyId) {
           // Enviar solo el ID
-        if (selectUrl) {
+          if (selectUrl) {
             // Solo ID en el body
             body = { id };
           } else {
@@ -398,61 +577,54 @@ function DynamicTable<T extends { id: number }>({
   const renderFilterField = (col: Column<T>, idx: number) => {
     if (!col.filterable || typeof col.accessor !== "string") return null;
     
-                const key = col.accessor;
-                const currentValue = filters[key] || "";
+    const key = col.accessor;
+    const currentValue = filters[key] || "";
+
+    const commonProps = {
+      value: currentValue,
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => 
+        handleFilterChange(key, e.target.value),
+      className: "mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
+    };
+
+    const label = (
+      <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+        {col.header}:
+      </label>
+    );
 
     // Filtro de estado con opciones predefinidas
-                if (key === "estado") {
-                  return (
-                    <div key={idx} className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-            {col.header}:
-          </label>
-                      <select
-                        value={currentValue}
-                        onChange={(e) => handleFilterChange(key, e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
-                      >
-                        <option value="">Todos</option>
-                        <option value="ACTIVO">✅Activos</option>
-                        <option value="SIN_VALIDAR">⛔Sin validar</option>
-                        <option value="INACTIVO">❌Eliminados</option>
-                      </select>
-                    </div>
-                  );
-                }
+    if (key === "estado") {
+      return (
+        <div key={idx} className="flex flex-col">
+          {label}
+          <select {...commonProps}>
+            <option value="">Todos</option>
+            <option value="ACTIVO">✅Activos</option>
+            <option value="SIN_VALIDAR">⛔Sin validar</option>
+            <option value="INACTIVO">❌Eliminados</option>
+          </select>
+        </div>
+      );
+    }
 
     // Filtro de fecha
-                if (col.type === "date") {
-                  return (
-                    <div key={idx} className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-            {col.header}:
-          </label>
-                      <input
-                        type="date"
-                        value={currentValue}
-                        onChange={(e) => handleFilterChange(key, e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
-                      />
-                    </div>
-                  );
-                }
+    if (col.type === "date") {
+      return (
+        <div key={idx} className="flex flex-col">
+          {label}
+          <input type="date" {...commonProps} />
+        </div>
+      );
+    }
 
     // Filtro de texto (por defecto)
-                return (
-                  <div key={idx} className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-          {col.header}:
-        </label>
-                    <input
-                      type="text"
-                      value={currentValue}
-                      onChange={(e) => handleFilterChange(key, e.target.value)}
-                      className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
-                    />
-                  </div>
-                );
+    return (
+      <div key={idx} className="flex flex-col">
+        {label}
+        <input type="text" {...commonProps} />
+      </div>
+    );
   };
 
   // ===== RENDERIZADO DE CELDAS =====

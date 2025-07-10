@@ -3,6 +3,163 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+/**
+ * ===== DOCUMENTACIÓN COMPLETA DE DETAILVIEW =====
+ * 
+ * DetailView es un componente para mostrar detalles de un objeto de forma estructurada.
+ * Soporta diferentes tipos de datos y formateo automático.
+ * 
+ * ===== EJEMPLOS DE USO =====
+ * 
+ * 1. VISTA BÁSICA:
+ * ```tsx
+ * const columns: Column<Usuario>[] = [
+ *   { header: "ID", accessor: "id" },
+ *   { header: "Nombre", accessor: "nombre" },
+ *   { header: "Email", accessor: "email" },
+ *   { header: "Estado", accessor: "estado" }
+ * ];
+ * 
+ * <DetailView
+ *   data={usuario}
+ *   columns={columns}
+ *   backLink="/usuarios"
+ * />
+ * ```
+ * 
+ * 2. VISTA CON CAMPOS PERSONALIZADOS:
+ * ```tsx
+ * const columns: Column<Proveedor>[] = [
+ *   { header: "ID", accessor: "id" },
+ *   { header: "Nombre", accessor: "nombre" },
+ *   { 
+ *     header: "País", 
+ *     accessor: (row) => row.pais?.nombre || "-" 
+ *   },
+ *   { 
+ *     header: "Fecha Creación", 
+ *     accessor: "fechaCreacion", 
+ *     type: "date" 
+ *   }
+ * ];
+ * ```
+ * 
+ * 3. VISTA CON IMÁGENES:
+ * ```tsx
+ * const columns: Column<Producto>[] = [
+ *   { header: "ID", accessor: "id" },
+ *   { header: "Nombre", accessor: "nombre" },
+ *   { 
+ *     header: "Imagen", 
+ *     accessor: "imagen", 
+ *     type: "image" 
+ *   }
+ * ];
+ * ```
+ * 
+ * 4. VISTA CON BOTÓN DE EDICIÓN:
+ * ```tsx
+ * <DetailView
+ *   data={proveedor}
+ *   columns={columns}
+ *   backLink="/proveedores"
+ *   showEditButton={true}
+ * />
+ * ```
+ * 
+ * 5. VISTA COMPLETA CON TODOS LOS TIPOS:
+ * ```tsx
+ * const columns: Column<Equipo>[] = [
+ *   { header: "ID", accessor: "id" },
+ *   { header: "Nombre", accessor: "nombre" },
+ *   { header: "País", accessor: (row) => row.pais?.nombre || "-" },
+ *   { header: "Fecha Creación", accessor: "fechaCreacion", type: "date" },
+ *   { header: "Teléfonos", accessor: "telefonos", type: "phone" },
+ *   { header: "Email", accessor: "email", type: "email" },
+ *   { header: "Imagen", accessor: "imagen", type: "image" }
+ * ];
+ * ```
+ * 
+ * ===== TIPOS DE CAMPOS =====
+ * 
+ * - "text": Texto simple (por defecto)
+ * - "date": Fecha (se formatea automáticamente)
+ * - "image": Imagen (se renderiza como <img>)
+ * - "number": Número
+ * - "phone": Teléfono (maneja arrays de teléfonos)
+ * - "email": Email (se puede aplicar estilos especiales)
+ * 
+ * ===== CONFIGURACIÓN DE ACCESORES =====
+ * 
+ * Acceso directo a propiedades:
+ * ```tsx
+ * { header: "Nombre", accessor: "nombre" }
+ * ```
+ * 
+ * Función personalizada:
+ * ```tsx
+ * { 
+ *   header: "País", 
+ *   accessor: (row) => row.pais?.nombre || "-" 
+ * }
+ * ```
+ * 
+ * ===== PROPIEDADES =====
+ * 
+ * @param data - Objeto con los datos a mostrar
+ * @param columns - Array de configuración de columnas
+ * @param backLink - Ruta para volver (opcional)
+ * @param showEditButton - Mostrar botón de editar (opcional)
+ * 
+ * ===== CARACTERÍSTICAS =====
+ * 
+ * ✅ Formateo automático de fechas
+ * ✅ Renderizado de imágenes
+ * ✅ Manejo de campos anidados
+ * ✅ Botón de edición automático
+ * ✅ Botón de volver configurable
+ * ✅ Soporte para dark mode
+ * ✅ Diseño responsive
+ * ✅ Accesibilidad
+ * ✅ Tipos TypeScript completos
+ * 
+ * ===== EJEMPLO COMPLETO =====
+ * 
+ * ```tsx
+ * import DetailView, { Column } from "@/components/Helpers/DetailView";
+ * 
+ * interface Proveedor {
+ *   id: number;
+ *   nombre: string;
+ *   pais: { id: number; nombre: string };
+ *   estado: string;
+ *   fechaCreacion: string;
+ *   imagen?: string;
+ * }
+ * 
+ * const VerProveedor = () => {
+ *   const [proveedor, setProveedor] = useState<Proveedor | null>(null);
+ * 
+ *   const columns: Column<Proveedor>[] = [
+ *     { header: "ID", accessor: "id" },
+ *     { header: "Nombre", accessor: "nombre" },
+ *     { header: "País", accessor: (row) => row.pais?.nombre || "-" },
+ *     { header: "Estado", accessor: "estado" },
+ *     { header: "Fecha Creación", accessor: "fechaCreacion", type: "date" },
+ *     { header: "Imagen", accessor: "imagen", type: "image" }
+ *   ];
+ * 
+ *   return (
+ *     <DetailView
+ *       data={proveedor}
+ *       columns={columns}
+ *       backLink="/proveedores"
+ *       showEditButton={true}
+ *     />
+ *   );
+ * };
+ * ```
+ */
 export interface Column<T> {
   /** Título que se mostrará como etiqueta del campo */
   header: string;

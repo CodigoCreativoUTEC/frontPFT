@@ -5,37 +5,207 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 
 /**
- * CreateDynamic - Componente de formulario dinámico para crear objetos vía API
- *
- * Props:
- *  - fields: Array de campos, cada uno con:
- *      label: string
- *      accessor: string
- *      type: "text" | "number" | "dropdown" | "checkbox" | "date"
- *      required?: boolean
- *      options?: { label: string; value: any }[] // para dropdowns estáticos
- *      optionsEndpoint?: string // para dropdowns dinámicos
- *      optionLabelKey?: string // para dropdowns dinámicos
- *      optionValueKey?: string // para dropdowns dinámicos
- *      validate?: (value: any) => string | undefined
- *      placeholder?: string
- *  - createUrl: string (endpoint para el POST)
- *  - successMessage?: string
- *  - errorMessage?: string
- *  - onSuccess?: (data: any) => void
- *
- * Ejemplo de uso para crear un Perfil:
+ * ===== DOCUMENTACIÓN COMPLETA DE CREATEDYNAMIC =====
+ * 
+ * CreateDynamic es un componente de formulario dinámico para crear objetos vía API.
+ * Soporta diferentes tipos de campos y validación automática.
+ * 
+ * ===== EJEMPLOS DE USO =====
+ * 
+ * 1. FORMULARIO BÁSICO:
+ * ```tsx
+ * const fields = [
+ *   { label: "Nombre", accessor: "nombre", type: "text", required: true },
+ *   { label: "Email", accessor: "email", type: "text", required: true },
+ *   { label: "Edad", accessor: "edad", type: "number", required: true }
+ * ];
+ * 
  * <CreateDynamic
- *   createUrl="/perfiles/crear"
- *   fields={[
- *     { label: "Nombre del Perfil", accessor: "nombrePerfil", type: "text", required: true },
- *   ]}
- *   successMessage="Perfil creado exitosamente"
+ *   createUrl="/usuarios/crear"
+ *   fields={fields}
+ *   successMessage="Usuario creado exitosamente"
  * />
- *
- * Ejemplo de dropdown dinámico:
- * { label: "Perfil", accessor: "idPerfil", type: "dropdown", required: true,
- *   optionsEndpoint: "/perfiles/listar", optionLabelKey: "nombrePerfil", optionValueKey: "id" }
+ * ```
+ * 
+ * 2. FORMULARIO CON DROPDOWNS ESTÁTICOS:
+ * ```tsx
+ * const fields = [
+ *   { label: "Nombre", accessor: "nombre", type: "text", required: true },
+ *   { 
+ *     label: "Estado", 
+ *     accessor: "estado", 
+ *     type: "dropdown", 
+ *     required: true,
+ *     options: [
+ *       { label: "Activo", value: "ACTIVO" },
+ *       { label: "Inactivo", value: "INACTIVO" }
+ *     ]
+ *   }
+ * ];
+ * ```
+ * 
+ * 3. FORMULARIO CON DROPDOWNS DINÁMICOS:
+ * ```tsx
+ * const fields = [
+ *   { label: "Nombre", accessor: "nombre", type: "text", required: true },
+ *   { 
+ *     label: "País", 
+ *     accessor: "pais", 
+ *     type: "dropdown", 
+ *     required: true,
+ *     optionsEndpoint: "/paises/filtrar?estado=ACTIVO",
+ *     optionValueKey: "id",
+ *     optionLabelKey: "nombre",
+ *     sendFullObject: true // Envía el objeto país completo
+ *   }
+ * ];
+ * ```
+ * 
+ * 4. FORMULARIO CON VALIDACIÓN PERSONALIZADA:
+ * ```tsx
+ * const fields = [
+ *   { 
+ *     label: "Email", 
+ *     accessor: "email", 
+ *     type: "text", 
+ *     required: true,
+ *     validate: (value) => {
+ *       if (!value.includes('@')) {
+ *         return "El email debe contener @";
+ *       }
+ *       return undefined;
+ *     }
+ *   }
+ * ];
+ * ```
+ * 
+ * 5. FORMULARIO COMPLETO CON TODOS LOS TIPOS:
+ * ```tsx
+ * const fields = [
+ *   { label: "Nombre", accessor: "nombre", type: "text", required: true },
+ *   { label: "Edad", accessor: "edad", type: "number", required: true },
+ *   { label: "Fecha Nacimiento", accessor: "fechaNacimiento", type: "date" },
+ *   { label: "Activo", accessor: "activo", type: "checkbox" },
+ *   { 
+ *     label: "País", 
+ *     accessor: "pais", 
+ *     type: "dropdown", 
+ *     optionsEndpoint: "/paises/filtrar",
+ *     optionValueKey: "id",
+ *     optionLabelKey: "nombre"
+ *   }
+ * ];
+ * ```
+ * 
+ * ===== TIPOS DE CAMPOS =====
+ * 
+ * - "text": Campo de texto
+ * - "number": Campo numérico
+ * - "dropdown": Select con opciones
+ * - "checkbox": Checkbox booleano
+ * - "date": Campo de fecha (usa Flatpickr)
+ * 
+ * ===== CONFIGURACIÓN DE DROPDOWNS =====
+ * 
+ * Para dropdowns estáticos:
+ * ```tsx
+ * options: [
+ *   { label: "Opción 1", value: "valor1" },
+ *   { label: "Opción 2", value: "valor2" }
+ * ]
+ * ```
+ * 
+ * Para dropdowns dinámicos:
+ * ```tsx
+ * optionsEndpoint: "/api/opciones" // Endpoint que retorna array
+ * optionValueKey: "id" // Propiedad del objeto para el valor
+ * optionLabelKey: "nombre" // Propiedad del objeto para la etiqueta
+ * sendFullObject: true // Envía objeto completo en lugar del ID
+ * ```
+ * 
+ * ===== VALIDACIÓN =====
+ * 
+ * Validación personalizada:
+ * ```tsx
+ * validate: (value, formData) => {
+ *   if (!value) return "Campo requerido";
+ *   if (value.length < 3) return "Mínimo 3 caracteres";
+ *   return undefined; // Sin error
+ * }
+ * ```
+ * 
+ * ===== PROPIEDADES =====
+ * 
+ * @param fields - Array de configuración de campos
+ * @param createUrl - Endpoint para crear el objeto
+ * @param successMessage - Mensaje de éxito (opcional)
+ * @param errorMessage - Mensaje de error personalizado (opcional)
+ * @param onSuccess - Callback ejecutado tras crear exitosamente
+ * 
+ * ===== CARACTERÍSTICAS =====
+ * 
+ * ✅ Validación automática de campos requeridos
+ * ✅ Validación personalizada por campo
+ * ✅ Carga automática de opciones de dropdown
+ * ✅ Envío de objetos completos o solo IDs
+ * ✅ Modal de confirmación antes de crear
+ * ✅ Manejo de errores con mensajes personalizados
+ * ✅ Reinicio automático del formulario tras crear
+ * ✅ Soporte para Flatpickr en fechas
+ * ✅ Estados de carga para dropdowns
+ * ✅ Autenticación automática en llamadas API
+ * 
+ * ===== EJEMPLO COMPLETO =====
+ * 
+ * ```tsx
+ * import CreateDynamic from "@/components/Helpers/CreateDynamic";
+ * 
+ * const CrearProveedor = () => {
+ *   const fields = [
+ *     {
+ *       accessor: "nombre",
+ *       label: "Nombre del Proveedor",
+ *       type: "text",
+ *       required: true,
+ *       placeholder: "Ingrese el nombre del proveedor"
+ *     },
+ *     {
+ *       accessor: "pais",
+ *       label: "País",
+ *       type: "dropdown",
+ *       required: true,
+ *       optionsEndpoint: "/paises/filtrar?estado=ACTIVO",
+ *       optionValueKey: "id",
+ *       optionLabelKey: "nombre",
+ *       sendFullObject: true,
+ *       placeholder: "Seleccione un país"
+ *     },
+ *     {
+ *       accessor: "estado",
+ *       label: "Estado",
+ *       type: "dropdown",
+ *       required: true,
+ *       options: [
+ *         { label: "Activo", value: "ACTIVO" },
+ *         { label: "Inactivo", value: "INACTIVO" }
+ *       ],
+ *       placeholder: "Seleccione el estado"
+ *     }
+ *   ];
+ * 
+ *   return (
+ *     <CreateDynamic
+ *       createUrl="/proveedores/crear"
+ *       fields={fields}
+ *       successMessage="Proveedor creado exitosamente"
+ *       onSuccess={(data) => {
+ *         console.log("Proveedor creado:", data);
+ *         // Redirigir o actualizar lista
+ *       }}
+ *     />
+ *   );
+ * };
+ * ```
  */
 
 export type CreateDynamicField = {

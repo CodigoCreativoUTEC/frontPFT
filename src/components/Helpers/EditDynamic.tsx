@@ -1,8 +1,226 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import fetcher from "@/components/Helpers/Fetcher";
-import Link from "next/link";
+
+/**
+ * ===== DOCUMENTACIÓN COMPLETA DE EDITDYNAMIC =====
+ * 
+ * EditDynamic es un componente de formulario dinámico para editar objetos vía API.
+ * Carga automáticamente los datos del objeto y permite su edición con validación.
+ * 
+ * ===== EJEMPLOS DE USO =====
+ * 
+ * 1. FORMULARIO BÁSICO:
+ * ```tsx
+ * const fields: Field<Usuario>[] = [
+ *   { label: "Nombre", accessor: "nombre", type: "text", required: true },
+ *   { label: "Email", accessor: "email", type: "text", required: true },
+ *   { label: "Edad", accessor: "edad", type: "number", required: true }
+ * ];
+ * 
+ * <EditDynamic
+ *   fetchUrl="/usuarios/seleccionar"
+ *   updateUrl="/usuarios/modificar"
+ *   fields={fields}
+ *   backLink="/usuarios"
+ * />
+ * ```
+ * 
+ * 2. FORMULARIO CON DROPDOWNS ESTÁTICOS:
+ * ```tsx
+ * const fields: Field<Proveedor>[] = [
+ *   { label: "Nombre", accessor: "nombre", type: "text", required: true },
+ *   { 
+ *     label: "Estado", 
+ *     accessor: "estado", 
+ *     type: "dropdown", 
+ *     required: true,
+ *     options: [
+ *       { id: "ACTIVO", nombre: "Activo" },
+ *       { id: "INACTIVO", nombre: "Inactivo" }
+ *     ],
+ *     optionValueKey: "id",
+ *     optionLabelKey: "nombre"
+ *   }
+ * ];
+ * ```
+ * 
+ * 3. FORMULARIO CON DROPDOWNS DINÁMICOS:
+ * ```tsx
+ * const fields: Field<Proveedor>[] = [
+ *   { label: "Nombre", accessor: "nombre", type: "text", required: true },
+ *   { 
+ *     label: "País", 
+ *     accessor: "pais", 
+ *     type: "dropdown", 
+ *     required: true,
+ *     optionsEndpoint: "/paises/filtrar?estado=ACTIVO",
+ *     optionValueKey: "id",
+ *     optionLabelKey: "nombre",
+ *     sendFullObject: true // Envía el objeto país completo
+ *   }
+ * ];
+ * ```
+ * 
+ * 4. FORMULARIO CON CAMPOS DE SOLO LECTURA:
+ * ```tsx
+ * const fields: Field<Usuario>[] = [
+ *   { 
+ *     label: "ID", 
+ *     accessor: "id", 
+ *     type: "text", 
+ *     readOnly: true 
+ *   },
+ *   { label: "Nombre", accessor: "nombre", type: "text", required: true },
+ *   { 
+ *     label: "Fecha Creación", 
+ *     accessor: "fechaCreacion", 
+ *     type: "date", 
+ *     readOnly: true 
+ *   }
+ * ];
+ * ```
+ * 
+ * 5. FORMULARIO CON VALIDACIÓN PERSONALIZADA:
+ * ```tsx
+ * const fields: Field<Usuario>[] = [
+ *   { 
+ *     label: "Email", 
+ *     accessor: "email", 
+ *     type: "text", 
+ *     required: true,
+ *     validate: (value, data) => {
+ *       if (!value.includes('@')) {
+ *         return "El email debe contener @";
+ *       }
+ *       return undefined;
+ *     }
+ *   }
+ * ];
+ * ```
+ * 
+ * ===== TIPOS DE CAMPOS =====
+ * 
+ * - "text": Campo de texto
+ * - "number": Campo numérico
+ * - "dropdown": Select con opciones
+ * - "date": Campo de fecha
+ * - "email": Campo de email
+ * 
+ * ===== CONFIGURACIÓN DE DROPDOWNS =====
+ * 
+ * Para dropdowns estáticos:
+ * ```tsx
+ * options: [
+ *   { id: "valor1", nombre: "Opción 1" },
+ *   { id: "valor2", nombre: "Opción 2" }
+ * ],
+ * optionValueKey: "id",
+ * optionLabelKey: "nombre"
+ * ```
+ * 
+ * Para dropdowns dinámicos:
+ * ```tsx
+ * optionsEndpoint: "/api/opciones" // Endpoint que retorna array
+ * optionValueKey: "id" // Propiedad del objeto para el valor
+ * optionLabelKey: "nombre" // Propiedad del objeto para la etiqueta
+ * sendFullObject: true // Envía objeto completo en lugar del ID
+ * ```
+ * 
+ * ===== VALIDACIÓN =====
+ * 
+ * Validación personalizada:
+ * ```tsx
+ * validate: (value, data) => {
+ *   if (!value) return "Campo requerido";
+ *   if (value.length < 3) return "Mínimo 3 caracteres";
+ *   return undefined; // Sin error
+ * }
+ * ```
+ * 
+ * ===== PROPIEDADES =====
+ * 
+ * @param fetchUrl - Endpoint para obtener los datos del objeto
+ * @param updateUrl - Endpoint para actualizar el objeto
+ * @param fields - Array de configuración de campos
+ * @param backLink - Ruta para volver (opcional)
+ * @param successRedirect - Ruta de redirección tras actualizar (opcional)
+ * 
+ * ===== CARACTERÍSTICAS =====
+ * 
+ * ✅ Carga automática de datos del objeto
+ * ✅ Validación automática de campos requeridos
+ * ✅ Validación personalizada por campo
+ * ✅ Carga automática de opciones de dropdown
+ * ✅ Envío de objetos completos o solo IDs
+ * ✅ Modal de confirmación antes de actualizar
+ * ✅ Manejo de errores con mensajes personalizados
+ * ✅ Redirección automática tras actualizar
+ * ✅ Campos de solo lectura
+ * ✅ Estados de carga para dropdowns
+ * ✅ Autenticación automática en llamadas API
+ * ✅ Soporte para campos anidados (ej: pais.id)
+ * 
+ * ===== EJEMPLO COMPLETO =====
+ * 
+ * ```tsx
+ * import EditDynamic, { Field } from "@/components/Helpers/EditDynamic";
+ * 
+ * interface Proveedor {
+ *   id: number;
+ *   nombre: string;
+ *   pais: { id: number; nombre: string };
+ *   estado: string;
+ * }
+ * 
+ * const EditarProveedor = () => {
+ *   const fields: Field<Proveedor>[] = [
+ *     {
+ *       accessor: "nombre",
+ *       label: "Nombre del Proveedor",
+ *       type: "text",
+ *       required: true,
+ *       readOnly: true,
+ *       placeholder: "Nombre del proveedor"
+ *     },
+ *     {
+ *       accessor: "pais",
+ *       label: "País",
+ *       type: "dropdown",
+ *       required: true,
+ *       optionsEndpoint: "/paises/filtrar?estado=ACTIVO",
+ *       optionValueKey: "id",
+ *       optionLabelKey: "nombre",
+ *       sendFullObject: true,
+ *       placeholder: "Seleccione un país"
+ *     },
+ *     {
+ *       accessor: "estado",
+ *       label: "Estado",
+ *       type: "dropdown",
+ *       required: true,
+ *       options: [
+ *         { id: "ACTIVO", nombre: "Activo" },
+ *         { id: "INACTIVO", nombre: "Inactivo" }
+ *       ],
+ *       optionValueKey: "id",
+ *       optionLabelKey: "nombre",
+ *       placeholder: "Seleccione el estado"
+ *     }
+ *   ];
+ * 
+ *   return (
+ *     <EditDynamic
+ *       fetchUrl="/proveedores/seleccionar"
+ *       updateUrl="/proveedores/modificar"
+ *       fields={fields}
+ *       backLink="/proveedores"
+ *     />
+ *   );
+ * };
+ * ```
+ */
 
 // Interfaz para definir cada campo del formulario
 export interface Field<T> {
@@ -76,8 +294,9 @@ function EditDynamic<T extends { id: number }>({
   backLink = "",
   successRedirect = "",
 }: EditDynamicProps<T>) {
-  const { id } = useParams();
+  const params = useParams();
   const router = useRouter();
+  const id = params?.id;
   const [objectData, setObjectData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
@@ -98,16 +317,22 @@ function EditDynamic<T extends { id: number }>({
     const fetchData = async () => {
       setLoading(true);
       try {
-        const data = await fetcher<T>(`${fetchUrl}?id=${id}`, { method: "GET" });
+        // Si fetchUrl ya incluye parámetros, usarlo directamente
+        // Si no, agregar el ID de los params
+        let url = fetchUrl;
+        if (id && !fetchUrl.includes('?')) {
+          url = `${fetchUrl}?id=${id}`;
+        }
+        const data = await fetcher<T>(url, { method: "GET" });
         setObjectData(data);
       } catch (err: any) {
         setError(err.message);
       }
       setLoading(false);
     };
-    if (id) {
-      fetchData();
-    }
+    
+    // Siempre ejecutar fetch - si no hay ID en params, usar fetchUrl tal como está
+    fetchData();
   }, [id, fetchUrl]);
 
   // Cargar opciones para los dropdowns
