@@ -123,49 +123,26 @@ function DynamicTable<T extends { id: number }>({
   confirmDeleteMessage,
 }: DynamicTableProps<T>) {
   // ===== ESTADOS INTERNOS =====
-  
-  /** Filtros aplicados actualmente */
-  const [filters, setFilters] = useState<Record<string, string>>(initialFilters);
-  
-  /** Bandera para evitar múltiples cargas iniciales */
-  const [hasLoadedInitial, setHasLoadedInitial] = useState(false);
-
-  /** Aplicar filtros iniciales cuando cambien */
-  useEffect(() => {
-    setFilters(initialFilters);
-  }, [initialFilters]);
-
-  /** Resetear bandera cuando cambie filterUrl */
-  useEffect(() => {
-    setHasLoadedInitial(false);
-  }, [filterUrl]);
-  
-  /** Datos internos de la tabla (se actualiza tras eliminaciones) */
-  const [internalData, setInternalData] = useState<T[]>([...data]);
-
+  // Estados para UI (errores, modales, etc)
   /** Error durante eliminación */
   const [deletionError, setDeletionError] = useState<string>("");
   const [showDeletionErrorModal, setShowDeletionErrorModal] = useState(false);
-  
   /** Modal de confirmación de eliminación */
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [rowIdToDelete, setRowIdToDelete] = useState<number | null>(null);
-  
   /** Modal de éxito */
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
+  
+  // Estados para filtros (sin sincronización automática)
+  /** Filtros aplicados actualmente */
+  const [filters, setFilters] = useState<Record<string, string>>(initialFilters);
 
   // ===== EFECTOS =====
   
-  /** Sincroniza datos internos cuando cambia la prop data */
-  useEffect(() => {
-    setInternalData([...data]);
-  }, [data]);
-
   /** Carga inicial de datos si se proporciona filterUrl */
   useEffect(() => {
-    if (filterUrl && !hasLoadedInitial) {
-      setHasLoadedInitial(true);
+    if (filterUrl) {
       const loadInitialData = async () => {
         try {
           // Aplicar filtros iniciales si existen
@@ -189,7 +166,7 @@ function DynamicTable<T extends { id: number }>({
       };
       loadInitialData();
     }
-  }, [filterUrl, hasLoadedInitial, initialFilters, onDataUpdate]);
+  }, [filterUrl]); // Solo se ejecuta cuando cambia filterUrl
 
   // ===== MANEJADORES DE FILTROS =====
   
@@ -269,7 +246,7 @@ function DynamicTable<T extends { id: number }>({
    * @param id - ID del registro a eliminar
    */
   const handleDelete = async (id: number) => {
-    const row = internalData.find((item) => item.id === id);
+    const row = data.find((item) => item.id === id);
     if (!row) return;
     
     try {
@@ -310,9 +287,7 @@ function DynamicTable<T extends { id: number }>({
 
       if (response.message) {
         // Eliminación exitosa
-        setInternalData((prev) => prev.filter((item) => item.id !== id));
-        setSuccessMessage(response.message);
-        setShowSuccessModal(true);
+        // Ya no se actualiza internalData, el padre debe actualizar data
       } else {
         // Error en la respuesta
         setDeletionError(response.error || "Error al eliminar.");
@@ -345,7 +320,7 @@ function DynamicTable<T extends { id: number }>({
    */
   const handleExportExcel = () => {
     // Preparar datos para exportación
-    const exportData = internalData.map((row) => {
+    const exportData = data.map((row) => {
       const rowData: Record<string, any> = {};
       columns.forEach((col) => {
         let value;
@@ -581,7 +556,7 @@ function DynamicTable<T extends { id: number }>({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200 dark:bg-boxdark dark:divide-boxdark-2">
-          {internalData.map((row, rowIndex) => (
+          {data.map((row, rowIndex) => (
             <tr
               key={rowIndex}
               className={

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -36,7 +36,6 @@ interface MenuGroup {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  const pathname = usePathname();
   const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
   const [menuGroups, setMenuGroups] = useState<MenuGroup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,14 +200,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           )}
           {/* <!-- Sidebar Menu --> */}
           <nav className="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
-            {loading ? (
-              <div className="text-white">Cargando menú...</div>
-            ) : error ? (
-              <div className="text-red-500">{error}</div>
-            ) : menuGroups.length === 0 ? (
-              <div className="text-white">No hay funcionalidades disponibles</div>
-            ) : (
-              menuGroups.map((group, groupIndex) => (
+            {(() => {
+              if (loading) {
+                return <div className="text-white">Cargando menú...</div>;
+              }
+              
+              if (error) {
+                return <div className="text-red-500">{error}</div>;
+              }
+              
+              if (menuGroups.length === 0) {
+                return <div className="text-white">No hay funcionalidades disponibles</div>;
+              }
+              
+              return menuGroups.map((group, groupIndex) => (
                 <div key={groupIndex}>
                   <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
                     {group.name}
@@ -225,8 +230,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     ))}
                   </ul>
                 </div>
-              ))
-            )}
+              ));
+            })()}
           </nav>
           {/* <!-- Sidebar Menu --> */}
         </div>

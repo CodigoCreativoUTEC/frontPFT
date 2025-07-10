@@ -1,35 +1,328 @@
+"use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
-import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
+import { useState, useEffect } from "react";
+import fetcher from "@/components/Helpers/Fetcher";
+import { useSession } from "next-auth/react";
 
-export const metadata: Metadata = {
-  title: "Mi perfil",
-};
+interface UsuariosTelefonos {
+  id: number;
+  numero: string;
+}
+
+interface IdInstitucion {
+  id: number;
+  nombre: string;
+}
+
+interface IdPerfil {
+  id: number;
+  nombrePerfil: string;
+  estado: string;
+}
+
+interface Usuario {
+  usuariosTelefonos: UsuariosTelefonos[];
+  id: number;
+  cedula: string;
+  email: string;
+  contrasenia: string | null;
+  fechaNacimiento: string;
+  estado: string;
+  nombre: string;
+  apellido: string;
+  nombreUsuario: string;
+  telefono?: string;
+  idInstitucion: IdInstitucion;
+  idPerfil: IdPerfil;
+}
 
 const Settings = () => {
+  const { data: session } = useSession();
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  
+  // Estados del formulario
+  const [formData, setFormData] = useState({
+    cedula: "",
+    email: "",
+    contrasenia: "",
+    confirmarContrasenia: "",
+    fechaNacimiento: "",
+    nombre: "",
+    apellido: "",
+    nombreUsuario: "",
+  });
+
+  // Estados para teléfonos
+  const [telefonos, setTelefonos] = useState<UsuariosTelefonos[]>([]);
+  const [nuevoTelefono, setNuevoTelefono] = useState("");
+  const [editandoTelefono, setEditandoTelefono] = useState<number | null>(null);
+  const [telefonoEditando, setTelefonoEditando] = useState("");
+
+  // Estados de validación
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingChanges, setPendingChanges] = useState<any>(null);
+
+  // Cargar datos del usuario
+  useEffect(() => {
+    const cargarUsuario = async () => {
+      try {
+        if (!session?.user?.id) {
+          setError("No se pudo obtener el ID del usuario");
+          setLoading(false);
+          return;
+        }
+
+        const data = await fetcher<Usuario>(`/usuarios/seleccionar?id=${session.user.id}`, { method: "GET" });
+        setUsuario(data);
+        setFormData({
+          cedula: data.cedula || "",
+          email: data.email || "",
+          contrasenia: "",
+          confirmarContrasenia: "",
+          fechaNacimiento: data.fechaNacimiento ? data.fechaNacimiento.split('T')[0] : "",
+          nombre: data.nombre || "",
+          apellido: data.apellido || "",
+          nombreUsuario: data.nombreUsuario || "",
+        });
+        setTelefonos(data.usuariosTelefonos || []);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (session) {
+      cargarUsuario();
+    }
+  }, [session]);
+
+  // Validar contraseña
+  const validarContrasenia = (password: string): boolean => {
+    if (password === "") return true; // Contraseña vacía es válida (no se cambia)
+    if (password.length < 8) {
+      setPasswordError("La contraseña debe tener al menos 8 caracteres");
+      return false;
+    }
+    if (!/[a-zA-Z]/.test(password)) {
+      setPasswordError("La contraseña debe contener al menos una letra");
+      return false;
+    }
+    if (!/\d/.test(password)) {
+      setPasswordError("La contraseña debe contener al menos un número");
+      return false;
+    }
+    setPasswordError(null);
+    return true;
+  };
+
+  // Validar confirmación de contraseña
+  const validarConfirmacionContrasenia = (password: string, confirmPassword: string): boolean => {
+    if (password === "") return true; // Si no hay contraseña nueva, no validar confirmación
+    if (password !== confirmPassword) {
+      setConfirmPasswordError("Las contraseñas no coinciden");
+      return false;
+    }
+    setConfirmPasswordError(null);
+    return true;
+  };
+
+  // Validar email
+  const validarEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError("Formato de email inválido");
+      return false;
+    }
+    setEmailError(null);
+    return true;
+  };
+
+  // Funciones para manejar teléfonos
+  const agregarTelefono = () => {
+    if (!nuevoTelefono.trim()) return;
+    
+    const nuevoTelefonoObj: Omit<UsuariosTelefonos, 'id'> = {
+      numero: nuevoTelefono.trim()
+    };
+    
+    setTelefonos(prev => [...prev, nuevoTelefonoObj]);
+    setNuevoTelefono("");
+  };
+
+  const eliminarTelefono = (index: number) => {
+    setTelefonos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const iniciarEdicionTelefono = (index: number, numero: string) => {
+    setEditandoTelefono(index);
+    setTelefonoEditando(numero);
+  };
+
+  const guardarEdicionTelefono = (index: number) => {
+    if (!telefonoEditando.trim()) return;
+    
+    setTelefonos(prev => prev.map((tel, i) => 
+      i === index ? { ...tel, numero: telefonoEditando.trim() } : tel
+    ));
+    setEditandoTelefono(null);
+    setTelefonoEditando("");
+  };
+
+  const cancelarEdicionTelefono = () => {
+    setEditandoTelefono(null);
+    setTelefonoEditando("");
+  };
+
+  // Manejar cambios en el formulario
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Validar campos en tiempo real
+    if (name === "contrasenia") {
+      validarContrasenia(value);
+      if (formData.confirmarContrasenia) {
+        validarConfirmacionContrasenia(value, formData.confirmarContrasenia);
+      }
+    } else if (name === "confirmarContrasenia") {
+      validarConfirmacionContrasenia(formData.contrasenia, value);
+    } else if (name === "email") {
+      validarEmail(value);
+    }
+  };
+
+  // Validar formulario completo
+  const validarFormulario = (): boolean => {
+    // Validar contraseña
+    if (!validarContrasenia(formData.contrasenia)) {
+      return false;
+    }
+
+    // Validar confirmación de contraseña
+    if (!validarConfirmacionContrasenia(formData.contrasenia, formData.confirmarContrasenia)) {
+      return false;
+    }
+
+    // Validar email
+    if (!validarEmail(formData.email)) {
+      return false;
+    }
+
+    return true;
+  };
+
+  // Mostrar modal de confirmación
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validar formulario completo
+    if (!validarFormulario()) {
+      return;
+    }
+
+    // Preparar datos a enviar
+    const datosAEnviar = {
+      ...formData,
+      // Solo enviar contraseña si no está vacía
+      ...(formData.contrasenia && { contrasenia: formData.contrasenia }),
+      // Incluir teléfonos
+      usuariosTelefonos: telefonos
+    };
+
+    // Remover campos que no se envían
+    delete datosAEnviar.confirmarContrasenia;
+
+    // Mostrar modal de confirmación
+    setPendingChanges(datosAEnviar);
+    setShowConfirmModal(true);
+  };
+
+  // Confirmar y guardar cambios
+  const confirmarCambios = async () => {
+    setSaving(true);
+    setError(null);
+    setSuccess(null);
+    setShowConfirmModal(false);
+
+    try {
+      await fetcher("/usuarios/modificar-propio-usuario", {
+        method: "PUT",
+        body: pendingChanges
+      });
+
+      setSuccess("Datos actualizados correctamente");
+      
+      // Recargar datos del usuario
+      if (session?.user?.id) {
+        const data = await fetcher<Usuario>(`/usuarios/seleccionar?id=${session.user.id}`, { method: "GET" });
+        setUsuario(data);
+      }
+      
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+      setPendingChanges(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <DefaultLayout>
+        <div className="mx-auto max-w-270">
+          <Breadcrumb pageName="Mi perfil" />
+          <div className="flex justify-center items-center h-64">
+            <p>Cargando datos del usuario...</p>
+          </div>
+        </div>
+      </DefaultLayout>
+    );
+  }
+
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-270">
-        <Breadcrumb pageName="Settings" />
+        <Breadcrumb pageName="Mi perfil" />
+
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+            {success}
+          </div>
+        )}
 
         <div className="grid grid-cols-5 gap-8">
           <div className="col-span-5 xl:col-span-3">
             <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
               <div className="border-b border-stroke px-7 py-4 dark:border-strokedark">
                 <h3 className="font-medium text-black dark:text-white">
-                  Personal Information
+                  Información Personal
                 </h3>
               </div>
               <div className="p-7">
-                <form action="#">
+                <form onSubmit={handleSubmit}>
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     <div className="w-full sm:w-1/2">
                       <label
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="fullName"
+                        htmlFor="nombre"
                       >
-                        Full Name
+                        Nombre
                       </label>
                       <div className="relative">
                         <span className="absolute left-4.5 top-4">
@@ -60,10 +353,11 @@ const Settings = () => {
                         <input
                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                           type="text"
-                          name="fullName"
-                          id="fullName"
-                          placeholder="Devid Jhon"
-                          defaultValue="Devid Jhon"
+                          name="nombre"
+                          id="nombre"
+                          value={formData.nombre}
+                          onChange={handleInputChange}
+                          required
                         />
                       </div>
                     </div>
@@ -71,27 +365,146 @@ const Settings = () => {
                     <div className="w-full sm:w-1/2">
                       <label
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="phoneNumber"
+                        htmlFor="apellido"
                       >
-                        Phone Number
+                        Apellido
                       </label>
                       <input
                         className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                         type="text"
-                        name="phoneNumber"
-                        id="phoneNumber"
-                        placeholder="+990 3343 7865"
-                        defaultValue="+990 3343 7865"
+                        name="apellido"
+                        id="apellido"
+                        value={formData.apellido}
+                        onChange={handleInputChange}
+                        required
                       />
+                    </div>
+                  </div>
+
+                  <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                    <div className="w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white"
+                        htmlFor="cedula"
+                      >
+                        Cédula
+                      </label>
+                      <input
+                        className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        type="text"
+                        name="cedula"
+                        id="cedula"
+                        value={formData.cedula}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+
+                    <div className="w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white"
+                        htmlFor="fechaNacimiento"
+                      >
+                        Fecha de Nacimiento
+                      </label>
+                      <input
+                        className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        type="date"
+                        name="fechaNacimiento"
+                        id="fechaNacimiento"
+                        value={formData.fechaNacimiento}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-5.5">
+                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      Teléfonos de Contacto
+                    </label>
+                    
+                    {/* Lista de teléfonos existentes */}
+                    <div className="mb-4 space-y-2">
+                      {telefonos.map((telefono, index) => (
+                        <div key={index} className="flex items-center gap-2 p-3 border border-stroke rounded dark:border-strokedark">
+                          {editandoTelefono === index ? (
+                            <>
+                              <input
+                                type="tel"
+                                value={telefonoEditando}
+                                onChange={(e) => setTelefonoEditando(e.target.value)}
+                                className="flex-1 rounded border border-stroke px-3 py-2 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                                placeholder="Número de teléfono"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => guardarEdicionTelefono(index)}
+                                className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                              >
+                                ✓
+                              </button>
+                              <button
+                                type="button"
+                                onClick={cancelarEdicionTelefono}
+                                className="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+                              >
+                                ✕
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="flex-1 text-black dark:text-white">{telefono.numero}</span>
+                              <button
+                                type="button"
+                                onClick={() => iniciarEdicionTelefono(index, telefono.numero)}
+                                className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                              >
+                                Editar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => eliminarTelefono(index)}
+                                className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                              >
+                                Eliminar
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Agregar nuevo teléfono */}
+                    <div className="flex gap-2">
+                      <input
+                        type="tel"
+                        value={nuevoTelefono}
+                        onChange={(e) => setNuevoTelefono(e.target.value)}
+                        className="flex-1 rounded border border-stroke px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        placeholder="Nuevo número de teléfono"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            agregarTelefono();
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={agregarTelefono}
+                        className="px-6 py-3 bg-primary text-white rounded hover:bg-opacity-90"
+                      >
+                        Agregar
+                      </button>
                     </div>
                   </div>
 
                   <div className="mb-5.5">
                     <label
                       className="mb-3 block text-sm font-medium text-black dark:text-white"
-                      htmlFor="emailAddress"
+                      htmlFor="email"
                     >
-                      Email Address
+                      Email
                     </label>
                     <div className="relative">
                       <span className="absolute left-4.5 top-4">
@@ -120,95 +533,135 @@ const Settings = () => {
                         </svg>
                       </span>
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className={`w-full rounded border py-3 pl-11.5 pr-4.5 text-black focus-visible:outline-none dark:text-white ${
+                          emailError 
+                            ? "border-red-500 bg-red-50 dark:bg-red-900/20" 
+                            : "border-stroke bg-gray focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary"
+                        }`}
                         type="email"
-                        name="emailAddress"
-                        id="emailAddress"
-                        placeholder="devidjond45@gmail.com"
-                        defaultValue="devidjond45@gmail.com"
+                        name="email"
+                        id="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
                       />
                     </div>
+                    {emailError && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {emailError}
+                      </p>
+                    )}
                   </div>
 
                   <div className="mb-5.5">
                     <label
                       className="mb-3 block text-sm font-medium text-black dark:text-white"
-                      htmlFor="Username"
+                      htmlFor="nombreUsuario"
                     >
-                      Username
+                      Nombre de Usuario
                     </label>
                     <input
-                      className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary opacity-50"
                       type="text"
-                      name="Username"
-                      id="Username"
-                      placeholder="devidjhon24"
-                      defaultValue="devidjhon24"
+                      name="nombreUsuario"
+                      id="nombreUsuario"
+                      value={formData.nombreUsuario}
+                      readOnly
+                      disabled
                     />
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                      El nombre de usuario no se puede modificar
+                    </p>
                   </div>
 
                   <div className="mb-5.5">
                     <label
                       className="mb-3 block text-sm font-medium text-black dark:text-white"
-                      htmlFor="Username"
+                      htmlFor="contrasenia"
                     >
-                      BIO
+                      Contraseña (dejar en blanco para mantener la actual)
                     </label>
-                    <div className="relative">
-                      <span className="absolute left-4.5 top-4">
-                        <svg
-                          className="fill-current"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <g opacity="0.8" clipPath="url(#clip0_88_10224)">
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M1.56524 3.23223C2.03408 2.76339 2.66997 2.5 3.33301 2.5H9.16634C9.62658 2.5 9.99967 2.8731 9.99967 3.33333C9.99967 3.79357 9.62658 4.16667 9.16634 4.16667H3.33301C3.11199 4.16667 2.90003 4.25446 2.74375 4.41074C2.58747 4.56702 2.49967 4.77899 2.49967 5V16.6667C2.49967 16.8877 2.58747 17.0996 2.74375 17.2559C2.90003 17.4122 3.11199 17.5 3.33301 17.5H14.9997C15.2207 17.5 15.4326 17.4122 15.5889 17.2559C15.7452 17.0996 15.833 16.8877 15.833 16.6667V10.8333C15.833 10.3731 16.2061 10 16.6663 10C17.1266 10 17.4997 10.3731 17.4997 10.8333V16.6667C17.4997 17.3297 17.2363 17.9656 16.7674 18.4344C16.2986 18.9033 15.6627 19.1667 14.9997 19.1667H3.33301C2.66997 19.1667 2.03408 18.9033 1.56524 18.4344C1.0964 17.9656 0.833008 17.3297 0.833008 16.6667V5C0.833008 4.33696 1.0964 3.70107 1.56524 3.23223Z"
-                              fill=""
-                            />
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M16.6664 2.39884C16.4185 2.39884 16.1809 2.49729 16.0056 2.67253L8.25216 10.426L7.81167 12.188L9.57365 11.7475L17.3271 3.99402C17.5023 3.81878 17.6008 3.5811 17.6008 3.33328C17.6008 3.08545 17.5023 2.84777 17.3271 2.67253C17.1519 2.49729 16.9142 2.39884 16.6664 2.39884ZM14.8271 1.49402C15.3149 1.00622 15.9765 0.732178 16.6664 0.732178C17.3562 0.732178 18.0178 1.00622 18.5056 1.49402C18.9934 1.98182 19.2675 2.64342 19.2675 3.33328C19.2675 4.02313 18.9934 4.68473 18.5056 5.17253L10.5889 13.0892C10.4821 13.196 10.3483 13.2718 10.2018 13.3084L6.86847 14.1417C6.58449 14.2127 6.28409 14.1295 6.0771 13.9225C5.87012 13.7156 5.78691 13.4151 5.85791 13.1312L6.69124 9.79783C6.72787 9.65131 6.80364 9.51749 6.91044 9.41069L14.8271 1.49402Z"
-                              fill=""
-                            />
-                          </g>
-                          <defs>
-                            <clipPath id="clip0_88_10224">
-                              <rect width="20" height="20" fill="white" />
-                            </clipPath>
-                          </defs>
-                        </svg>
-                      </span>
+                    <input
+                      className={`w-full rounded border px-4.5 py-3 text-black focus-visible:outline-none dark:text-white ${
+                        passwordError 
+                          ? "border-red-500 bg-red-50 dark:bg-red-900/20" 
+                          : "border-stroke bg-gray focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary"
+                      }`}
+                      type="password"
+                      name="contrasenia"
+                      id="contrasenia"
+                      value={formData.contrasenia}
+                      onChange={handleInputChange}
+                      placeholder="Nueva contraseña (mínimo 8 caracteres, letras y números)"
+                    />
+                    {passwordError && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {passwordError}
+                      </p>
+                    )}
+                  </div>
 
-                      <textarea
-                        className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                        name="bio"
-                        id="bio"
-                        rows={6}
-                        placeholder="Write your bio here"
-                        defaultValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque posuere fermentum urna, eu condimentum mauris tempus ut. Donec fermentum blandit aliquet."
-                      ></textarea>
-                    </div>
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white"
+                      htmlFor="confirmarContrasenia"
+                    >
+                      Confirmar Contraseña
+                    </label>
+                    <input
+                      className={`w-full rounded border px-4.5 py-3 text-black focus-visible:outline-none dark:text-white ${
+                        confirmPasswordError 
+                          ? "border-red-500 bg-red-50 dark:bg-red-900/20" 
+                          : "border-stroke bg-gray focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary"
+                      }`}
+                      type="password"
+                      name="confirmarContrasenia"
+                      id="confirmarContrasenia"
+                      value={formData.confirmarContrasenia}
+                      onChange={handleInputChange}
+                      placeholder="Confirmar nueva contraseña"
+                    />
+                    {confirmPasswordError && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {confirmPasswordError}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex justify-end gap-4.5">
                     <button
                       className="flex justify-center rounded border border-stroke px-6 py-2 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-                      type="submit"
+                      type="button"
+                      onClick={() => {
+                        setFormData({
+                          cedula: usuario?.cedula || "",
+                          email: usuario?.email || "",
+                          contrasenia: "",
+                          confirmarContrasenia: "",
+                          fechaNacimiento: usuario?.fechaNacimiento ? usuario.fechaNacimiento.split('T')[0] : "",
+                          nombre: usuario?.nombre || "",
+                          apellido: usuario?.apellido || "",
+                          nombreUsuario: usuario?.nombreUsuario || "",
+                        });
+                        setTelefonos(usuario?.usuariosTelefonos || []);
+                        setNuevoTelefono("");
+                        setEditandoTelefono(null);
+                        setTelefonoEditando("");
+                        setPasswordError(null);
+                        setConfirmPasswordError(null);
+                        setEmailError(null);
+                        setError(null);
+                        setSuccess(null);
+                      }}
                     >
-                      Cancel
+                      Cancelar
                     </button>
                     <button
-                      className="flex justify-center rounded bg-primary px-6 py-2 font-medium text-gray hover:bg-opacity-90"
+                      className="flex justify-center rounded bg-primary px-6 py-2 font-medium text-gray hover:bg-opacity-90 disabled:opacity-50"
                       type="submit"
+                      disabled={saving}
                     >
-                      Save
+                      {saving ? "Guardando..." : "Guardar"}
                     </button>
                   </div>
                 </form>
@@ -219,7 +672,7 @@ const Settings = () => {
             <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
               <div className="border-b border-stroke px-7 py-4 dark:border-strokedark">
                 <h3 className="font-medium text-black dark:text-white">
-                  Your Photo
+                  Tu Foto
                 </h3>
               </div>
               <div className="p-7">
@@ -235,14 +688,14 @@ const Settings = () => {
                     </div>
                     <div>
                       <span className="mb-1.5 text-black dark:text-white">
-                        Edit your photo
+                        Editar tu foto
                       </span>
                       <span className="flex gap-2.5">
                         <button className="text-sm hover:text-primary">
-                          Delete
+                          Eliminar
                         </button>
                         <button className="text-sm hover:text-primary">
-                          Update
+                          Actualizar
                         </button>
                       </span>
                     </div>
@@ -287,11 +740,11 @@ const Settings = () => {
                         </svg>
                       </span>
                       <p>
-                        <span className="text-primary">Click to upload</span> or
-                        drag and drop
+                        <span className="text-primary">Click para subir</span> o
+                        arrastra y suelta
                       </p>
-                      <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
-                      <p>(max, 800 X 800px)</p>
+                      <p className="mt-1.5">SVG, PNG, JPG o GIF</p>
+                      <p>(máx, 800 X 800px)</p>
                     </div>
                   </div>
 
@@ -300,13 +753,13 @@ const Settings = () => {
                       className="flex justify-center rounded border border-stroke px-6 py-2 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                       type="submit"
                     >
-                      Cancel
+                      Cancelar
                     </button>
                     <button
                       className="flex justify-center rounded bg-primary px-6 py-2 font-medium text-gray hover:bg-opacity-90"
                       type="submit"
                     >
-                      Save
+                      Guardar
                     </button>
                   </div>
                 </form>
@@ -315,6 +768,69 @@ const Settings = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de confirmación */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white dark:bg-boxdark p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-bold mb-4 text-black dark:text-white">
+              Confirmar Cambios
+            </h3>
+            <p className="mb-6 text-gray-600 dark:text-gray-300">
+              ¿Está seguro que desea guardar los siguientes cambios?
+            </p>
+            
+            <div className="mb-6 max-h-48 overflow-y-auto">
+              <div className="space-y-2 text-sm">
+                {Object.entries(pendingChanges || {}).map(([key, value]) => {
+                  if (key === 'contrasenia') return null; // No mostrar contraseña
+                  if (key === 'confirmarContrasenia') return null; // No mostrar confirmación
+                  if (key === 'usuariosTelefonos') {
+                    return (
+                      <div key={key} className="space-y-1">
+                        <span className="font-medium capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                        <div className="ml-4 space-y-1">
+                          {Array.isArray(value) && value.length > 0 ? (
+                            value.map((tel: any, index: number) => (
+                              <div key={index} className="text-gray-600 dark:text-gray-400">
+                                • {tel.numero}
+                              </div>
+                            ))
+                          ) : (
+                            <span className="text-gray-500 dark:text-gray-500 italic">Sin teléfonos</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={key} className="flex justify-between">
+                      <span className="font-medium capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                      <span className="text-gray-600 dark:text-gray-400">{String(value)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-4">
+              <button
+                className="flex justify-center rounded border border-stroke px-6 py-2 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="flex justify-center rounded bg-primary px-6 py-2 font-medium text-gray hover:bg-opacity-90 disabled:opacity-50"
+                onClick={confirmarCambios}
+                disabled={saving}
+              >
+                {saving ? "Guardando..." : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DefaultLayout>
   );
 };

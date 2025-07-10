@@ -49,27 +49,37 @@ const DetailView = <T extends {}>({ data, columns, backLink, showEditButton = fa
     <div className="p-6 bg-white rounded-lg shadow-md">
       {columns.map((col, index) => {
         let value: React.ReactNode;
-        if (typeof col.accessor === "function") {
-          value = col.accessor(data);
-        } else {
-          value = (data as any)[col.accessor] as React.ReactNode;
-        }
+        
+        try {
+          if (typeof col.accessor === "function") {
+            value = col.accessor(data);
+          } else {
+            value = (data as any)[col.accessor] as React.ReactNode;
+          }
 
-        // Formatear según el tipo
-        if (col.type === "date" && typeof value === "string") {
-          value = new Date(value).toLocaleDateString();
-        }
+          // Formatear según el tipo
+          if (col.type === "date" && typeof value === "string") {
+            value = new Date(value).toLocaleDateString();
+          }
 
-        if (col.type === "image" && typeof value === "string") {
-          value = <img src={value} alt={col.header} className="max-w-xs rounded" />;
-        }
+          if (col.type === "image" && typeof value === "string") {
+            value = <img src={value} alt={col.header} className="max-w-xs rounded" />;
+          }
 
-        return (
-          <div key={index} className="mb-4">
-            <div className="font-bold text-gray-700">{col.header}:</div>
-            <div className="text-gray-900">{value}</div>
-          </div>
-        );
+          return (
+            <div key={index} className="mb-4">
+              <div className="font-bold text-gray-700">{col.header}:</div>
+              <div className="text-gray-900">{value || "No disponible"}</div>
+            </div>
+          );
+        } catch (error) {
+          return (
+            <div key={index} className="mb-4">
+              <div className="font-bold text-gray-700">{col.header}:</div>
+              <div className="text-gray-900 text-red-500">Error al cargar datos</div>
+            </div>
+          );
+        }
       })}
       <div className="mt-6 flex gap-4">
         {backLink && (
