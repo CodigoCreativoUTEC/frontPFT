@@ -161,10 +161,15 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
       fields.forEach(f => {
         if (f.type === "dropdown" && f.sendFullObject && form[f.accessor]) {
           const selectedId = form[f.accessor];
-          const objects = dropdownObjects[f.accessor] || [];
-          const selectedObject = objects.find(obj => obj[f.optionValueKey || "id"] == selectedId);
-          if (selectedObject) {
-            dataToSend[f.accessor] = selectedObject;
+          // Si el accessor es idMarca, enviar { id: <number> }
+          if (f.accessor === "idMarca") {
+            dataToSend[f.accessor] = { id: Number(selectedId) };
+          } else {
+            const objects = dropdownObjects[f.accessor] || [];
+            const selectedObject = objects.find(obj => obj[f.optionValueKey || "id"] == selectedId);
+            if (selectedObject) {
+              dataToSend[f.accessor] = selectedObject;
+            }
           }
         }
       });

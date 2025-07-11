@@ -25,7 +25,7 @@ const CrearModelo: React.FC = () => {
 
   const fields: CreateDynamicField[] = [
     { accessor: "nombre", label: "Nombre del modelo", type: "text", required: true },
-    { accessor: "idMarca", label: "Marca", type: "dropdown", required: true, options: marcas },
+    { accessor: "idMarca", label: "Marca", type: "dropdown", required: true, options: marcas, sendFullObject: true },
   ];
 
   return (
