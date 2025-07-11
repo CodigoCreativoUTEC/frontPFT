@@ -70,12 +70,19 @@ const handleHttpError = async (response: Response): Promise<never> => {
   try {
     errorData = JSON.parse(text);
   } catch {
-    errorData = { message: text };
+    errorData = { message: text || response.statusText };
+  }
+
+  let errorMessage: string;
+  if (response.status === 404) {
+    errorMessage = "El recurso solicitado no fue encontrado";
+  } else {
+    errorMessage = errorData.message || errorData.error || `HTTP request failed: ${response.statusText}`;
   }
 
   const httpError = new HttpError(
     response.status,
-    errorData.message || errorData.error || `HTTP request failed: ${response.statusText}`
+    errorMessage
   );
   httpError.response = errorData;
 
@@ -83,6 +90,7 @@ const handleHttpError = async (response: Response): Promise<never> => {
     handleUnauthorized();
   }
 
+  console.error(`HTTP Error ${response.status}: ${errorMessage}`);
   throw httpError;
 };
 
@@ -125,6 +133,21 @@ const fetcher = async <T = any>(
     }
 
     if (response.status === 204) {
+      return null as T;
+    }
+
+    // Verificar si la respuesta tiene contenido antes de parsear JSON
+    const contentType = response.headers.get('content-type');
+    const contentLength = response.headers.get('content-length');
+    
+    // Si no hay content-type de JSON o content-length es 0, retornar null
+    if ((!contentType || !contentType.includes('application/json')) || contentLength === '0') {
+      return null as T;
+    }
+
+    // Verificar si hay contenido en el cuerpo
+    const text = await response.clone().text();
+    if (!text || text.trim() === '') {
       return null as T;
     }
 

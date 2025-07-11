@@ -46,3 +46,4 @@ visitas-api.log
 
 package-lock.json
 yarn.lock
+.env
