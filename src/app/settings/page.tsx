@@ -56,10 +56,19 @@ const Settings = () => {
     nombre: "",
     apellido: "",
     nombreUsuario: "",
+  } as {
+    cedula: string;
+    email: string;
+    contrasenia: string;
+    confirmarContrasenia?: string;
+    fechaNacimiento: string;
+    nombre: string;
+    apellido: string;
+    nombreUsuario: string;
   });
 
   // Estados para teléfonos
-  const [telefonos, setTelefonos] = useState<UsuariosTelefonos[]>([]);
+  const [telefonos, setTelefonos] = useState<(UsuariosTelefonos | Omit<UsuariosTelefonos, 'id'>)[]>([]);
   const [nuevoTelefono, setNuevoTelefono] = useState("");
   const [editandoTelefono, setEditandoTelefono] = useState<number | null>(null);
   const [telefonoEditando, setTelefonoEditando] = useState("");
@@ -209,7 +218,7 @@ const Settings = () => {
     }
 
     // Validar confirmación de contraseña
-    if (!validarConfirmacionContrasenia(formData.contrasenia, formData.confirmarContrasenia)) {
+    if (!validarConfirmacionContrasenia(formData.contrasenia, formData.confirmarContrasenia || "")) {
       return false;
     }
 
@@ -240,10 +249,10 @@ const Settings = () => {
     };
 
     // Remover campos que no se envían
-    delete datosAEnviar.confirmarContrasenia;
+    const { confirmarContrasenia, ...datosSinConfirmar } = datosAEnviar;
 
     // Mostrar modal de confirmación
-    setPendingChanges(datosAEnviar);
+    setPendingChanges(datosSinConfirmar);
     setShowConfirmModal(true);
   };
 
@@ -420,14 +429,14 @@ const Settings = () => {
                   </div>
 
                   <div className="mb-5.5">
-                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                    <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="nuevoTelefono">
                       Teléfonos de Contacto
                     </label>
                     
                     {/* Lista de teléfonos existentes */}
                     <div className="mb-4 space-y-2">
                       {telefonos.map((telefono, index) => (
-                        <div key={index} className="flex items-center gap-2 p-3 border border-stroke rounded dark:border-strokedark">
+                        <div key={`telefono-${index}-${telefono.numero}`} className="flex items-center gap-2 p-3 border border-stroke rounded dark:border-strokedark">
                           {editandoTelefono === index ? (
                             <>
                               <input
@@ -479,11 +488,12 @@ const Settings = () => {
                     <div className="flex gap-2">
                       <input
                         type="tel"
+                        id="nuevoTelefono"
                         value={nuevoTelefono}
                         onChange={(e) => setNuevoTelefono(e.target.value)}
                         className="flex-1 rounded border border-stroke px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                         placeholder="Nuevo número de teléfono"
-                        onKeyPress={(e) => {
+                        onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             agregarTelefono();
                           }
@@ -792,7 +802,7 @@ const Settings = () => {
                         <div className="ml-4 space-y-1">
                           {Array.isArray(value) && value.length > 0 ? (
                             value.map((tel: any, index: number) => (
-                              <div key={index} className="text-gray-600 dark:text-gray-400">
+                              <div key={`modal-telefono-${index}-${tel.numero}`} className="text-gray-600 dark:text-gray-400">
                                 • {tel.numero}
                               </div>
                             ))

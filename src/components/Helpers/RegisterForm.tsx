@@ -17,6 +17,18 @@ interface PhoneNumber {
   numero: string;
 }
 
+interface ValidationErrors {
+  cedula?: string;
+  nombre?: string;
+  apellido?: string;
+  email?: string;
+  contrasenia?: string;
+  reContrasenia?: string;
+  fechaNacimiento?: string;
+  perfil?: string;
+  phones?: string;
+}
+
 const RegisterForm: React.FC = () => {
   const [cedula, setCedula] = useState("");
   const [cedulaFormatted, setCedulaFormatted] = useState("");
@@ -36,6 +48,7 @@ const RegisterForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
   // Generar cédulas aleatorias válidas para testing
   const generateTestingCedulas = () => {
@@ -51,6 +64,114 @@ const RegisterForm: React.FC = () => {
   };
 
   const [cedulasEjemplo, setCedulasEjemplo] = useState<Array<{numero: string, formateada: string}>>([]);
+
+  // Validación de email
+  const validateEmail = (email: string): boolean => {
+    // Using a more efficient regex that prevents catastrophic backtracking
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    return emailRegex.test(email);
+  };
+
+  // Validación de contraseña
+  const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+    
+    if (password.length < 8) {
+      errors.push("La contraseña debe tener al menos 8 caracteres");
+    }
+    
+    if (!/[a-zA-Z]/.test(password)) {
+      errors.push("La contraseña debe contener al menos una letra");
+    }
+    
+    if (!/\d/.test(password)) {
+      errors.push("La contraseña debe contener al menos un número");
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  };
+
+  // Validación de edad
+  const validateAge = (birthDate: string): boolean => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    const age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      return age - 1 >= 18;
+    }
+    
+    return age >= 18;
+  };
+
+  // Validación completa del formulario
+  const validateForm = (): { isValid: boolean; errors: ValidationErrors } => {
+    const errors: ValidationErrors = {};
+
+    // Validar cédula
+    if (!cedulaFormatted || cedulaError) {
+      errors.cedula = "Debe ingresar una cédula válida";
+    }
+
+    // Validar nombre
+    if (!nombre.trim()) {
+      errors.nombre = "El nombre es obligatorio";
+    } else if (nombre.trim().length < 2) {
+      errors.nombre = "El nombre debe tener al menos 2 caracteres";
+    }
+
+    // Validar apellido
+    if (!apellido.trim()) {
+      errors.apellido = "El apellido es obligatorio";
+    } else if (apellido.trim().length < 2) {
+      errors.apellido = "El apellido debe tener al menos 2 caracteres";
+    }
+
+    // Validar email
+    if (!email.trim()) {
+      errors.email = "El email es obligatorio";
+    } else if (!validateEmail(email)) {
+      errors.email = "Debe ingresar un email válido";
+    }
+
+    // Validar contraseña
+    const passwordValidation = validatePassword(contrasenia);
+    if (!passwordValidation.isValid) {
+      errors.contrasenia = passwordValidation.errors.join(", ");
+    }
+
+    // Validar confirmación de contraseña
+    if (contrasenia !== reContrasenia) {
+      errors.reContrasenia = "Las contraseñas no coinciden";
+    }
+
+    // Validar fecha de nacimiento
+    if (!fechaNacimiento) {
+      errors.fechaNacimiento = "La fecha de nacimiento es obligatoria";
+    } else if (!validateAge(fechaNacimiento)) {
+      errors.fechaNacimiento = "Debe ser mayor de 18 años";
+    }
+
+    // Validar perfil
+    if (!perfilSeleccionado) {
+      errors.perfil = "Debe seleccionar un perfil";
+    }
+
+    // Validar teléfonos
+    const validPhones = phones.filter(phone => phone.numero.trim() !== "");
+    if (validPhones.length === 0) {
+      errors.phones = "Debe ingresar al menos un número de teléfono";
+    }
+
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors
+    };
+  };
 
   useEffect(() => {
     const fetchPerfiles = async () => {
@@ -121,6 +242,17 @@ const RegisterForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validar formulario antes de mostrar confirmación
+    const validation = validateForm();
+    setValidationErrors(validation.errors);
+    
+    if (!validation.isValid) {
+      setError("Por favor corrija los errores en el formulario");
+      return;
+    }
+    
+    setError(null);
     setShowConfirm(true);
   };
 
@@ -129,31 +261,12 @@ const RegisterForm: React.FC = () => {
     setLoading(true);
     setMessage(null);
     setError(null);
+    setValidationErrors({});
     
-    if (cedulaError) {
-      setError("Por favor corrija los errores en la cédula");
-      setLoading(false);
-      return;
-    }
-    
-    if (contrasenia !== reContrasenia) {
-      setError("Las contraseñas no coinciden");
-      setLoading(false);
-      return;
-    }
-    if (!perfilSeleccionado) {
-      setError("Debe seleccionar un perfil");
-      setLoading(false);
-      return;
-    }
-    // Filter out empty phone numbers
-    const validPhones = phones.filter(phone => phone.numero.trim() !== "");
-    if (validPhones.length === 0) {
-      setError("Debe ingresar al menos un número de teléfono");
-      setLoading(false);
-      return;
-    }
     try {
+      // Filter out empty phone numbers
+      const validPhones = phones.filter(phone => phone.numero.trim() !== "");
+      
       await fetcher("/usuarios/crear", {
         method: "POST",
         requiresAuth: false,
@@ -169,7 +282,10 @@ const RegisterForm: React.FC = () => {
           usuariosTelefonos: validPhones,
         },
       });
-      setMessage("Usuario registrado exitosamente");
+      
+      setMessage("Usuario registrado exitosamente. Su cuenta está en revisión para ser validada por un administrador.");
+      
+      // Limpiar formulario
       setCedula("");
       setCedulaFormatted("");
       setCedulaError(null);
@@ -182,6 +298,8 @@ const RegisterForm: React.FC = () => {
       setFechaNacimiento(getDefaultBirthDate());
       setPerfilSeleccionado(null);
       setPhones([{ numero: "" }]);
+      setValidationErrors({});
+      
     } catch (err: any) {
       setError(err.message || "Error al registrar usuario");
     }
@@ -203,14 +321,15 @@ const RegisterForm: React.FC = () => {
             </h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Cédula</label>
+                <label htmlFor="cedula" className="mb-2.5 block font-medium text-black dark:text-white">Cédula *</label>
                 <input 
+                  id="cedula"
                   type="text" 
                   value={cedulaFormatted} 
                   onChange={e => handleCedulaChange(e.target.value)} 
                   placeholder="Ingrese su cédula" 
                   className={`w-full rounded-lg border py-4 pl-6 pr-10 text-black outline-none focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
-                    cedulaError 
+                    cedulaError || validationErrors.cedula
                       ? 'border-red-500 bg-transparent focus:border-red-500 dark:border-red-500 dark:bg-form-input' 
                       : 'border-stroke bg-transparent focus:border-primary dark:border-form-strokedark dark:bg-form-input'
                   }`} 
@@ -219,43 +338,142 @@ const RegisterForm: React.FC = () => {
                 {cedulaError && (
                   <p className="mt-1 text-sm text-red-500">{cedulaError}</p>
                 )}
-                {!cedulaError && cedulaFormatted && (
+                {validationErrors.cedula && (
+                  <p className="mt-1 text-sm text-red-500">{validationErrors.cedula}</p>
+                )}
+                {!cedulaError && !validationErrors.cedula && cedulaFormatted && (
                   <p className="mt-1 text-sm text-green-600">✓ Cédula válida</p>
                 )}
               </div>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Nombre</label>
-                <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Ingrese su nombre" className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary" required />
+                <label htmlFor="nombre" className="mb-2.5 block font-medium text-black dark:text-white">Nombre *</label>
+                <input 
+                  id="nombre"
+                  type="text" 
+                  value={nombre} 
+                  onChange={e => setNombre(e.target.value)} 
+                  placeholder="Ingrese su nombre" 
+                  className={`w-full rounded-lg border py-4 pl-6 pr-10 text-black outline-none focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
+                    validationErrors.nombre
+                      ? 'border-red-500 bg-transparent focus:border-red-500 dark:border-red-500 dark:bg-form-input' 
+                      : 'border-stroke bg-transparent focus:border-primary dark:border-form-strokedark dark:bg-form-input'
+                  }`} 
+                  required 
+                />
+                {validationErrors.nombre && (
+                  <p className="mt-1 text-sm text-red-500">{validationErrors.nombre}</p>
+                )}
               </div>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Apellido</label>
-                <input type="text" value={apellido} onChange={e => setApellido(e.target.value)} placeholder="Ingrese su apellido" className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary" required />
+                <label htmlFor="apellido" className="mb-2.5 block font-medium text-black dark:text-white">Apellido *</label>
+                <input 
+                  id="apellido"
+                  type="text" 
+                  value={apellido} 
+                  onChange={e => setApellido(e.target.value)} 
+                  placeholder="Ingrese su apellido" 
+                  className={`w-full rounded-lg border py-4 pl-6 pr-10 text-black outline-none focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
+                    validationErrors.apellido
+                      ? 'border-red-500 bg-transparent focus:border-red-500 dark:border-red-500 dark:bg-form-input' 
+                      : 'border-stroke bg-transparent focus:border-primary dark:border-form-strokedark dark:bg-form-input'
+                  }`} 
+                  required 
+                />
+                {validationErrors.apellido && (
+                  <p className="mt-1 text-sm text-red-500">{validationErrors.apellido}</p>
+                )}
               </div>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Nombre de usuario</label>
-                <input type="text" value={nombreUsuario} disabled className="w-full rounded-lg border border-stroke bg-gray-100 py-4 pl-6 pr-10 text-black outline-none dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+                <label htmlFor="nombreUsuario" className="mb-2.5 block font-medium text-black dark:text-white">Nombre de usuario</label>
+                <input id="nombreUsuario" type="text" value={nombreUsuario} disabled className="w-full rounded-lg border border-stroke bg-gray-100 py-4 pl-6 pr-10 text-black outline-none dark:border-form-strokedark dark:bg-form-input dark:text-white" />
               </div>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Email</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Ingrese su email" className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary" required />
+                <label htmlFor="email" className="mb-2.5 block font-medium text-black dark:text-white">Email *</label>
+                <input 
+                  id="email"
+                  type="email" 
+                  value={email} 
+                  onChange={e => setEmail(e.target.value)} 
+                  placeholder="Ingrese su email" 
+                  className={`w-full rounded-lg border py-4 pl-6 pr-10 text-black outline-none focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
+                    validationErrors.email
+                      ? 'border-red-500 bg-transparent focus:border-red-500 dark:border-red-500 dark:bg-form-input' 
+                      : 'border-stroke bg-transparent focus:border-primary dark:border-form-strokedark dark:bg-form-input'
+                  }`} 
+                  required 
+                />
+                {validationErrors.email && (
+                  <p className="mt-1 text-sm text-red-500">{validationErrors.email}</p>
+                )}
               </div>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Contraseña</label>
-                <input type="password" value={contrasenia} onChange={e => setContrasenia(e.target.value)} placeholder="Ingrese su contraseña" className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary" required />
+                <label htmlFor="contrasenia" className="mb-2.5 block font-medium text-black dark:text-white">Contraseña *</label>
+                <input 
+                  id="contrasenia"
+                  type="password" 
+                  value={contrasenia} 
+                  onChange={e => setContrasenia(e.target.value)} 
+                  placeholder="Ingrese su contraseña" 
+                  className={`w-full rounded-lg border py-4 pl-6 pr-10 text-black outline-none focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
+                    validationErrors.contrasenia
+                      ? 'border-red-500 bg-transparent focus:border-red-500 dark:border-red-500 dark:bg-form-input' 
+                      : 'border-stroke bg-transparent focus:border-primary dark:border-form-strokedark dark:bg-form-input'
+                  }`} 
+                  required 
+                />
+                {validationErrors.contrasenia && (
+                  <p className="mt-1 text-sm text-red-500">{validationErrors.contrasenia}</p>
+                )}
+                {contrasenia && !validationErrors.contrasenia && (
+                  <p className="mt-1 text-sm text-green-600">✓ Contraseña válida</p>
+                )}
               </div>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Repetir contraseña</label>
-                <input type="password" value={reContrasenia} onChange={e => setReContrasenia(e.target.value)} placeholder="Repita su contraseña" className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary" required />
+                <label htmlFor="reContrasenia" className="mb-2.5 block font-medium text-black dark:text-white">Repetir contraseña *</label>
+                <input 
+                  id="reContrasenia"
+                  type="password" 
+                  value={reContrasenia} 
+                  onChange={e => setReContrasenia(e.target.value)} 
+                  placeholder="Repita su contraseña" 
+                  className={`w-full rounded-lg border py-4 pl-6 pr-10 text-black outline-none focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
+                    validationErrors.reContrasenia
+                      ? 'border-red-500 bg-transparent focus:border-red-500 dark:border-red-500 dark:bg-form-input' 
+                      : 'border-stroke bg-transparent focus:border-primary dark:border-form-strokedark dark:bg-form-input'
+                  }`} 
+                  required 
+                />
+                {validationErrors.reContrasenia && (
+                  <p className="mt-1 text-sm text-red-500">{validationErrors.reContrasenia}</p>
+                )}
+                {reContrasenia && !validationErrors.reContrasenia && contrasenia === reContrasenia && (
+                  <p className="mt-1 text-sm text-green-600">✓ Contraseñas coinciden</p>
+                )}
               </div>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Fecha de nacimiento</label>
-                <input id="fecha-nacimiento" type="text" value={fechaNacimiento} readOnly className="form-datepicker w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary" required />
+                <label htmlFor="fecha-nacimiento" className="mb-2.5 block font-medium text-black dark:text-white">Fecha de nacimiento *</label>
+                <input 
+                  id="fecha-nacimiento" 
+                  type="text" 
+                  value={fechaNacimiento} 
+                  readOnly 
+                  className={`w-full rounded-lg border py-4 pl-6 pr-10 text-black outline-none focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
+                    validationErrors.fechaNacimiento
+                      ? 'border-red-500 bg-transparent focus:border-red-500 dark:border-red-500 dark:bg-form-input' 
+                      : 'border-stroke bg-transparent focus:border-primary dark:border-form-strokedark dark:bg-form-input'
+                  }`} 
+                  required 
+                />
+                {validationErrors.fechaNacimiento && (
+                  <p className="mt-1 text-sm text-red-500">{validationErrors.fechaNacimiento}</p>
+                )}
               </div>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Números de teléfono</label>
+                <label className="mb-2.5 block font-medium text-black dark:text-white">Números de teléfono *</label>
                 {phones.map((phone, index) => (
                   <div key={index} className="flex gap-2 mb-2">
                     <input
+                      id={`phone-${index}`}
                       type="tel"
                       value={phone.numero}
                       onChange={(e) => updatePhone(index, e.target.value)}
@@ -281,18 +499,34 @@ const RegisterForm: React.FC = () => {
                 >
                   Agregar teléfono
                 </button>
+                {validationErrors.phones && (
+                  <p className="mt-1 text-sm text-red-500">{validationErrors.phones}</p>
+                )}
               </div>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Perfil</label>
-                <select value={perfilSeleccionado?.id || ""} onChange={e => {
-                  const perfil = perfiles.find(p => p.id === Number(e.target.value));
-                  setPerfilSeleccionado(perfil || null);
-                }} className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary" required>
+                <label htmlFor="perfil" className="mb-2.5 block font-medium text-black dark:text-white">Perfil *</label>
+                <select 
+                  id="perfil"
+                  value={perfilSeleccionado?.id || ""} 
+                  onChange={e => {
+                    const perfil = perfiles.find(p => p.id === Number(e.target.value));
+                    setPerfilSeleccionado(perfil || null);
+                  }} 
+                  className={`w-full rounded-lg border py-4 pl-6 pr-10 text-black outline-none focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
+                    validationErrors.perfil
+                      ? 'border-red-500 bg-transparent focus:border-red-500 dark:border-red-500 dark:bg-form-input' 
+                      : 'border-stroke bg-transparent focus:border-primary dark:border-form-strokedark dark:bg-form-input'
+                  }`} 
+                  required
+                >
                   <option value="">Seleccione un perfil</option>
                   {perfiles.map(perfil => (
                     <option key={perfil.id} value={perfil.id}>{perfil.nombrePerfil} ({perfil.estado})</option>
                   ))}
                 </select>
+                {validationErrors.perfil && (
+                  <p className="mt-1 text-sm text-red-500">{validationErrors.perfil}</p>
+                )}
               </div>
               {error && <div className="mb-4 text-red-500">{error}</div>}
               {message && <div className="mb-4 text-green-600">{message}</div>}

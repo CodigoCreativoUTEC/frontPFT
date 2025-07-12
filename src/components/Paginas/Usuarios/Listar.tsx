@@ -36,57 +36,60 @@ interface Usuario {
 
 const ListarUsuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [perfiles, setPerfiles] = useState<IdPerfil[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+
+  // Cargar perfiles al montar el componente
+  useEffect(() => {
+    const fetchPerfiles = async () => {
+      try {
+        const data = await fetcher<IdPerfil[]>("/perfiles/listar", { method: "GET" });
+        setPerfiles(data);
+      } catch (err: any) {
+        console.error("Error al cargar perfiles:", err);
+      }
+    };
+    fetchPerfiles();
+  }, []);
 
   const columns: Column<Usuario>[] = [
     { header: "Cédula", accessor: "cedula", type: "text", filterable: true },
-    { header: "Nombre de Usuario", accessor: "nombreUsuario", type: "text", filterable: true },
-    { header: "Email", accessor: "email", type: "text", filterable: true },
     { header: "Nombre", accessor: "nombre", type: "text", filterable: true },
     { header: "Apellido", accessor: "apellido", type: "text", filterable: true },
-    { header: "Fecha de Nacimiento", accessor: "fechaNacimiento", type: "date", filterable: true },
+    { header: "Nombre de Usuario", accessor: "nombreUsuario", type: "text", filterable: true },
+    { header: "Email", accessor: "email", type: "email", filterable: true },
+    { 
+      header: "Rol", 
+      accessor: (row: Usuario) => row.idPerfil?.nombrePerfil || "",
+      type: "dropdown", 
+      options: perfiles.map(perfil => ({ 
+        value: perfil.nombrePerfil, 
+        label: perfil.nombrePerfil 
+      })), 
+      filterable: true,
+      filterKey: "tipoUsuario" // Campo específico para el filtro en la URL
+    },
     { header: "Estado", accessor: "estado", type: "text", filterable: true },
   ];
 
-  const handleSearch = async (filters: Record<string, string>) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
-      });
-      const queryString = params.toString() ? `?${params.toString()}` : "";
-      const data = await fetcher<Usuario[]>(`/usuarios/filtrar${queryString}`, { method: "GET" });
-      setUsuarios(data);
-    } catch (err: any) {
-      setError(err.message);
-    }
-    setLoading(false);
-  };
 
-  useEffect(() => {
-    handleSearch({ estado: "ACTIVO" });
-  }, []);
 
   return (
     <>
       <h2 className="text-xl font-bold mb-4">Usuarios</h2>
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
-      {loading ? (
-        <p>Cargando...</p>
-      ) : (
-        <DynamicTable
-          columns={columns}
-          data={usuarios}
-          withFilters={true}
-          onSearch={handleSearch}
-          withActions={true}
-          deleteUrl="/usuarios/inactivar"
-          basePath="/usuarios"
-          confirmDeleteMessage="¿Está seguro que desea dar de baja a este usuario?"
-        />
-      )}
+      <DynamicTable
+        columns={columns}
+        data={usuarios}
+        withFilters={true}
+        filterUrl="/usuarios/filtrar"
+        initialFilters={{ estado: "ACTIVO" }}
+        onDataUpdate={setUsuarios}
+        withActions={true}
+        deleteUrl="/usuarios/inactivar"
+        basePath="/usuarios"
+        confirmDeleteMessage="¿Está seguro que desea dar de baja a este usuario?"
+      />
     </>
   );
 };

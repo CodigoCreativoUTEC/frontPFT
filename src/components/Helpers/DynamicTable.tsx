@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, ReactElement } from "react";
+import React, { useEffect, useState } from "react";
 import fetcher from "@/components/Helpers/Fetcher";
 import * as XLSX from "xlsx";
 
@@ -18,15 +18,24 @@ export interface Column<T> {
   accessor: keyof T | ((row: T) => React.ReactNode);
   /**
    * Tipo de dato para formateo automático.
-   * Opciones: "text", "date", "image", "number", "phone"
+   * Opciones: "text", "date", "image", "number", "phone", "dropdown", "email"
    */
-  type?: "text" | "date" | "image" | "number" | "phone";
+  type?: "text" | "date" | "image" | "number" | "phone" | "dropdown" | "email";
   /**
    * Indica si este campo es filtrable.
    * Solo funciona con accesores de tipo string (clave del objeto).
    * Los filtros se aplican localmente en los datos cargados.
    */
   filterable?: boolean;
+  /**
+   * Opciones para dropdown (solo cuando type es "dropdown")
+   */
+  options?: Array<{ value: string; label: string }>;
+  /**
+   * Clave específica para el filtro en la URL.
+   * Si se proporciona, se usa en lugar del accessor para generar los parámetros de filtro.
+   */
+  filterKey?: string;
 }
 
 /**
@@ -207,9 +216,10 @@ function DynamicTable<T extends { id: number }>({
    */
   const handleClearFilters = async () => {
     const cleared: Record<string, string> = {};
-    columns.forEach((col) => {
-      if (typeof col.accessor === "string" && col.filterable) {
-        cleared[col.accessor] = "";
+    columns.forEach((col, idx) => {
+      if (col.filterable) {
+        const key = col.filterKey || (typeof col.accessor === "string" ? col.accessor : `filter_${idx}`);
+        cleared[key] = "";
       }
     });
     setFilters(cleared);
@@ -231,14 +241,51 @@ function DynamicTable<T extends { id: number }>({
   };
 
   // ===== MANEJADORES DE ELIMINACIÓN =====
-  
+
   /**
-   * Prepara la eliminación de un registro
-   * @param id - ID del registro a eliminar
+   * Prepara el body y URL para la eliminación
    */
-  const handleDeleteClick = (id: number) => {
-    setRowIdToDelete(id);
-    setShowConfirmDeleteModal(true);
+  const prepareDeleteRequest = async (id: number): Promise<{ url: string; body?: any }> => {
+    let body = undefined;
+    let url = deleteUrl!;
+
+    if (sendOnlyId) {
+      if (selectUrl) {
+        body = { id };
+      } else {
+        url = `${deleteUrl}?id=${id}`;
+      }
+    } else if (selectUrl) {
+      body = await fetcher<T>(`${selectUrl}?id=${id}`, { method: "GET" });
+    } else {
+      url = `${deleteUrl}?id=${id}`;
+    }
+
+    return { url, body };
+  };
+
+  /**
+   * Maneja la respuesta de eliminación
+   */
+  const handleDeleteResponse = (response: { message?: string; error?: string }) => {
+    if (response.message) {
+      // Eliminación exitosa
+      setSuccessMessage(response.message);
+      setShowSuccessModal(true);
+    } else {
+      setDeletionError(response.error || "Error al eliminar.");
+      setShowDeletionErrorModal(true);
+    }
+  };
+
+  /**
+   * Maneja errores de eliminación
+   */
+  const handleDeleteError = (error: any) => {
+    const errorMsg =
+      error?.response?.error || error?.response?.message || error.message || "Error al eliminar.";
+    setDeletionError(errorMsg);
+    setShowDeletionErrorModal(true);
   };
 
   /**
@@ -253,30 +300,9 @@ function DynamicTable<T extends { id: number }>({
       let response: { message?: string; error?: string };
 
       if (onDelete) {
-        // Usar callback personalizado
         response = await onDelete(id, row);
       } else if (deleteUrl) {
-        // Usar lógica por defecto
-        let body = undefined;
-        let url = deleteUrl;
-
-        if (sendOnlyId) {
-          // Enviar solo el ID
-        if (selectUrl) {
-            // Solo ID en el body
-            body = { id };
-          } else {
-            // Solo ID en la URL
-            url = `${deleteUrl}?id=${id}`;
-          }
-        } else if (selectUrl) {
-          // Obtener objeto completo antes de eliminar
-          body = await fetcher<T>(`${selectUrl}?id=${id}`, { method: "GET" });
-        } else {
-          // Solo usar ID en la URL
-          url = `${deleteUrl}?id=${id}`;
-        }
-
+        const { url, body } = await prepareDeleteRequest(id);
         response = await fetcher<{ message?: string; error?: string }>(url, {
           method: "PUT",
           ...(body ? { body } : {}),
@@ -285,20 +311,9 @@ function DynamicTable<T extends { id: number }>({
         throw new Error("No se definió una lógica de eliminación.");
       }
 
-      if (response.message) {
-        // Eliminación exitosa
-        // Ya no se actualiza internalData, el padre debe actualizar data
-      } else {
-        // Error en la respuesta
-        setDeletionError(response.error || "Error al eliminar.");
-        setShowDeletionErrorModal(true);
-      }
+      handleDeleteResponse(response);
     } catch (error: any) {
-      // Error de red o excepción
-      const errorMsg =
-        error?.response?.error || error?.response?.message || error.message || "Error al eliminar.";
-      setDeletionError(errorMsg);
-      setShowDeletionErrorModal(true);
+      handleDeleteError(error);
     }
   };
 
@@ -371,127 +386,158 @@ function DynamicTable<T extends { id: number }>({
    * Renderiza un campo de filtro según su tipo
    */
   const renderFilterField = (col: Column<T>, idx: number) => {
-    if (!col.filterable || typeof col.accessor !== "string") return null;
+    if (!col.filterable) return null;
     
-                const key = col.accessor;
-                const currentValue = filters[key] || "";
+    // Para accessors que son funciones, usar filterKey o un nombre por defecto
+    const key = col.filterKey || (typeof col.accessor === "string" ? col.accessor : `filter_${idx}`);
+    const currentValue = filters[key] || "";
 
     // Filtro de estado con opciones predefinidas
-                if (key === "estado") {
-                  return (
-                    <div key={idx} className="flex flex-col">
+    if (key === "estado") {
+      return (
+        <div key={idx} className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
             {col.header}:
           </label>
-                      <select
-                        value={currentValue}
-                        onChange={(e) => handleFilterChange(key, e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
-                      >
-                        <option value="">Todos</option>
-                        <option value="ACTIVO">✅Activos</option>
-                        <option value="SIN_VALIDAR">⛔Sin validar</option>
-                        <option value="INACTIVO">❌Eliminados</option>
-                      </select>
-                    </div>
-                  );
-                }
+          <select
+            value={currentValue}
+            onChange={(e) => handleFilterChange(key, e.target.value)}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
+          >
+            <option value="">Todos</option>
+            <option value="ACTIVO">✅Activos</option>
+            <option value="SIN_VALIDAR">⛔Sin validar</option>
+            <option value="INACTIVO">❌Eliminados</option>
+          </select>
+        </div>
+      );
+    }
+
+    // Filtro de dropdown personalizado
+    if (col.type === "dropdown" && col.options) {
+      return (
+        <div key={idx} className="flex flex-col">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+            {col.header}:
+          </label>
+          <select
+            value={currentValue}
+            onChange={(e) => handleFilterChange(key, e.target.value)}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
+          >
+            <option value="">Todos</option>
+            {col.options.map((option, optionIdx) => (
+              <option key={`${option.value}-${optionIdx}`} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    }
 
     // Filtro de fecha
-                if (col.type === "date") {
-                  return (
-                    <div key={idx} className="flex flex-col">
+    if (col.type === "date") {
+      return (
+        <div key={idx} className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
             {col.header}:
           </label>
-                      <input
-                        type="date"
-                        value={currentValue}
-                        onChange={(e) => handleFilterChange(key, e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
-                      />
-                    </div>
-                  );
-                }
+          <input
+            type="date"
+            value={currentValue}
+            onChange={(e) => handleFilterChange(key, e.target.value)}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
+          />
+        </div>
+      );
+    }
 
     // Filtro de texto (por defecto)
-                return (
-                  <div key={idx} className="flex flex-col">
+    return (
+      <div key={idx} className="flex flex-col">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
           {col.header}:
         </label>
-                    <input
-                      type="text"
-                      value={currentValue}
-                      onChange={(e) => handleFilterChange(key, e.target.value)}
-                      className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
-                    />
-                  </div>
-                );
+        <input
+          type="text"
+          value={currentValue}
+          onChange={(e) => handleFilterChange(key, e.target.value)}
+          className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:bg-boxdark dark:border-boxdark-2 dark:text-white"
+        />
+      </div>
+    );
   };
 
   // ===== RENDERIZADO DE CELDAS =====
   
   /**
+   * Renderiza contenido basado en el tipo de columna
+   */
+  const renderByType = (col: Column<T>, value: any): React.ReactNode => {
+    switch (col.type) {
+      case "date":
+        return value ? formatDate(value as string) : "";
+      case "image":
+        return value ? (
+          <img
+            src={value as string}
+            alt={col.header}
+            className="max-w-xs rounded"
+          />
+        ) : "";
+      case "phone":
+        return Array.isArray(value)
+          ? (value
+              .map((tel) => tel.numero || tel)
+              .join(", ")) as React.ReactNode
+          : (value as React.ReactNode);
+      default:
+        return value as React.ReactNode;
+    }
+  };
+
+  /**
+   * Renderiza el estado con formato especial
+   */
+  const renderEstado = (value: any): React.ReactNode => {
+    let colorClass = "";
+    let label: string = String(value);
+    
+    if (value === "ACTIVO") {
+      colorClass = "bg-green-100 text-green-800";
+      label = "Activo";
+    } else if (value === "INACTIVO") {
+      colorClass = "bg-red-100 text-red-800";
+      label = "Inactivo";
+    } else if (value === "SIN_VALIDAR") {
+      colorClass = "bg-yellow-100 text-yellow-800";
+      label = "Sin validar";
+    }
+    
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs ${colorClass}`}>
+        {label}
+      </span>
+    );
+  };
+
+  /**
    * Renderiza el contenido de una celda según su tipo
    */
   const renderCellContent = (col: Column<T>, row: T) => {
-    let cellContent: React.ReactNode;
-    
     if (typeof col.accessor === "function") {
-      // Usar función personalizada
-      cellContent = col.accessor(row);
-    } else {
-      // Usar acceso directo al objeto
-      const value = row[col.accessor];
-      
-      switch (col.type) {
-        case "date":
-          cellContent = value ? formatDate(value as string) : "";
-          break;
-        case "image":
-          cellContent = value ? (
-            <img
-              src={value as string}
-              alt={col.header}
-              className="max-w-xs rounded"
-            />
-          ) : "";
-          break;
-        case "phone":
-          cellContent = Array.isArray(value)
-            ? ((value as any[])
-                .map((tel) => tel.numero || tel)
-                .join(", ")) as React.ReactNode
-            : (value as React.ReactNode);
-          break;
-        default:
-          // Formateo especial para campo estado
-          if (typeof col.accessor === "string" && col.accessor === "estado") {
-            let colorClass = "";
-            let label: string = String(value);
-            if (value === "ACTIVO") {
-              colorClass = "bg-green-100 text-green-800";
-              label = "Activo";
-            } else if (value === "INACTIVO") {
-              colorClass = "bg-red-100 text-red-800";
-              label = "Inactivo";
-            } else if (value === "SIN_VALIDAR") {
-              colorClass = "bg-yellow-100 text-yellow-800";
-              label = "Sin validar";
-            }
-            cellContent = (
-              <span className={`px-2 py-1 rounded-full text-xs ${colorClass}`}>
-                {label}
-              </span>
-            );
-          } else {
-            cellContent = value as React.ReactNode;
-          }
-      }
+      return col.accessor(row);
     }
     
-    return cellContent;
+    const value = row[col.accessor];
+    
+    // Formateo especial para campo estado
+    if (typeof col.accessor === "string" && col.accessor === "estado") {
+      return renderEstado(value);
+    }
+    
+    return renderByType(col, value);
   };
 
   // ===== RENDERIZADO PRINCIPAL =====
@@ -538,7 +584,7 @@ function DynamicTable<T extends { id: number }>({
           <tr>
             {columns.map((col, idx) => (
               <th
-                key={idx}
+                key={`header-${col.header}-${idx}`}
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
@@ -558,7 +604,7 @@ function DynamicTable<T extends { id: number }>({
         <tbody className="bg-white divide-y divide-gray-200 dark:bg-boxdark dark:divide-boxdark-2">
           {data.map((row, rowIndex) => (
             <tr
-              key={rowIndex}
+              key={`row-${row.id}-${rowIndex}`}
               className={
                 rowIndex % 2 === 0
                   ? "bg-gray-50 dark:bg-boxdark-2"
@@ -567,7 +613,7 @@ function DynamicTable<T extends { id: number }>({
             >
               {/* Celdas de datos */}
               {columns.map((col, colIndex) => (
-                  <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                  <td key={`cell-${row.id}-${col.header}-${colIndex}`} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                   {renderCellContent(col, row)}
                   </td>
               ))}
@@ -666,25 +712,25 @@ function DynamicTable<T extends { id: number }>({
             </div>
           </div>
         </div>
-      )}
-      
-      {/* Modal de éxito */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full text-center">
-            <h3 className="text-xl font-semibold text-green-600 mb-4">Eliminación exitosa</h3>
-            <p className="text-gray-700 mb-6">{successMessage}</p>
-            <button
-              onClick={() => setShowSuccessModal(false)}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-            >
-              Cerrar
-            </button>
+              )}
+        
+        {/* Modal de éxito */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded shadow-lg max-w-md w-full text-center">
+              <h3 className="text-xl font-semibold text-green-600 mb-4">Eliminación exitosa</h3>
+              <p className="text-gray-700 mb-6">{successMessage}</p>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
+        )}
+      </div>
+    );
+  }
 
 export default DynamicTable;
