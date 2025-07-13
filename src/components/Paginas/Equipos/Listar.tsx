@@ -70,6 +70,7 @@ const ListarEquipos: React.FC = () => {
 
   const handleSearch = async (filters: Record<string, string>) => {
     setLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
@@ -79,7 +80,7 @@ const ListarEquipos: React.FC = () => {
       const data = await fetcher<Equipo[]>(`/equipos/filtrar${queryString}`, { method: "GET" });
       setEquipos(data);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Error al cargar los equipos");
     }
     setLoading(false);
   };
@@ -88,27 +89,42 @@ const ListarEquipos: React.FC = () => {
     handleSearch({});
   }, []);
 
-  const columns: Column<Equipo>[] = [
-    { header: "ID Interno", accessor: "idInterno", type: "text", filterable: true },
+      const columns: Column<Equipo>[] = [
+      { 
+        header: "", 
+        accessor: "imagen", 
+        type: "image", 
+        filterable: false,
+        imageConfig: {
+          width: 60,
+          height: 60,
+          className: "object-cover",
+          objectFit: "cover"
+        }
+      },
+      { header: "ID Interno", accessor: "idInterno", type: "text", filterable: true },
     { header: "Nombre", accessor: "nombre", type: "text", filterable: true },
     { header: "Número de Serie", accessor: "nroSerie", type: "text", filterable: true },
     { 
       header: "Tipo", 
       accessor: (row) => row.idTipo?.nombreTipo || "-",
       type: "text",
-      filterable: true 
+      filterable: true,
+      filterKey: "tipo"
     },
     { 
       header: "Modelo", 
       accessor: (row) => row.idModelo?.nombre || "-",
       type: "text",
-      filterable: true 
+      filterable: true,
+      filterKey: "modelo"
     },
     { 
       header: "Marca", 
       accessor: (row) => row.idModelo?.idMarca?.nombre || "-",
       type: "text",
-      filterable: true 
+      filterable: true,
+      filterKey: "marca"
     },
     { 
       header: "Ubicación", 
@@ -116,19 +132,28 @@ const ListarEquipos: React.FC = () => {
         ? `${row.idUbicacion.nombre} - ${row.idUbicacion.sector}` 
         : "-",
       type: "text",
-      filterable: true 
+      filterable: true,
+      filterKey: "ubicacion"
     },
     { 
       header: "Estado", 
       accessor: (row) => (
         <span className={`px-2 py-1 rounded-full text-xs ${
-          row.estado === "ACTIVO" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+          row.estado === "ACTIVO" ? "bg-green-100 text-green-800" : 
+          row.estado === "INACTIVO" ? "bg-red-100 text-red-800" : 
+          "bg-yellow-100 text-yellow-800"
         }`}>
           {row.estado}
         </span>
       ),
-      type: "text",
-      filterable: true 
+      type: "dropdown",
+      filterable: true,
+      filterKey: "estado",
+      options: [
+        { value: "ACTIVO", label: "✅ Activos" },
+        { value: "INACTIVO", label: "❌ Inactivos" },
+        { value: "SIN_VALIDAR", label: "⛔ Sin validar" }
+      ]
     }
   ];
 
@@ -179,7 +204,9 @@ const ListarEquipos: React.FC = () => {
           columns={columns}
           data={equipos}
           withFilters={true}
-          onSearch={handleSearch}
+          filterUrl="/equipos/filtrar"
+          initialFilters={{ estado: "ACTIVO" }}
+          onDataUpdate={setEquipos}
           withActions={true}
           deleteUrl="/equipos/inactivar"
           basePath="/equipos"

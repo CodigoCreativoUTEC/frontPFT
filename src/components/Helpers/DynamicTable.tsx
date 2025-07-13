@@ -36,6 +36,19 @@ export interface Column<T> {
    * Si se proporciona, se usa en lugar del accessor para generar los parámetros de filtro.
    */
   filterKey?: string;
+  /**
+   * Configuración de imagen (solo cuando type es "image")
+   */
+  imageConfig?: {
+    /** Ancho de la imagen en píxeles */
+    width?: number;
+    /** Alto de la imagen en píxeles */
+    height?: number;
+    /** Clases CSS adicionales para la imagen */
+    className?: string;
+    /** Si true, la imagen mantiene su proporción */
+    objectFit?: "contain" | "cover" | "fill" | "none" | "scale-down";
+  };
 }
 
 /**
@@ -442,7 +455,7 @@ function DynamicTable<T extends { id: number }>({
     // Para accessors que son funciones, usar filterKey o un nombre por defecto
     const key = col.filterKey || (typeof col.accessor === "string" ? col.accessor : `filter_${idx}`);
     const currentValue = filters[key] || "";
-
+    
     // Filtro de estado con opciones predefinidas
     if (key === "estado") {
       return (
@@ -534,7 +547,12 @@ function DynamicTable<T extends { id: number }>({
           <img
             src={value as string}
             alt={col.header}
-            className="max-w-xs rounded"
+            className={`rounded ${col.imageConfig?.className || "max-w-xs"}`}
+            style={{
+              width: col.imageConfig?.width ? `${col.imageConfig.width}px` : undefined,
+              height: col.imageConfig?.height ? `${col.imageConfig.height}px` : undefined,
+              objectFit: col.imageConfig?.objectFit || "contain"
+            }}
           />
         ) : "";
       case "phone":
