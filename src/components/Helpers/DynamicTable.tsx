@@ -99,6 +99,8 @@ interface DynamicTableProps<T extends { id: number }> {
    * Si se proporciona, se mostrará un modal de confirmación antes de eliminar.
    */
   readonly confirmDeleteMessage?: string;
+  /** Callback personalizado para recargar datos desde el backend. Si se proporciona, se usa en el botón de refrescar en lugar de la lógica interna. */
+  readonly onReload?: () => Promise<void>;
 }
 
 /**
@@ -130,6 +132,7 @@ function DynamicTable<T extends { id: number }>({
   sendOnlyId = false,
   onDataUpdate,
   confirmDeleteMessage,
+  onReload,
 }: DynamicTableProps<T>) {
   // ===== ESTADOS INTERNOS =====
   // Estados para UI (errores, modales, etc)
@@ -212,6 +215,39 @@ function DynamicTable<T extends { id: number }>({
   };
 
   /**
+   * Recarga los datos actuales
+   */
+  const reloadData = async () => {
+    // Pequeño delay para evitar problemas de timing
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    if (filterUrl) {
+      // Manejo automático con filterUrl
+      try {
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) params.append(key, value);
+        });
+        const queryString = params.toString() ? `?${params.toString()}` : "";
+        const filteredData = await fetcher<T[]>(`${filterUrl}${queryString}`, { method: "GET" });
+        if (onDataUpdate) {
+          onDataUpdate(filteredData);
+        }
+      } catch (error: any) {
+        console.error("Error al recargar datos:", error);
+        // No mostrar error al usuario, solo log
+      }
+    } else if (onSearch) {
+      // Comportamiento original con callback
+      try {
+        onSearch(filters);
+      } catch (error: any) {
+        console.error("Error al recargar datos con onSearch:", error);
+      }
+    }
+  };
+
+  /**
    * Limpia todos los filtros y notifica al componente padre
    */
   const handleClearFilters = async () => {
@@ -258,20 +294,35 @@ function DynamicTable<T extends { id: number }>({
     } else if (selectUrl) {
       body = await fetcher<T>(`${selectUrl}?id=${id}`, { method: "GET" });
     } else {
-      url = `${deleteUrl}?id=${id}`;
+      // Buscar el objeto en los datos locales
+      const row = data.find((item) => item.id === id);
+      if (row) {
+        body = row;
+      } else {
+        // Si no se encuentra en los datos locales, intentar obtenerlo del servidor
+        try {
+          const selectUrl = deleteUrl!.replace('/inactivar', '/seleccionar');
+          body = await fetcher<T>(`${selectUrl}?id=${id}`, { method: "GET" });
+        } catch (error) {
+          console.error("Error al obtener objeto para eliminación:", error);
+          throw new Error("No se pudo obtener el objeto para eliminar");
+        }
+      }
     }
 
     return { url, body };
   };
 
-  /**
-   * Maneja la respuesta de eliminación
-   */
+  /** Callback para manejar la respuesta de eliminación */
   const handleDeleteResponse = (response: { message?: string; error?: string }) => {
     if (response.message) {
-      // Eliminación exitosa
       setSuccessMessage(response.message);
       setShowSuccessModal(true);
+      if (onReload) {
+        onReload();
+      } else {
+        reloadData();
+      }
     } else {
       setDeletionError(response.error || "Error al eliminar.");
       setShowDeletionErrorModal(true);
@@ -311,7 +362,7 @@ function DynamicTable<T extends { id: number }>({
         throw new Error("No se definió una lógica de eliminación.");
       }
 
-      handleDeleteResponse(response);
+      await handleDeleteResponse(response);
     } catch (error: any) {
       handleDeleteError(error);
     }
@@ -568,12 +619,34 @@ function DynamicTable<T extends { id: number }>({
         </div>
       )}
 
-      {/* Botón de exportar a Excel */}
-      <div className="flex justify-end mb-2">
+      {/* Botones de exportar y refrescar */}
+      <div className="flex justify-end mb-2 gap-2">
+        <button
+          onClick={async () => {
+            if (onReload) {
+              console.log('Recargando con onReload personalizado');
+              await onReload();
+            } else {
+              console.log('Recargando con reloadData interno');
+              reloadData();
+            }
+          }}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm flex items-center gap-2"
+          title="Refrescar datos"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refrescar
+        </button>
         <button
           onClick={handleExportExcel}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm flex items-center gap-2"
+          title="Exportar a Excel"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
           Exportar a Excel
         </button>
       </div>

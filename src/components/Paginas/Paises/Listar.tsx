@@ -33,6 +33,7 @@ const ListarPaises: React.FC = () => {
         basePath="/paises"
         initialFilters={{ estado: "ACTIVO" }}
         confirmDeleteMessage="¿Está seguro que desea dar de baja a este país?"
+        sendOnlyId={true}
       />
     </>
   );

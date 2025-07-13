@@ -37,6 +37,7 @@ const ListarProveedores: React.FC = () => {
       deleteUrl="/proveedores/inactivar"
       basePath="/proveedores"
       confirmDeleteMessage="¿Está seguro que desea dar de baja a este proveedor?"
+      sendOnlyId={true}
     />
   );
 };

@@ -3,61 +3,76 @@ import React, { useEffect, useState } from "react";
 import fetcher from "@/components/Helpers/Fetcher";
 import DynamicTable, { Column } from "@/components/Helpers/DynamicTable";
 
-interface Perfil {
-  id: number;
-  nombrePerfil: string;
-  estado: string;
-}
-
 interface Funcionalidad {
   id: number;
-  nombreFuncionalidad: string;
-  ruta: string;
+  nombre: string;
+  descripcion: string;
   estado: string;
-  perfiles: Perfil[];
 }
 
 const ListarFuncionalidades: React.FC = () => {
   const [funcionalidades, setFuncionalidades] = useState<Funcionalidad[]>([]);
+  const [allFuncionalidades, setAllFuncionalidades] = useState<Funcionalidad[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Callback para búsqueda (filtros) desde DynamicTable
-  const handleSearch = async (filters: Record<string, string>) => {
+  // Función para cargar todas las funcionalidades
+  const loadFuncionalidades = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
-      });
-      const queryString = params.toString() ? `?${params.toString()}` : "";
-      const data = await fetcher<Funcionalidad[]>(`/funcionalidades/listar${queryString}`, { method: "GET" });
-      setFuncionalidades(data);
-    } catch (err: any) {
-      setError(err.message);
+      const data = await fetcher("/funcionalidades/listar");
+      setAllFuncionalidades(data);
+      setFuncionalidades(data.filter((func: Funcionalidad) => func.estado === "ACTIVO"));
+      setError(null);
+    } catch (err) {
+      setError("Error al cargar las funcionalidades");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  // Función para manejar búsqueda local
+  const handleSearch = (filters: any) => {
+    let filteredData = allFuncionalidades;
+
+    // Filtrar por estado
+    if (filters.estado) {
+      filteredData = filteredData.filter((func: Funcionalidad) => 
+        func.estado.toLowerCase().includes(filters.estado.toLowerCase())
+      );
+    }
+
+    // Filtrar por nombre
+    if (filters.nombre) {
+      filteredData = filteredData.filter((func: Funcionalidad) => 
+        func.nombre.toLowerCase().includes(filters.nombre.toLowerCase())
+      );
+    }
+
+    // Filtrar por descripción
+    if (filters.descripcion) {
+      filteredData = filteredData.filter((func: Funcionalidad) => 
+        func.descripcion.toLowerCase().includes(filters.descripcion.toLowerCase())
+      );
+    }
+
+    setFuncionalidades(filteredData);
   };
 
   useEffect(() => {
-    // Cargar datos sin filtros al montar el componente
-    handleSearch({});
+    loadFuncionalidades();
   }, []);
 
   const columns: Column<Funcionalidad>[] = [
-    { header: "Nombre", accessor: "nombreFuncionalidad", type: "text", filterable: true },
-    { header: "Ruta", accessor: "ruta", type: "text", filterable: true },
+    { header: "Nombre", accessor: "nombre", type: "text", filterable: true },
+    { header: "Descripción", accessor: "descripcion", type: "text", filterable: true },
     { header: "Estado", accessor: "estado", type: "text", filterable: true },
-    {
-      header: "Perfiles",
-      accessor: (row) => row.perfiles.map(p => p.nombrePerfil).join(", "),
-      type: "text",
-      filterable: false
-    }
   ];
 
   return (
     <>
+      <h2 className="text-xl font-bold mb-4">Funcionalidades</h2>
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
       {loading ? (
         <p>Cargando...</p>
@@ -67,9 +82,13 @@ const ListarFuncionalidades: React.FC = () => {
           data={funcionalidades}
           withFilters={true}
           onSearch={handleSearch}
+          onDataUpdate={setFuncionalidades}
           withActions={true}
           deleteUrl="/funcionalidades/eliminar"
           basePath="/funcionalidades"
+          initialFilters={{ estado: "ACTIVO" }}
+          sendOnlyId={true}
+          onReload={loadFuncionalidades}
         />
       )}
     </>

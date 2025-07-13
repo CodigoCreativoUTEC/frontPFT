@@ -16,26 +16,49 @@ interface Modelo {
 
 const ListarModelos: React.FC = () => {
   const [modelos, setModelos] = useState<Modelo[]>([]);
+  const [allModelos, setAllModelos] = useState<Modelo[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = async (filters: Record<string, string>) => {
+  // Función para cargar todos los modelos
+  const loadModelos = async () => {
     setLoading(true);
     try {
-      let url = "/modelo/listar";
-      if (filters.estado) {
-        url = `/modelo/filtrar?estado=${filters.estado}`;
-      }
-      const data = await fetcher<Modelo[]>(url, { method: "GET" });
-      setModelos(data);
-    } catch (err: any) {
-      setError(err.message);
+      const data = await fetcher("/modelo/listar");
+      setAllModelos(data);
+      setModelos(data.filter((modelo: Modelo) => modelo.estado === "ACTIVO"));
+      setError(null);
+    } catch (err) {
+      setError("Error al cargar los modelos");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  // Función para manejar búsqueda local
+  const handleSearch = (filters: any) => {
+    let filteredData = allModelos;
+
+    // Filtrar por estado
+    if (filters.estado) {
+      filteredData = filteredData.filter((modelo: Modelo) => 
+        modelo.estado.toLowerCase().includes(filters.estado.toLowerCase())
+      );
+    }
+
+    // Filtrar por nombre
+    if (filters.nombre) {
+      filteredData = filteredData.filter((modelo: Modelo) => 
+        modelo.nombre.toLowerCase().includes(filters.nombre.toLowerCase())
+      );
+    }
+
+    setModelos(filteredData);
   };
 
   useEffect(() => {
-    handleSearch({});
+    loadModelos();
   }, []);
 
   const columns: Column<Modelo>[] = [
@@ -56,10 +79,13 @@ const ListarModelos: React.FC = () => {
           data={modelos}
           withFilters={true}
           onSearch={handleSearch}
+          onDataUpdate={setModelos}
           withActions={true}
           deleteUrl="/modelo/inactivar"
           basePath="/modelo"
           initialFilters={{ estado: "ACTIVO" }}
+          sendOnlyId={true}
+          onReload={loadModelos}
         />
       )}
     </>

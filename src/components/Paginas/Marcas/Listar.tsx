@@ -14,24 +14,7 @@ const ListarMarcas: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = async (filters: Record<string, string>) => {
-    setLoading(true);
-    try {
-      let url = "/marca/listar";
-      if (filters.estado) {
-        url = `/marca/filtrar?estado=${filters.estado}`;
-      }
-      const data = await fetcher<Marca[]>(url, { method: "GET" });
-      setMarcas(data);
-    } catch (err: any) {
-      setError(err.message);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    handleSearch({});
-  }, []);
+  // Removemos handleSearch y useEffect ya que DynamicTable manejará la carga automática
 
   const columns: Column<Marca>[] = [
     { header: "Nombre", accessor: "nombre", type: "text", filterable: false },
@@ -54,11 +37,13 @@ const ListarMarcas: React.FC = () => {
           columns={columns}
           data={marcas}
           withFilters={true}
-          onSearch={handleSearch}
+          filterUrl="/marca/filtrar"
+          onDataUpdate={setMarcas}
           withActions={true}
           deleteUrl="/marca/inactivar"
           basePath="/marca"
           initialFilters={{ estado: "ACTIVO" }}
+          sendOnlyId={true}
         />
       )}
     </>
