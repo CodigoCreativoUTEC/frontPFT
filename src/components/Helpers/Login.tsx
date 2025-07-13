@@ -23,10 +23,11 @@ const LoginForm = () => {
         if (
             status === "authenticated" &&
             session &&
-            (session.user?.email || session.jwt)
-        ) {
+            (session.user?.email || session.jwt) &&
+            !successMessage // 👈 no redirigir si estamos mostrando el cartel
+          ) {
             router.replace("/usuarios");
-        } else if (
+          } else if (
             status === "authenticated" &&
             (!session || (!session.user?.email && !session.jwt)) &&
             pathname !== "/auth/signin" && pathname !== "/auth/login"
@@ -38,7 +39,8 @@ const LoginForm = () => {
         ) {
             signOut({ callbackUrl: "/auth/signin" });
         }
-    }, [status, session, router, pathname]);
+    }, [status, session, router, pathname, successMessage]);
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -64,7 +66,7 @@ const LoginForm = () => {
           
             setTimeout(() => {
               router.push("/usuarios");
-            }, 2000); // Da tiempo a mostrar el mensaje antes de redirigir
+            }, 3000); // Da tiempo a mostrar el mensaje antes de redirigir
         
         } else {
             console.error("Unexpected error during login");
