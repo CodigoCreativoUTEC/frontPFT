@@ -52,10 +52,16 @@ const handler = NextAuth({
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
+        usarLdap: { label: "usarLdap", type: "text" }, // 👈 esto es lo que faltaba
       },
       authorize: async (credentials) => {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/login`, {
+          const usarLdap = credentials?.usarLdap?.toString() === "true";
+          const endpoint = usarLdap
+            ? `${process.env.NEXT_PUBLIC_API_URL}/usuarios/loginLdap`
+            : `${process.env.NEXT_PUBLIC_API_URL}/usuarios/login`;
+      
+          const response = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -63,14 +69,14 @@ const handler = NextAuth({
               password: credentials?.password,
             }),
           });
-
+      
           const data = await response.json();
-
+      
           if (!response.ok) throw new Error(data.error || "Authentication failed");
           if (!data.token || typeof data.token !== "string") {
             throw new Error("Invalid token format from server");
           }
-
+      
           return {
             id: data.user.id.toString(),
             email: data.user.email,
@@ -80,7 +86,6 @@ const handler = NextAuth({
             jwt: data.token,
           } as User;
         } catch (error) {
-          
           console.error("Credentials authentication error:", error);
           return null;
         }
