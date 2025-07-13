@@ -67,6 +67,11 @@ interface EditDynamicProps<T extends { id: number }> {
    * Si no se define, se redirige al backLink o se queda en la misma página.
    */
   successRedirect?: string;
+  /**
+   * (Opcional) Si es true, usa el formato de ruta /id en lugar de ?id=id
+   * Por defecto es false (usa ?id=id)
+   */
+  useRouteFormat?: boolean;
 }
 
 function EditDynamic<T extends { id: number }>({
@@ -75,6 +80,7 @@ function EditDynamic<T extends { id: number }>({
   fields,
   backLink = "",
   successRedirect = "",
+  useRouteFormat = false,
 }: EditDynamicProps<T>) {
   const { id } = useParams();
   const router = useRouter();
@@ -98,7 +104,8 @@ function EditDynamic<T extends { id: number }>({
     const fetchData = async () => {
       setLoading(true);
       try {
-        const data = await fetcher<T>(`${fetchUrl}?id=${id}`, { method: "GET" });
+        const url = useRouteFormat ? `${fetchUrl}/${id}` : `${fetchUrl}?id=${id}`;
+        const data = await fetcher<T>(url, { method: "GET" });
         setObjectData(data);
       } catch (err: any) {
         setError(err.message);
@@ -108,7 +115,7 @@ function EditDynamic<T extends { id: number }>({
     if (id) {
       fetchData();
     }
-  }, [id, fetchUrl]);
+  }, [id, fetchUrl, useRouteFormat]);
 
   // Cargar opciones para los dropdowns
   useEffect(() => {
