@@ -1,0 +1,80 @@
+@startuml
+skinparam componentStyle rectangle
+title Arquitectura del Sistema - Plataforma de Gestión Biomédica
+
+package "Frontend (Next.js + React)" {
+  component "Next.js 15.3.5\nReact 19\nTypeScript 5" as NextJS
+  component "TailwindCSS\nFlatpickr\nApexCharts\nJSVectorMap" as UI_Libs
+  component "NextAuth.js\nReact Hot Toast\njwt-decode\nCrypto" as FE_Auth
+  component "jsPDF + XLSX\nFile-saver" as Exportacion
+  component "React Context\nuseState\nuseLocalStorage" as Estado
+  component "Fetcher.tsx\nFetch API" as Fetcher
+  component "Componentes y Hooks" as FE_Componentes
+  
+  NextJS --> UI_Libs
+  NextJS --> FE_Auth
+  NextJS --> Estado
+  NextJS --> Exportacion
+  NextJS --> Fetcher
+  NextJS --> FE_Componentes
+  Fetcher --> "API REST (Backend)\nvia HTTPS"
+}
+
+package "Backend (Jakarta EE + Java)" {
+  component "API REST (JAX-RS)\n/swagger\nOpenAPI 3.1.1" as API
+  component "EJB Beans (Service Layer)\nEquipoBean, UsuarioBean" as EJB
+  component "DTOs y Mappers\n(MapStruct)" as DTOs
+  component "Hibernate + JPA\n(OracleDialect)" as Persistencia
+  component "Filtros JAX-RS\n(JwtTokenFilter, CORS, Roles)" as Filtros
+  component "JWT Auth\n(io.jsonwebtoken)" as BE_Auth
+  component "Servidor Jakarta EE\nWAR Deploy" as Servidor
+
+  API --> EJB
+  EJB --> DTOs
+  EJB --> Persistencia
+  API --> Filtros
+  API --> BE_Auth
+  Servidor --> API
+}
+
+package "Base de Datos" {
+  database "Oracle\n(OracleDialect)" as ORACLE
+  Persistencia --> ORACLE
+}
+
+' Comunicación entre frontend y backend
+Fetcher --> API : HTTPS + JWT
+
+' Seguridad
+FE_Auth --> Fetcher : Token en headers
+BE_Auth --> Filtros : Validación JWT
+
+' Rutas protegidas y login
+FE_Componentes --> FE_Auth : Login/Logout\nSessionProvider
+FE_Auth --> API : /login, /google-login
+
+note right of Fetcher
+Fetcher.tsx maneja:
+- Headers Authorization
+- Errores 401
+- Reintentos
+end note
+
+note right of API
+Endpoints REST como:
+- /api/usuarios/login
+- /api/equipos/listar
+- /api/intervenciones/reportePorFechas
+end note
+
+note bottom of DTOs
+DTOs desacoplan
+las entidades de la API
+end note
+
+note bottom of Filtros
+Filtros controlan CORS,
+JWT y permisos por rol
+end note
+
+@enduml

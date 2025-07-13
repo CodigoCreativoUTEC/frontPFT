@@ -153,3 +153,37 @@ React.useEffect(() => {
 - **401 Unauthorized:** Redirección automática al login con mensaje visual
 - **Expiración de Token:** Validación de expiración en el callback JWT
 - **Reautenticación:** Signout forzado cuando la sesión está corrupta o vacía
+
+## 6. Patrones de Diseño
+
+**Patrón 1: Provider Pattern**
+- **Propósito:** Proporcionar contexto y estado global a todos los componentes descendientes sin prop drilling, centralizando la gestión de autenticación y configuración de la aplicación.
+- **Implementación:** `AppShell` envuelve toda la aplicación con `SessionProvider` de NextAuth, y los componentes acceden al contexto mediante `useSession()` hook.
+
+**Patrón 2: Facade Pattern**
+- **Propósito:** Simplificar la interfaz de comunicación con el backend proporcionando una API unificada que oculta la complejidad de autenticación, manejo de errores y configuración de requests.
+- **Implementación:** El componente `Fetcher.tsx` actúa como facade, encapsulando `fetch()` nativo con manejo automático de JWT, timeouts, y procesamiento de errores HTTP.
+
+**Patrón 3: Template Method Pattern**
+- **Propósito:** Definir la estructura general de las páginas mientras permite que las implementaciones específicas personalicen el contenido sin alterar la estructura base.
+- **Implementación:** `DefaultLayout` define el template con Header + Sidebar + contenido principal, donde cada página proporciona su contenido específico a través de `children`.
+
+**Patrón 4: Factory Pattern**
+- **Propósito:** Crear componentes de interfaz complejos (formularios y tablas) basándose en configuraciones declarativas, eliminando la necesidad de crear manualmente cada variante.
+- **Implementación:** `CreateDynamic` y `DynamicTable` generan componentes funcionales basándose en arrays de configuración (`CreateDynamicField[]` y `Column<T>[]`).
+
+**Patrón 5: Strategy Pattern**
+- **Propósito:** Permitir diferentes algoritmos de validación y formateo de datos de forma intercambiable, definiendo familias de algoritmos encapsulados.
+- **Implementación:** Los campos en `CreateDynamic` y `EditDynamic` aceptan funciones `validate?: (value: any) => string | undefined` que implementan estrategias de validación específicas.
+
+**Patrón 6: Observer Pattern**
+- **Propósito:** Establecer dependencias uno-a-muchos entre objetos, donde cambios en el estado notifican automáticamente a todos los componentes dependientes.
+- **Implementación:** Los hooks personalizados `useLocalStorage` y `useColorMode` actúan como observables que notifican cambios de estado a múltiples componentes suscritos.
+
+**Patrón 7: Composite Pattern**
+- **Propósito:** Componer objetos en estructuras de árbol para representar jerarquías de componentes, tratando tanto componentes individuales como compuestos de manera uniforme.
+- **Implementación:** Los layouts (`DefaultLayout`, `LoginLayout`) componen múltiples componentes (`Header`, `Sidebar`, `Breadcrumb`) formando estructuras jerárquicas reutilizables.
+
+**Patrón 8: Builder Pattern**
+- **Propósito:** Construir objetos complejos paso a paso, separando la construcción de la representación final y permitiendo diferentes representaciones del mismo proceso de construcción.
+- **Implementación:** Los componentes dinámicos construyen formularios y tablas incrementalmente basándose en configuraciones, donde cada campo/columna se agrega secuencialmente al resultado final.
