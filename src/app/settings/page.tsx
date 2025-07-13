@@ -1,6 +1,5 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { useState, useEffect } from "react";
 import fetcher from "@/components/Helpers/Fetcher";
@@ -239,17 +238,25 @@ const Settings = () => {
       return;
     }
 
-    // Preparar datos a enviar
-    const datosAEnviar = {
-      ...formData,
-      // Solo enviar contraseña si no está vacía
-      ...(formData.contrasenia && { contrasenia: formData.contrasenia }),
-      // Incluir teléfonos
+    // Crear objeto de usuario completo con los datos modificados
+    const usuarioCompleto: Usuario = {
+      id: usuario!.id,
+      cedula: formData.cedula,
+      email: formData.email,
+      contrasenia: formData.contrasenia || null,
+      fechaNacimiento: formData.fechaNacimiento,
+      estado: usuario!.estado,
+      nombre: formData.nombre,
+      apellido: formData.apellido,
+      nombreUsuario: formData.nombreUsuario,
+      telefono: usuario!.telefono,
+      idInstitucion: usuario!.idInstitucion,
+      idPerfil: usuario!.idPerfil,
       usuariosTelefonos: telefonos
     };
 
     // Remover campos que no se envían
-    const { confirmarContrasenia, ...datosSinConfirmar } = datosAEnviar;
+    const { confirmarContrasenia, ...datosSinConfirmar } = usuarioCompleto;
 
     // Mostrar modal de confirmación
     setPendingChanges(datosSinConfirmar);

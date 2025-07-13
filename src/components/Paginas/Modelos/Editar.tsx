@@ -1,46 +1,62 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import EditDynamic from "@/components/Helpers/EditDynamic";
-import fetcher from "@/components/Helpers/Fetcher";
-import { useParams } from "next/navigation";
-import type { Field } from "@/components/Helpers/EditDynamic";
+import React from "react";
+import EditDynamic, { Field } from "@/components/Helpers/EditDynamic";
+import DefaultLayout from "@/components/Layouts/DefaultLayout";
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+
+interface Modelo {
+  id: number;
+  nombre: string;
+  estado: string;
+  idMarca: {
+    id: number;
+    nombre: string;
+    estado: string;
+  };
+}
 
 const EditarModelo: React.FC = () => {
-  const { id } = useParams();
-  const [marcas, setMarcas] = useState<{ label: string; value: number }[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchMarcas = async () => {
-      try {
-        const data = await fetcher<any[]>("/marca/filtrar?estado=ACTIVO", { method: "GET" });
-        setMarcas(data.map(m => ({ label: m.nombre, value: m.id }))); 
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMarcas();
-  }, []);
-
-  if (loading) return <p>Cargando marcas...</p>;
-
-  const fields: Field<any>[] = [
-    { accessor: "estado", label: "Estado", type: "dropdown", options: [
-      { value: "ACTIVO", label: "Activo" },
-      { value: "INACTIVO", label: "Inactivo" },
-      { value: "SIN_VALIDAR", label: "Sin validar" },
-    ]},
-    { accessor: "idMarca", label: "Marca", type: "dropdown", options: marcas },
+  const fields: Field<Modelo>[] = [
+    { 
+      label: "Nombre", 
+      accessor: "nombre", 
+      type: "text",
+      validate: (value) => value ? undefined : "El nombre es obligatorio"
+    },
+    { 
+      label: "Estado", 
+      accessor: "estado", 
+      type: "dropdown", 
+      options: [
+        { id: "ACTIVO", label: "Activo" },
+        { id: "INACTIVO", label: "Inactivo" },
+        { id: "SIN_VALIDAR", label: "Sin validar" }
+      ],
+      optionValueKey: "id",
+      optionLabelKey: "label"
+    },
+    { 
+      label: "Marca", 
+      accessor: "idMarca", 
+      type: "dropdown", 
+      optionsEndpoint: "/marca/filtrar?estado=ACTIVO",
+      optionValueKey: "id",
+      optionLabelKey: "nombre",
+      sendFullObject: true
+    }
   ];
 
   return (
-    <EditDynamic
-      fetchUrl={`/modelo/seleccionar`}
-      updateUrl="/modelo/modificar"
-      fields={fields}
-      backLink="/modelo"
-      successRedirect="/modelo"
-    />
+    <DefaultLayout>
+      <Breadcrumb pageName="Editar Modelo" />
+      <EditDynamic<Modelo>
+        fetchUrl="/modelo/seleccionar"
+        updateUrl="/modelo/modificar"
+        fields={fields}
+        backLink="/modelo"
+        successRedirect="/modelo"
+      />
+    </DefaultLayout>
   );
 };
 
