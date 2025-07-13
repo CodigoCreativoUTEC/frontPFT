@@ -70,6 +70,7 @@ const ListarFuncionalidades: React.FC = () => {
           withActions={true}
           deleteUrl="/funcionalidades/eliminar"
           basePath="/funcionalidades"
+          sendOnlyId={true}
         />
       )}
     </>
