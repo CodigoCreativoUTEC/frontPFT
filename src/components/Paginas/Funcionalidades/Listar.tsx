@@ -46,13 +46,13 @@ const ListarFuncionalidades: React.FC = () => {
 
   const columns: Column<Funcionalidad>[] = [
     { header: "Nombre", accessor: "nombreFuncionalidad", type: "text", filterable: true },
-    { header: "Ruta", accessor: "ruta", type: "text", filterable: true },
+    { header: "Ruta", accessor: "ruta", type: "text", filterable: false },
     { header: "Estado", accessor: "estado", type: "text", filterable: true },
     {
       header: "Perfiles",
       accessor: (row) => row.perfiles.map(p => p.nombrePerfil).join(", "),
       type: "text",
-      filterable: false
+      filterable: true
     }
   ];
 
@@ -70,6 +70,7 @@ const ListarFuncionalidades: React.FC = () => {
           withActions={true}
           deleteUrl="/funcionalidades/eliminar"
           basePath="/funcionalidades"
+          sendOnlyId={true}
         />
       )}
     </>

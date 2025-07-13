@@ -150,12 +150,18 @@ function EditDynamic<T extends { id: number }>({
     const errorMessage = field ? validateField(field, value) : undefined;
     setFieldErrors((prev) => ({ ...prev, [accessor as string]: errorMessage || "" }));
 
-    // Si es el campo de perfil, asegurarse de mantener la estructura correcta
-    if (accessor === "idPerfil") {
-      setObjectData({
-        ...objectData,
-        [accessor]: { id: value }
-      });
+    // Si es un dropdown con sendFullObject, buscar el objeto completo
+    if (field?.type === "dropdown" && field.sendFullObject) {
+      const objects = dropdownObjects[accessor as string] || [];
+      const selectedObject = objects.find(obj => obj[field.optionValueKey || "id"] == value);
+      if (selectedObject) {
+        setObjectData({
+          ...objectData,
+          [accessor]: selectedObject
+        });
+      } else {
+        setObjectData({ ...objectData, [accessor]: value });
+      }
     } else {
       setObjectData({ ...objectData, [accessor]: value });
     }
