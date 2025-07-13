@@ -50,6 +50,7 @@ const fields: Field<Usuario>[] = [
     optionsEndpoint: "/perfiles/listar",
     optionValueKey: "id",
     optionLabelKey: "nombrePerfil",
+    sendFullObject: true,
   },
 ];
 
