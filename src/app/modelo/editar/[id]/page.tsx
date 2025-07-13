@@ -3,14 +3,14 @@ import EditarModelo from "@/components/Paginas/Modelos/Editar";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
 export const metadata = {
-  title: "MAMED | Editar modelo",
+  title: "Editar modelo",
 };
 
 const EditarModeloPage = () => {
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Editar modelo" />
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-2">
         <EditarModelo />
       </div>
     </DefaultLayout>

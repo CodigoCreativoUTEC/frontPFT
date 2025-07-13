@@ -294,6 +294,8 @@ function EditDynamic<T extends { id: number }>({
             value = (objectData as any).idPerfil.id;
           } else if (field.type === "dropdown" && field.accessor === "pais" && (objectData as any)?.pais) {
             value = (objectData as any).pais.id;
+          } else if (field.type === "dropdown" && field.accessor === "idMarca" && (objectData as any)?.idMarca) {
+            value = (objectData as any).idMarca.id;
           }
 
           return (

@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
 import EditDynamic, { Field } from "@/components/Helpers/EditDynamic";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 
 interface Modelo {
   id: number;
@@ -30,7 +28,6 @@ const EditarModelo: React.FC = () => {
       options: [
         { id: "ACTIVO", label: "Activo" },
         { id: "INACTIVO", label: "Inactivo" },
-        { id: "SIN_VALIDAR", label: "Sin validar" }
       ],
       optionValueKey: "id",
       optionLabelKey: "label"
@@ -39,7 +36,7 @@ const EditarModelo: React.FC = () => {
       label: "Marca", 
       accessor: "idMarca", 
       type: "dropdown", 
-      optionsEndpoint: "/marca/filtrar?estado=ACTIVO",
+      optionsEndpoint: "/marca/listar",
       optionValueKey: "id",
       optionLabelKey: "nombre",
       sendFullObject: true
@@ -47,8 +44,6 @@ const EditarModelo: React.FC = () => {
   ];
 
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Editar Modelo" />
       <EditDynamic<Modelo>
         fetchUrl="/modelo/seleccionar"
         updateUrl="/modelo/modificar"
@@ -56,7 +51,6 @@ const EditarModelo: React.FC = () => {
         backLink="/modelo"
         successRedirect="/modelo"
       />
-    </DefaultLayout>
   );
 };
 
