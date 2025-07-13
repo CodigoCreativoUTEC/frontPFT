@@ -114,6 +114,8 @@ interface DynamicTableProps<T extends { id: number }> {
   readonly confirmDeleteMessage?: string;
   /** Callback personalizado para recargar datos desde el backend. Si se proporciona, se usa en el botón de refrescar en lugar de la lógica interna. */
   readonly onReload?: () => Promise<void>;
+  /** Si true, incluye la opción "Sin validar" en el filtro de estado */
+  readonly includeSinValidar?: boolean;
 }
 
 /**
@@ -146,6 +148,7 @@ function DynamicTable<T extends { id: number }>({
   onDataUpdate,
   confirmDeleteMessage,
   onReload,
+  includeSinValidar = false,
 }: DynamicTableProps<T>) {
   // ===== ESTADOS INTERNOS =====
   // Estados para UI (errores, modales, etc)
@@ -470,7 +473,7 @@ function DynamicTable<T extends { id: number }>({
           >
             <option value="">Todos</option>
             <option value="ACTIVO">✅Activos</option>
-            <option value="SIN_VALIDAR">⛔Sin validar</option>
+            {includeSinValidar && <option value="SIN_VALIDAR">⛔Sin validar</option>}
             <option value="INACTIVO">❌Eliminados</option>
           </select>
         </div>

@@ -112,6 +112,7 @@ const ListarUsuarios: React.FC = () => {
         basePath="/usuarios"
         confirmDeleteMessage="¿Está seguro que desea dar de baja a este usuario?"
         sendOnlyId={true}
+        includeSinValidar={true}
       />
     </>
   );
