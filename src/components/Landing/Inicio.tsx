@@ -25,7 +25,7 @@ const Landing: React.FC = () => {
     <div className="relative z-20 mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
             <h1 className="text-5xl font-bold tracking-tight text-gray-900 sm:text-9xl">
-                MA-MED 
+                MED-MGT 
             </h1>
             <h1 className="text-4xl font-bold tracking-tight text-blue-600 sm:text-6xl">El sistema de gestión de mantenimiento diseñado para traer <b>velocidad, organización y fiabilidad</b> que necesita su hospital</h1>
             <h2 className="mt-6 text-lg leading-8 text-gray-600">

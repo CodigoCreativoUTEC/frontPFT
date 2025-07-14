@@ -317,7 +317,7 @@ const RegisterForm: React.FC = () => {
               onDoubleClick={openTestingModal}
               title="Doble clic para abrir cédulas de testing"
             >
-              MA-MED
+              MED-MGT
             </h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">

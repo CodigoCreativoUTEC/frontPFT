@@ -3,8 +3,8 @@ import RegisterForm from "@/components/Helpers/RegisterForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Registro de usuario | MA-MED",
-  description: "Crea tu cuenta en MA-MED",
+  title: "Registro de usuario | MED-MGT",
+  description: "Crea tu cuenta en MED-MGT",
 };
 
 const SignUp: React.FC = () => {

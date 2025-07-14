@@ -7,8 +7,8 @@ import AppShell from "@/components/common/AppShell";
 
 export const metadata = {
   title: {
-    default: "MA-MED",
-    template: "%s | MA-MED",
+    default: "MED-MGT",
+    template: "%s | MED-MGT",
   },
   description: "Sistema de gestión de mantenimiento hospitalario",
 };

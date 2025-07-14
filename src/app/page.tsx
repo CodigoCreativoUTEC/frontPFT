@@ -3,7 +3,7 @@ import Landing from "@/components/Landing/Inicio";
 
 export const metadata: Metadata = {
   title:
-    "MA-MED"
+    "MED-MGT"
 };
 
 export default function Home() {

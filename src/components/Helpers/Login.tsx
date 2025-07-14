@@ -111,7 +111,7 @@ const LoginForm = () => {
             id="email"
             type="text"
             value={email}
-            placeholder="user@dominio.tld"
+            placeholder="Ingrese su correo electrónico"
             onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
         />
@@ -136,13 +136,13 @@ const LoginForm = () => {
     </div>
     <div className="mb-6">
         <label htmlFor="password" className="mb-2.5 block font-medium text-black dark:text-white">
-            Password:
+            Contraseña:
         </label>
         <div className="relative">
         <input
             id="password"
             type="password"
-            placeholder="contraseña"
+            placeholder="Ingrese su contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
