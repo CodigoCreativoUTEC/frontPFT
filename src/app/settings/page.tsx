@@ -146,7 +146,8 @@ const Settings = () => {
 
   // Validar email
   const validarEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Regex más segura que evita backtracking excesivo
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       setEmailError("Formato de email inválido");
       return false;

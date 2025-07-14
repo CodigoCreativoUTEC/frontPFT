@@ -80,47 +80,51 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Fetch dropdown options dinámicos
-  useEffect(() => {
-    fields.forEach(async (f) => {
-      if (f.type === "dropdown" && f.optionsEndpoint && f.optionLabelKey && f.optionValueKey) {
-        setDropdownLoading(prev => ({ ...prev, [f.accessor]: true }));
-        try {
-          const data = await fetcher<any[]>(f.optionsEndpoint, { method: "GET", requiresAuth: true });
-          setDropdownOptions(prev => ({
-            ...prev,
-            [f.accessor]: data.map(opt => ({
-              label: opt[f.optionLabelKey!],
-              value: opt[f.optionValueKey!],
-            })),
-          }));
-          // También almacenar los objetos completos
-          setDropdownObjects(prev => ({
-            ...prev,
-            [f.accessor]: data,
-          }));
-        } catch (error) {
-          console.error(`Error cargando opciones para ${f.label}:`, error);
-          setDropdownOptions(prev => ({ ...prev, [f.accessor]: [] }));
-          setDropdownObjects(prev => ({ ...prev, [f.accessor]: [] }));
-        } finally {
-          setDropdownLoading(prev => ({ ...prev, [f.accessor]: false }));
-        }
+  const loadDropdownOptions = async (f: CreateDynamicField) => {
+    if (f.type === "dropdown" && f.optionsEndpoint && f.optionLabelKey && f.optionValueKey) {
+      setDropdownLoading(prev => ({ ...prev, [f.accessor]: true }));
+      try {
+        const data = await fetcher<any[]>(f.optionsEndpoint, { method: "GET", requiresAuth: true });
+        setDropdownOptions(prev => ({
+          ...prev,
+          [f.accessor]: data.map(opt => ({
+            label: opt[f.optionLabelKey!],
+            value: opt[f.optionValueKey!],
+          })),
+        }));
+        // También almacenar los objetos completos
+        setDropdownObjects(prev => ({
+          ...prev,
+          [f.accessor]: data,
+        }));
+      } catch (error) {
+        console.error(`Error cargando opciones para ${f.label}:`, error);
+        setDropdownOptions(prev => ({ ...prev, [f.accessor]: [] }));
+        setDropdownObjects(prev => ({ ...prev, [f.accessor]: [] }));
+      } finally {
+        setDropdownLoading(prev => ({ ...prev, [f.accessor]: false }));
       }
-    });
+    }
+  };
+
+  useEffect(() => {
+    fields.forEach(loadDropdownOptions);
   }, [fields]);
 
   // Flatpickr para fechas
+  const initializeDatePicker = (f: CreateDynamicField) => {
+    if (f.type === "date") {
+      flatpickr(`#date-${f.accessor}`, {
+        dateFormat: "Y-m-d",
+        onChange: (selectedDates) => {
+          setForm(prev => ({ ...prev, [f.accessor]: selectedDates[0]?.toISOString().split("T")[0] || "" }));
+        },
+      });
+    }
+  };
+
   useEffect(() => {
-    fields.forEach(f => {
-      if (f.type === "date") {
-        flatpickr(`#date-${f.accessor}`, {
-          dateFormat: "Y-m-d",
-          onChange: (selectedDates) => {
-            setForm(prev => ({ ...prev, [f.accessor]: selectedDates[0]?.toISOString().split("T")[0] || "" }));
-          },
-        });
-      }
-    });
+    fields.forEach(initializeDatePicker);
     // eslint-disable-next-line
   }, []);
 
@@ -196,9 +200,10 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
       <form onSubmit={handleSubmit}>
         {fields.map(f => (
           <div className="mb-4" key={f.accessor}>
-            <label className="mb-2.5 block font-medium text-black dark:text-white">{f.label}</label>
+            <label htmlFor={f.accessor} className="mb-2.5 block font-medium text-black dark:text-white">{f.label}</label>
             {f.type === "text" && (
               <input
+                id={f.accessor}
                 type="text"
                 value={form[f.accessor]}
                 onChange={e => handleChange(f.accessor, e.target.value)}
@@ -209,6 +214,7 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
             )}
             {f.type === "number" && (
               <input
+                id={f.accessor}
                 type="number"
                 value={form[f.accessor]}
                 onChange={e => handleChange(f.accessor, e.target.value)}
@@ -219,6 +225,7 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
             )}
             {f.type === "dropdown" && (
               <select
+                id={f.accessor}
                 value={String(form[f.accessor] || "")}
                 onChange={e => handleChange(f.accessor, e.target.value)}
                 className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
@@ -235,6 +242,7 @@ const CreateDynamic: React.FC<Props> = ({ fields, createUrl, successMessage, err
             )}
             {f.type === "checkbox" && (
               <input
+                id={f.accessor}
                 type="checkbox"
                 checked={form[f.accessor]}
                 onChange={e => handleChange(f.accessor, e.target.checked)}

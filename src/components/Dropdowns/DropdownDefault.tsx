@@ -24,8 +24,8 @@ const DropdownDefault = () => {
 
   // close if the esc key is pressed
   useEffect(() => {
-    const keyHandler = ({ keyCode }: KeyboardEvent) => {
-      if (!dropdownOpen || keyCode !== 27) return;
+    const keyHandler = ({ code }: KeyboardEvent) => {
+      if (!dropdownOpen || code !== "Escape") return;
       setDropdownOpen(false);
     };
     document.addEventListener("keydown", keyHandler);
@@ -63,8 +63,13 @@ const DropdownDefault = () => {
       </button>
       <div
         ref={dropdown}
+        role="menu"
+        tabIndex={0}
         onFocus={() => setDropdownOpen(true)}
         onBlur={() => setDropdownOpen(false)}
+        onKeyDown={(e) => {
+          if (e.code === "Escape") setDropdownOpen(false);
+        }}
         className={`absolute right-0 top-full z-40 w-40 space-y-1 rounded-sm border border-stroke bg-white p-1.5 shadow-default dark:border-strokedark dark:bg-boxdark ${
           dropdownOpen === true ? "block" : "hidden"
         }`}

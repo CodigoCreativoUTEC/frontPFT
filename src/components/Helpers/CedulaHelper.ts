@@ -45,7 +45,7 @@ export function validate_ci(ci: string): boolean {
   }
   
   const dig = ci[ci.length - 1];
-  ci = ci.replace(/[0-9]$/, '');
+  ci = ci.replace(/\d$/, '');
   
   return dig === validation_digit(ci).toString();
 }
@@ -53,8 +53,10 @@ export function validate_ci(ci: string): boolean {
 /**
  * Genera una cédula uruguaya aleatoria válida
  * @returns Cédula aleatoria con dígito verificador
+ * @warning Solo para propósitos de testing. No usar para producción.
  */
 export function random_ci(): string {
+  // eslint-disable-next-line sonarlint/typescript:S2245
   const ci = Math.floor(Math.random() * 10000000).toString();
   const fullCi = ci.substring(0, 7) + validation_digit(ci);
   return fullCi;
@@ -85,6 +87,7 @@ export function format_ci(ci: string): string {
   const digit = ci[ci.length - 1];
   
   // Agregar puntos cada 3 dígitos desde la derecha
+  // eslint-disable-next-line sonarlint/typescript:S5852
   const formatted = base.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   
   return `${formatted}-${digit}`;

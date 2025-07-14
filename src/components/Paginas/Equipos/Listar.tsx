@@ -137,15 +137,19 @@ const ListarEquipos: React.FC = () => {
     },
     { 
       header: "Estado", 
-      accessor: (row) => (
-        <span className={`px-2 py-1 rounded-full text-xs ${
-          row.estado === "ACTIVO" ? "bg-green-100 text-green-800" : 
-          row.estado === "INACTIVO" ? "bg-red-100 text-red-800" : 
-          "bg-yellow-100 text-yellow-800"
-        }`}>
-          {row.estado}
-        </span>
-      ),
+      accessor: (row) => {
+        const getEstadoClass = (estado: string) => {
+          if (estado === "ACTIVO") return "bg-green-100 text-green-800";
+          if (estado === "INACTIVO") return "bg-red-100 text-red-800";
+          return "bg-yellow-100 text-yellow-800";
+        };
+        
+        return (
+          <span className={`px-2 py-1 rounded-full text-xs ${getEstadoClass(row.estado)}`}>
+            {row.estado}
+          </span>
+        );
+      },
       type: "dropdown",
       filterable: true,
       filterKey: "estado",

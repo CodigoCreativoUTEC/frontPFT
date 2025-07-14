@@ -179,6 +179,7 @@ const RegisterForm: React.FC = () => {
         const data = await fetcher<Perfil[]>("/perfiles/listar", { method: "GET", requiresAuth: false });
         setPerfiles(data);
       } catch (err: any) {
+        console.error("Error al cargar perfiles:", err);
         setError("Error al cargar perfiles");
       }
     };
@@ -211,11 +212,6 @@ const RegisterForm: React.FC = () => {
     const validation = validateAndFormatCI(value);
     setCedulaFormatted(validation.formatted);
     setCedulaError(validation.error || null);
-  };
-
-  const generateRandomCedula = () => {
-    const randomCi = random_ci();
-    handleCedulaChange(randomCi);
   };
 
   const openTestingModal = () => {
@@ -468,9 +464,9 @@ const RegisterForm: React.FC = () => {
                 )}
               </div>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">Números de teléfono *</label>
+                <label htmlFor="phones" className="mb-2.5 block font-medium text-black dark:text-white">Números de teléfono *</label>
                 {phones.map((phone, index) => (
-                  <div key={index} className="flex gap-2 mb-2">
+                  <div key={`phone-${index}-${phone.numero}`} className="flex gap-2 mb-2">
                     <input
                       id={`phone-${index}`}
                       type="tel"

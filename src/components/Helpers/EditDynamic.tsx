@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import fetcher from "@/components/Helpers/Fetcher";
-import Link from "next/link";
 
 // Interfaz para definir cada campo del formulario
 export interface Field<T> {
@@ -48,30 +47,30 @@ interface EditDynamicProps<T extends { id: number }> {
    * Endpoint para obtener los datos del objeto a editar.
    * Ejemplo: "/usuarios/seleccionar"
    */
-  fetchUrl: string;
+  readonly fetchUrl: string;
   /**
    * Endpoint para actualizar el objeto.
    * Ejemplo: "/usuarios/editar"
    */
-  updateUrl: string;
+  readonly updateUrl: string;
   /**
    * Configuración de campos a editar.
    */
-  fields: Field<T>[];
+  readonly fields: ReadonlyArray<Field<T>>;
   /**
    * (Opcional) Ruta a la que se redirigirá si se cancela la edición.
    */
-  backLink?: string;
+  readonly backLink?: string;
   /**
    * (Opcional) Ruta a la que se redirigirá luego de una actualización exitosa.
    * Si no se define, se redirige al backLink o se queda en la misma página.
    */
-  successRedirect?: string;
+  readonly successRedirect?: string;
   /**
    * (Opcional) Si es true, usa el formato de ruta /id en lugar de ?id=id
    * Por defecto es false (usa ?id=id)
    */
-  useRouteFormat?: boolean;
+  readonly useRouteFormat?: boolean;
 }
 
 function EditDynamic<T extends { id: number }>({

@@ -97,14 +97,15 @@ const EditarFuncionalidad: React.FC = () => {
       <form onSubmit={handleSubmit}>
         {/* Dropdown visual de funcionalidad seleccionada */}
         <div className="mb-4">
-          <label className="mb-2.5 block font-medium text-black dark:text-white">Funcionalidad</label>
-          <select value={funcionalidad.id} disabled className="w-full rounded-lg border border-stroke bg-gray-100 py-4 pl-6 pr-10 text-black dark:bg-form-input dark:text-white">
+          <label htmlFor="funcionalidad" className="mb-2.5 block font-medium text-black dark:text-white">Funcionalidad</label>
+          <select id="funcionalidad" value={funcionalidad.id} disabled className="w-full rounded-lg border border-stroke bg-gray-100 py-4 pl-6 pr-10 text-black dark:bg-form-input dark:text-white">
             <option value={funcionalidad.id}>{funcionalidad.nombreFuncionalidad}</option>
           </select>
         </div>
         <div className="mb-4">
-          <label className="mb-2.5 block font-medium text-black dark:text-white">Nombre de la funcionalidad</label>
+          <label htmlFor="nombreFuncionalidad" className="mb-2.5 block font-medium text-black dark:text-white">Nombre de la funcionalidad</label>
           <input
+            id="nombreFuncionalidad"
             type="text"
             value={funcionalidad.nombreFuncionalidad}
             onChange={e => handleChange("nombreFuncionalidad", e.target.value)}
@@ -113,8 +114,9 @@ const EditarFuncionalidad: React.FC = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="mb-2.5 block font-medium text-black dark:text-white">Ruta (endpoint)</label>
+          <label htmlFor="ruta" className="mb-2.5 block font-medium text-black dark:text-white">Ruta (endpoint)</label>
           <input
+            id="ruta"
             type="text"
             value={funcionalidad.ruta}
             onChange={e => handleChange("ruta", e.target.value)}
@@ -123,8 +125,9 @@ const EditarFuncionalidad: React.FC = () => {
           />
         </div>
         <div className="mb-6">
-          <label className="mb-2.5 block font-medium text-black dark:text-white">Estado</label>
+          <label htmlFor="estado" className="mb-2.5 block font-medium text-black dark:text-white">Estado</label>
           <select
+            id="estado"
             value={funcionalidad.estado}
             onChange={e => handleChange("estado", e.target.value)}
             className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
@@ -136,7 +139,7 @@ const EditarFuncionalidad: React.FC = () => {
           </select>
         </div>
         <div className="mb-6">
-          <label className="mb-2.5 block font-medium text-black dark:text-white">Perfiles con acceso</label>
+          <label htmlFor="perfiles" className="mb-2.5 block font-medium text-black dark:text-white">Perfiles con acceso</label>
           <div className="flex flex-col gap-2">
             {perfiles.length === 0 && <span className="text-gray-500">No hay perfiles disponibles</span>}
             {perfiles.map(perfil => (

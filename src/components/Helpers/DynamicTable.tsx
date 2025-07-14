@@ -378,7 +378,7 @@ function DynamicTable<T extends { id: number }>({
         throw new Error("No se definió una lógica de eliminación.");
       }
 
-      await handleDeleteResponse(response);
+      handleDeleteResponse(response);
     } catch (error: any) {
       handleDeleteError(error);
     }
