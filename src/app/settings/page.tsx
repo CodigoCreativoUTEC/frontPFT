@@ -252,11 +252,11 @@ const Settings = () => {
       telefono: usuario!.telefono,
       idInstitucion: usuario!.idInstitucion,
       idPerfil: usuario!.idPerfil,
-      usuariosTelefonos: telefonos
+      usuariosTelefonos: telefonos as UsuariosTelefonos[]
     };
 
     // Remover campos que no se envían
-    const { confirmarContrasenia, ...datosSinConfirmar } = usuarioCompleto;
+    const datosSinConfirmar = usuarioCompleto;
 
     // Mostrar modal de confirmación
     setPendingChanges(datosSinConfirmar);
