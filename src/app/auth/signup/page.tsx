@@ -3,7 +3,7 @@ import RegisterForm from "@/components/Helpers/RegisterForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Registro de usuario | MED-MGT",
+  title: "Registro de usuario",
   description: "Crea tu cuenta en MED-MGT",
 };
 
